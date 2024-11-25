@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import ProductCard from "../Components/ProductCard.jsx";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-
+import  AxiosInstance from "../api/axiosInstance.js";
 const MenPage = () => {
   const [showPrev, setShowPrev] = useState(false);
   const [showNext, setShowNext] = useState(true);
@@ -14,23 +14,29 @@ const MenPage = () => {
   // Fetch products from the API
   const fetchProducts = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/v1/products/all");
+      const response = await AxiosInstance.publicAxios.get("http://localhost:3000/api/v1/products/all");
+      console.log("Response Data:", response.data); // Log the response for debugging
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch products: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setProducts(data.data); // Set fetched products to the state
+      // Update the state with the fetched products
+      setProducts(response.data.data); // Assuming the API returns the data directly in `response.data`
     } catch (error) {
-      console.error("Error fetching products:", error);
+      console.error("Error fetching products:", error.message || error);
+      throw new Error(`Failed to fetch products: ${error.response?.status || error.message}`);
     }
   };
 
+
   useEffect(() => {
-    // Fetch products when the component mounts
+
+
+    // Fetch products on component mount
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    // Log products after the state has been updated
+    console.log("Fetched Products:", products);
+  }, [products]); // Dependency on products ensures this runs after state update
 
   const handleScroll = () => {
     const list = listRef.current;
