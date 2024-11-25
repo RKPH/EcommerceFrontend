@@ -266,7 +266,7 @@ const Header = () => {
             <a href="#" className="text-xs hover:underline">
               order tracker
             </a>
-            <Link to="/Login" className="text-xs hover:underline">
+            <Link to={isAuthenticated ? '/Me' : '/login'} className="text-xs hover:underline">
               {isAuthenticated ? `Hi,${user?.name}` : "Become a member"}
             </Link>
             <img

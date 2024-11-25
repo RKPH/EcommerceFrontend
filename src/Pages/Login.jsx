@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../Redux/AuthSlice.js";
 
@@ -9,14 +9,21 @@ export function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const dispatch = useDispatch();
-  const { user, isLoading, error ,isAuthenticated} = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+  const { isLoading, error, isAuthenticated } = useSelector((state) => state.auth);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault(); // Prevent default form submission
     dispatch(loginUser({ email, password })); // Dispatch the login action
-    console.log(isAuthenticated);
   };
-  console.log(document.cookie);
+
+  // Redirect to homepage after login
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/"); // Navigate to the homepage
+    }
+  }, [isAuthenticated, navigate]);
+
   return (
       <div
           className="h-screen bg-cover bg-center flex items-center justify-center flex-col"
@@ -37,18 +44,13 @@ export function Login() {
         </span>
         </div>
         <div className="bg-white bg-opacity-20 backdrop-blur-md rounded-lg p-8 shadow-lg max-w-md w-full">
-          <h3 className="text-3xl text-blue-gray-800 mb-2 text-center">
-            Sign In
-          </h3>
+          <h3 className="text-3xl text-blue-gray-800 mb-2 text-center">Sign In</h3>
           <p className="mb-16 text-gray-600 text-center text-lg">
             Enter your email and password to sign in
           </p>
           <form onSubmit={handleSubmit} className="mx-auto max-w-md text-left">
             <div className="mb-6">
-              <label
-                  htmlFor="email"
-                  className="block font-medium text-gray-900 mb-2"
-              >
+              <label htmlFor="email" className="block font-medium text-gray-900 mb-2">
                 Your Email
               </label>
               <input
@@ -63,10 +65,7 @@ export function Login() {
               />
             </div>
             <div className="mb-6 relative">
-              <label
-                  htmlFor="password"
-                  className="block font-medium text-gray-900 mb-2"
-              >
+              <label htmlFor="password" className="block font-medium text-gray-900 mb-2">
                 Password
               </label>
               <input
@@ -130,10 +129,7 @@ export function Login() {
             </button>
             {error && <p className="text-red-500 mt-4">{error}</p>}
             <div className="mt-4 flex justify-end">
-              <a
-                  href="#"
-                  className="text-black-600 hover:text-gray-400 font-medium"
-              >
+              <a href="#" className="text-black-600 hover:text-gray-400 font-medium">
                 Forgot password?
               </a>
             </div>

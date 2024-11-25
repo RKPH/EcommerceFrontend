@@ -6,6 +6,7 @@ import LoginPage from "../Pages/Login";
 import MenPage from "../Pages/MenPage";
 import WomenPage from "../Pages/WomenPage";
 import DetailProduct from "../Pages/DetailProduct.jsx";
+import UserPage from "../Pages/UserPage.jsx";
 
 Homepage;
 
@@ -26,11 +27,14 @@ export const publicRoutes = [
     path: "/Kid",
     component: KidsPage,
   },
-
   {
     path: "/Login",
     component: LoginPage,
     layout: NoheaderLayout,
+  },
+  {
+    path: "/Me",
+    component: UserPage,
   },
   {
     path: "/product/:id",
