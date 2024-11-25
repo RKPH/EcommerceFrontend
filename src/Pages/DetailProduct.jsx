@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from "react";
-import axios from "../api/axiosInstance"; // Adjust the path to your axios setup
+import AxiosInstance from "../api/axiosInstance.js";
 import { useParams } from "react-router-dom";
 import ImageList from "@mui/material/ImageList";
 import ImageListItem from "@mui/material/ImageListItem";
@@ -13,7 +13,7 @@ const DetailProduct = () => {
     // Function to fetch product details
     const fetchProduct = async () => {
         try {
-            const response = await axios.get(`/products/${id}`);
+            const response = await AxiosInstance.publicAxios.get(`/products/${id}`);
             console.log("Response Data:", response.data); // Log for debugging
 
             // Update the state with the fetched product
