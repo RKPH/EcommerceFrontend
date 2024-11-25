@@ -1,22 +1,28 @@
 ﻿import axios from 'axios';
 
-// Set up Axios default configuration
-axios.defaults.baseURL = 'http://localhost:3000/api/v1'; // Set base API URL
-axios.defaults.withCredentials = true; // Allow cookies
+const authAxios = axios.create({
+    baseURL: 'http://localhost:3000/api/v1',
+    withCredentials: true,
+});
 
-// Add a request interceptor to include the token in headers
-axios.interceptors.request.use(
+const publicAxios = axios.create({
+    baseURL: 'http://localhost:3000/api/v1',
+    withCredentials: true,
+});
+
+authAxios.interceptors.request.use(
     (config) => {
         const token = sessionStorage.getItem('accessToken');
         console.log('Token:', token);
         if (token) {
-            config.headers.Authorization = `Bearer ${token}`; // Attach token to Authorization header
+            config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
     },
     (error) => {
-        return Promise.reject(error); // Handle request errors
+        return Promise.reject(error);
     }
 );
 
-export default axios;
+// Now export as default if you want a default export
+export default { authAxios, publicAxios };
