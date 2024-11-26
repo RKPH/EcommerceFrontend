@@ -21,7 +21,7 @@ const Header = () => {
     }
   }, [isAuthenticated, user, dispatch]);
   console.log("auth state:", useSelector((state) => state.auth));
-  console.log("at header", isAuthenticated, "user", user);
+
   const handleMouseLeave = () => {
     hideTimeout = setTimeout(() => {
       setActiveMenu(null);
