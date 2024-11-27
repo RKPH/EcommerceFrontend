@@ -24,7 +24,7 @@ const ProductCard = ({ product }) => {
     const trackViewBehavior = async () => {
         try {
             const sessionId = sessionID; // Retrieve sessionId from Redux store
-            const userId = user?.id; // Retrieve userId from Redux store
+            const userId = user?.id || user?.user?.id; // Retrieve userId from Redux store
 
             if (!sessionId || !userId) {
                 console.error("Session ID or User ID is missing!");

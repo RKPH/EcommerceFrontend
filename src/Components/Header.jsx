@@ -16,10 +16,19 @@ const Header = () => {
     setActiveMenu(menu);
   };
   useEffect(() => {
-    if (isAuthenticated && !user) {
-      dispatch(getUserProfile());  // Fetch user profile after authentication
-    }
+    const fetchUserProfile = async () => {
+      try {
+        if (isAuthenticated && !user) {
+          await dispatch(getUserProfile());
+        }
+      } catch (error) {
+        console.error("Failed to fetch user profile", error);
+      }
+    };
+
+    fetchUserProfile();
   }, [isAuthenticated, user, dispatch]);
+
   console.log("auth state:", useSelector((state) => state.auth));
 
   const handleMouseLeave = () => {
@@ -267,7 +276,7 @@ const Header = () => {
               order tracker
             </a>
             <Link to={isAuthenticated ? '/Me' : '/login'} className="text-xs hover:underline">
-              {isAuthenticated ? `Hi,${user?.name}` : "Become a member"}
+              {isAuthenticated ? `Hi, ${user?.name || user?.user?.name} ` : "Become a member"}
             </Link>
             <img
               src="https://flagcdn.com/w40/vn.png"

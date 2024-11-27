@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import AxiosInstance from "../api/axiosInstance.js";
+
+import axios from 'axios';
 import ProductCard from "../Components/ProductCard";
 import "./Homepage.css";
 
@@ -31,9 +32,11 @@ const Homepage = () => {
   const [showNext, setShowNext] = useState(true);
   const listRef = useRef(null);
 
+
   const fetchProducts = async () => {
     try {
-      const response = await AxiosInstance.publicAxios.get("http://localhost:3000/api/v1/products/all");
+      // Use axios directly for the GET request
+      const response = await axios.get("http://localhost:3000/api/v1/products/all");
       console.log("Response Data:", response.data); // Log the response for debugging
       console.log("Request Headers:", response.config.headers);
       // Update the state with the fetched products

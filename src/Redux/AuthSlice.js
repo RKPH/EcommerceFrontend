@@ -1,12 +1,13 @@
-﻿import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import AxiosInstance from "../api/axiosInstance.js";  // Import the custom axios instance
+﻿// src/Redux/AuthSlice.js
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
 
 // Async thunk for login
 export const loginUser = createAsyncThunk(
     'auth/loginUser',
     async (credentials, { rejectWithValue }) => {
         try {
-            const response = await AxiosInstance.authAxios.post('/auth/login', credentials);
+            const response = await axios.post('http://localhost:3000/api/v1/auth/login', credentials);
             return response.data; // Login response (includes accessToken, refreshToken, and sessionId)
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Something went wrong');
@@ -20,7 +21,8 @@ export const getUserProfile = createAsyncThunk(
     async (_, { getState, rejectWithValue }) => {
         try {
             const token = getState().auth.token;
-            const response = await AxiosInstance.authAxios.get('/auth/profile', {
+            console.log("token", token);
+            const response = await axios.get('http://localhost:3000/api/v1/auth/profile', {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -38,7 +40,7 @@ export const refreshToken = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const refreshToken = sessionStorage.getItem('refreshToken');
-            const response = await AxiosInstance.authAxios.post('/auth/refresh', { refreshToken });
+            const response = await axios.post('/auth/refresh', { refreshToken });
             return response.data;  // Response includes new access token
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Token refresh failed');
@@ -51,7 +53,7 @@ export const logoutUserApi = createAsyncThunk(
     'auth/logoutUserApi',
     async (_, { rejectWithValue }) => {
         try {
-            await AxiosInstance.authAxios.post('/auth/logout');  // Assuming the backend has a /logout endpoint
+            await axios.post('/auth/logout');  // Assuming the backend has a /logout endpoint
             return; // If logout is successful, do nothing more
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Logout failed');
@@ -65,7 +67,7 @@ const authSlice = createSlice({
         user: null,
         token: sessionStorage.getItem('accessToken') || null,
         refreshToken: sessionStorage.getItem('refreshToken') || null,
-        sessionID: null, // Add sessionId to store
+        sessionID: null,
         isLoading: false,
         isAuthenticated: !!sessionStorage.getItem('accessToken'),
         error: null,
@@ -77,7 +79,7 @@ const authSlice = createSlice({
             state.token = null;
             state.isAuthenticated = false;
             state.refreshToken = null;
-            state.sessionID = null; // Clear sessionId
+            state.sessionID = null;
             sessionStorage.removeItem('accessToken');
             sessionStorage.removeItem('refreshToken');
         },
@@ -94,7 +96,7 @@ const authSlice = createSlice({
                 state.user = action.payload.user;
                 state.token = action.payload.token;
                 state.refreshToken = action.payload.refreshToken;
-                state.sessionID = action.payload.sessionID || action.payload.sessionId; // Ensure the sessionId is saved correctly
+                state.sessionID = action.payload.sessionID || action.payload.sessionId;
                 sessionStorage.setItem('accessToken', action.payload.token);
                 sessionStorage.setItem('refreshToken', action.payload.refreshToken);
             })
@@ -103,7 +105,6 @@ const authSlice = createSlice({
                 state.isAuthenticated = false;
                 state.error = action.payload;
             })
-            // Handle getting user profile
             .addCase(getUserProfile.pending, (state) => {
                 state.isLoading = true;
                 state.error = null;
@@ -111,13 +112,12 @@ const authSlice = createSlice({
             .addCase(getUserProfile.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.user = action.payload;
-                state.sessionID = action.payload.sessionID || action.payload.sessionId; // Ensure sessionId is saved when fetching profile
+                state.sessionID = action.payload.sessionID || action.payload.sessionId;
             })
             .addCase(getUserProfile.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload;
             })
-            // Handle refreshing token
             .addCase(refreshToken.fulfilled, (state, action) => {
                 state.token = action.payload.token;
                 sessionStorage.setItem('accessToken', action.payload.token);
@@ -125,13 +125,12 @@ const authSlice = createSlice({
             .addCase(refreshToken.rejected, (state, action) => {
                 state.error = action.payload;
             })
-            // Handle logout
             .addCase(logoutUserApi.fulfilled, (state) => {
                 state.isAuthenticated = false;
                 state.user = null;
                 state.token = null;
                 state.refreshToken = null;
-                state.sessionID = null; // Clear sessionId on logout
+                state.sessionID = null;
                 sessionStorage.removeItem('accessToken');
                 sessionStorage.removeItem('refreshToken');
             })
@@ -142,4 +141,9 @@ const authSlice = createSlice({
 });
 
 export const { logoutUser } = authSlice.actions;
+
+// Export the user selector
+export const getUser = (state) => state.auth.user;
+export const getUserProfileSelector = (state) => state.auth.user;
+
 export default authSlice.reducer;
