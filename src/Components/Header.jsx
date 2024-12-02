@@ -11,6 +11,7 @@ const Header = () => {
   let hideTimeout;
  const {isAuthenticated,user} = useSelector((state) => state.auth);
 
+  console.log("isAuthenticated:", isAuthenticated);
   const handleMouseEnter = (menu) => {
     clearTimeout(hideTimeout);
     setActiveMenu(menu);

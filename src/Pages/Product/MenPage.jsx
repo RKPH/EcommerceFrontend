@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import ProductCard from "../Components/ProductCard.jsx";
+import ProductCard from "../../Components/ProductCard.jsx";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import  AxiosInstance from "../api/axiosInstance.js";
+import  AxiosInstance from "../../api/axiosInstance.js";
 const MenPage = () => {
   const [showPrev, setShowPrev] = useState(false);
   const [showNext, setShowNext] = useState(true);
@@ -81,7 +81,7 @@ const MenPage = () => {
                   src="https://brand.assets.adidas.com/image/upload/f_auto,q_auto,fl_lossy/if_w_gt_1920,w_1920/4985239_Mini_Masthead_DT_2880x720_1_4869aa5588.jpg"
                   alt="Men's Fashion"
                   loading="eager"
-                  fetchPriority="high"
+                  fetchpriority="high"
               />
             </picture>
           </div>

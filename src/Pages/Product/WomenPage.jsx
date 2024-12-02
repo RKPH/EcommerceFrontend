@@ -1,7 +1,7 @@
 import {useState} from "react";
 
 import {useRef} from "react";
-import ProductCard from "../Components/ProductCard.jsx";
+import ProductCard from "../../Components/ProductCard.jsx";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 

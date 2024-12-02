@@ -37,8 +37,7 @@ const Homepage = () => {
     try {
       // Use axios directly for the GET request
       const response = await axios.get("http://localhost:3000/api/v1/products/all");
-      console.log("Response Data:", response.data); // Log the response for debugging
-      console.log("Request Headers:", response.config.headers);
+
       // Update the state with the fetched products
       setProducts(response.data.data); // Assuming the API returns the data directly in `response.data`
     } catch (error) {

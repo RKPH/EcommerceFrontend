@@ -1,12 +1,12 @@
 import NoheaderLayout from "../Layout/NoheaderLayout";
 import NotFound from "../Pages/404";
 import Homepage from "../Pages/Homepage";
-import KidsPage from "../Pages/KidsPage";
-import LoginPage from "../Pages/Login";
-import MenPage from "../Pages/MenPage";
-import WomenPage from "../Pages/WomenPage";
-import DetailProduct from "../Pages/DetailProduct.jsx";
-import UserPage from "../Pages/UserPage.jsx";
+import KidsPage from "../Pages/Product/KidsPage.jsx";
+import LoginPage from "../Pages/User/Login.jsx";
+import MenPage from "../Pages/Product/MenPage.jsx";
+import WomenPage from "../Pages/Product/WomenPage.jsx";
+import DetailProduct from "../Pages/Product/DetailProduct.jsx";
+import UserPage from "../Pages/User/UserPage.jsx";
 
 Homepage;
 

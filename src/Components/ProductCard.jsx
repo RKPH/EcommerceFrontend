@@ -19,7 +19,7 @@ const ProductCard = ({ product }) => {
 
     // Extract authentication state and user data
     const { isAuthenticated, user ,sessionID} = useSelector((state) => state.auth);
-    console.log("at prodcut", user?.id);
+
     // Function to track view behavior
     const trackViewBehavior = async () => {
         try {
@@ -32,7 +32,7 @@ const ProductCard = ({ product }) => {
             }
 
             // Make the API call to track behavior
-            await AxiousInstance.authAxios.post("http://localhost:3000/api/v1/tracking", {
+            await AxiousInstance.authAxios.post("/tracking", {
                 sessionId,
                 user: userId,
                 productId: _id,

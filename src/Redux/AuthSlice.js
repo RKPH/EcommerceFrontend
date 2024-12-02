@@ -1,13 +1,12 @@
-﻿// src/Redux/AuthSlice.js
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+﻿import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import AxiosInstance from "../api/axiosInstance.js";
 
 // Async thunk for login
 export const loginUser = createAsyncThunk(
     'auth/loginUser',
     async (credentials, { rejectWithValue }) => {
         try {
-            const response = await axios.post('http://localhost:3000/api/v1/auth/login', credentials);
+            const response = await AxiosInstance.publicAxios.post('/auth/login', credentials); // Use relative URL
             return response.data; // Login response (includes accessToken, refreshToken, and sessionId)
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Something went wrong');
@@ -20,9 +19,8 @@ export const getUserProfile = createAsyncThunk(
     'auth/getUserProfile',
     async (_, { getState, rejectWithValue }) => {
         try {
-            const token = getState().auth.token;
-            console.log("token", token);
-            const response = await axios.get('http://localhost:3000/api/v1/auth/profile', {
+            const token = sessionStorage.getItem('accessToken'); // Always use the latest token
+            const response = await AxiosInstance.authAxios.get('/auth/profile', { // Use relative URL
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -40,7 +38,7 @@ export const refreshToken = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const refreshToken = sessionStorage.getItem('refreshToken');
-            const response = await axios.post('/auth/refresh', { refreshToken });
+            const response = await AxiosInstance.publicAxios.post('/auth/refresh-token', { refreshToken }); // Use relative URL
             return response.data;  // Response includes new access token
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Token refresh failed');
@@ -53,7 +51,7 @@ export const logoutUserApi = createAsyncThunk(
     'auth/logoutUserApi',
     async (_, { rejectWithValue }) => {
         try {
-            await axios.post('/auth/logout');  // Assuming the backend has a /logout endpoint
+            await AxiosInstance.publicAxios.post('/auth/logout'); // Use relative URL
             return; // If logout is successful, do nothing more
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Logout failed');
@@ -124,6 +122,9 @@ const authSlice = createSlice({
             })
             .addCase(refreshToken.rejected, (state, action) => {
                 state.error = action.payload;
+                state.isAuthenticated = false;  // Force logout if token refresh fails
+                sessionStorage.removeItem('accessToken');
+                sessionStorage.removeItem('refreshToken');
             })
             .addCase(logoutUserApi.fulfilled, (state) => {
                 state.isAuthenticated = false;

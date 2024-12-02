@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../Redux/AuthSlice.js";
+import { loginUser } from "../../Redux/AuthSlice.js";
 
 export function Login() {
   const [passwordShown, setPasswordShown] = useState(false);
