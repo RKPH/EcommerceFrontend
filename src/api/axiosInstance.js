@@ -44,11 +44,10 @@ authAxios.interceptors.response.use(
                 // Use refreshToken in headers for the refresh-token API
                 const refreshResponse = await publicAxios.post(
                     '/auth/refresh-token',
-                    {},
                     {
-                        headers: {
-                            Authorization: `Bearer ${refreshToken}`,
-                        },
+                    },
+                    {
+
                     }
                 );
 
