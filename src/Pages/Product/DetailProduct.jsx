@@ -164,7 +164,7 @@ const DetailProduct = () => {
                                     type="number"
                                     value={value}
                                     readOnly
-                                    className="w-8 h-6 text-center bg-gray-300  flex items-center justify-center"
+                                    className="w-8 h-6 text-center bg-gray-300 flex items-center justify-center "
                                 />
                                 <button
                                     onClick={incrementQuantity}
