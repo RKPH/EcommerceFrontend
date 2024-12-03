@@ -1,65 +1,56 @@
 import React, { useState, useEffect, useRef } from "react";
-
-import axios from 'axios';
+import axios from "axios";
 import ProductCard from "../Components/ProductCard";
 import "./Homepage.css";
-
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 const bannerUrl =
     "https://brand.assets.adidas.com/image/upload/f_auto,q_auto,fl_lossy/if_w_gt_1920,w_1920/4894144_CAM_Onsite_FW_24_Lo_Profile_Incubation_Hoyeon_1_Oct_SEA_CLP_GLP_Masthead_Banner_DT_2880x1280px_456b1f8c70.jpg";
 
-// Sample product data with multiple categories
-const categories = [
-  "DropSet",
-  "Adizero",
-  "New Arrivals",
-  "Taekwondo" /* other categories */,
-];
-
-
-const getRandomCategories = (categories, count) => {
-  const shuffled = [...categories].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, count);
-};
-
 const Homepage = () => {
-  const [currentCategories, setCurrentCategories] = useState([]);
-  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]); // Store fetched types
+  const [products, setProducts] = useState([]); // Store fetched products
   const [selectedCategory, setSelectedCategory] = useState("");
   const [showPrev, setShowPrev] = useState(false);
   const [showNext, setShowNext] = useState(true);
   const listRef = useRef(null);
 
-
-  const fetchProducts = async () => {
+  // Fetch all product types
+  const fetchCategories = async () => {
     try {
-      // Use axios directly for the GET request
-      const response = await axios.get("http://localhost:3000/api/v1/products/all");
-
-      // Update the state with the fetched products
-      setProducts(response.data.data); // Assuming the API returns the data directly in `response.data`
+      const response = await axios.get("http://localhost:3000/api/v1/products/types");
+      setCategories(response.data.data); // Assuming the response contains an array of types
+      setSelectedCategory(response.data.data[0]); // Default to the first type
     } catch (error) {
-      console.error("Error fetching products:", error.message || error);
-      throw new Error(`Failed to fetch products: ${error.response?.status || error.message}`);
+      console.error("Error fetching categories:", error.message || error);
     }
   };
 
+  // Fetch products for a specific type
+  const fetchProductsByType = async (type) => {
+    try {
+      const response = await axios.get(`http://localhost:3000/api/v1/products/types/${type}`);
+      setProducts(response.data.data); // Assuming the response contains an array of products
+    } catch (error) {
+      console.error("Error fetching products:", error.message || error);
+    }
+  };
 
+  // Fetch categories and products on component mount
   useEffect(() => {
-    const initialCategories = getRandomCategories(categories, 4);
-    setCurrentCategories(initialCategories);
-    setSelectedCategory(initialCategories[0]);
-
-    // Fetch products on component mount
-    fetchProducts();
+    const initializeData = async () => {
+      await fetchCategories();
+    };
+    initializeData();
   }, []);
 
+  // Fetch products when the selected category changes
   useEffect(() => {
-    // Log products after the state has been updated
-    console.log("Fetched Products:", products);
-  }, [products]); // Dependency on products ensures this runs after state update
+    if (selectedCategory) {
+      fetchProductsByType(selectedCategory);
+    }
+  }, [selectedCategory]);
 
   const handleScroll = () => {
     const list = listRef.current;
@@ -79,7 +70,7 @@ const Homepage = () => {
       <main className="w-full h-full">
         <div className="w-full my-2">
           <ul className="flex gap-x-4 w-full bg-white px-5 font-[AdihausDIN] text-base font-bold">
-            {currentCategories.map((category) => (
+            {categories.map((category) => (
                 <li
                     key={category}
                     className={`p-3 border border-black cursor-pointer ${
@@ -110,12 +101,9 @@ const Homepage = () => {
                 onScroll={handleScroll}
                 className="flex gap-x-4 overflow-x-auto w-[98%] py-2 min-h-fit flex-nowrap custom-scrollbar"
             >
-              {products
-                  .map((product, index) => (
-                      <ProductCard key={index}
-                      product={product}
-                      />
-                  ))}
+              {products.map((product, index) => (
+                  <ProductCard key={index} product={product} />
+              ))}
             </ul>
 
             {showNext && (

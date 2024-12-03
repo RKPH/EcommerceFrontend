@@ -22,7 +22,7 @@ const DetailProduct = () => {
         try {
             const response = await AxiosInstance.publicAxios.get(`/products/${id}`);
             console.log("Response Data:", response.data); // Log for debugging
-            setProduct(response.data.data); // Adjust if API structure differs
+            setProduct(response?.data?.data); // Adjust if API structure differs
         } catch (error) {
             console.error("Error fetching product:", error.message || error);
             setError(error.response?.data?.message || "An error occurred");

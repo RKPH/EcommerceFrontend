@@ -106,7 +106,7 @@ const UserPage = () => {
                                             <div className="flex flex-col p-7 justify-between w-2/3">
                                                 <div className="flex justify-between">
                                                     <p className="font-normal text-xl">{product.name}</p>
-                                                    <p className="font-normal text-xl text-gray-400">${product.price}</p>
+                                                    <p className="font-normal text-xl text-gray-400">{product.price.toLocaleString()}₫</p>
                                                 </div>
                                                 <p>Quantity: {cartItem.quantity}</p>
                                             </div>
@@ -120,30 +120,30 @@ const UserPage = () => {
                             )}
                         </div>
                         <div className="mt-4 w-1/3 px-10 space-y-3">
-                            <div className="flex justify-between">
+                            <div className="flex justify-between items-center">
                                 <h1 className="font-bold text-2xl">Order Summary</h1>
                                 <p className="font-normal text-xl text-black">
-                                    Total: ${calculateTotal().toFixed(2)}
+                                    Total: {calculateTotal().toLocaleString()}₫
                                 </p>
                             </div>
                             <div className="flex justify-between text-black">
                                 <p className="font-normal text-xl">Subtotal</p>
                                 <p className="font-normal text-xl text-black">
-                                    ${calculateTotal().toFixed(2)}
+                                    {calculateTotal().toLocaleString()}₫
                                 </p>
                             </div>
                             <div className="flex justify-between text-black">
                                 <p className="font-normal text-xl">Shipping</p>
-                                <p className="font-normal text-xl text-black">$0</p>
+                                <p className="font-normal text-xl text-black">0₫</p>
                             </div>
                             <div className="flex justify-between text-black">
                                 <p className="font-normal text-xl">Tax</p>
-                                <p className="font-normal text-xl text-black">$0</p>
+                                <p className="font-normal text-xl text-black">0₫</p>
                             </div>
                             <div className="flex justify-between text-black">
                                 <p className="font-normal text-xl">Total</p>
                                 <p className="font-normal text-xl text-black">
-                                    ${calculateTotal().toFixed(2)}
+                                    {calculateTotal().toLocaleString()}₫
                                 </p>
                             </div>
                             <button className="w-full py-2 bg-black text-white font-semibold rounded-lg hover:bg-gray-800 transition mt-4">
