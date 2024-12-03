@@ -18,7 +18,7 @@ const ProductCard = ({ product }) => {
     const imgSrc = image || productImage[0] || "path/to/fallback/image.jpg"; // Default fallback image
 
     // Extract authentication state and user data
-    const { isAuthenticated, user ,sessionID} = useSelector((state) => state.auth);
+    const { isAuthenticated, user ,sessionID , isLoggedid} = useSelector((state) => state.auth);
 
     // Function to track view behavior
     const trackViewBehavior = async () => {
@@ -33,6 +33,7 @@ const ProductCard = ({ product }) => {
 
             // Make the API call to track behavior
             await AxiousInstance.authAxios.post("/tracking", {
+                isLoggedid,
                 sessionId,
                 user: userId,
                 productId: _id,

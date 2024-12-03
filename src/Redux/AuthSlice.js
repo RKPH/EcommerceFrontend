@@ -74,6 +74,7 @@ const authSlice = createSlice({
         refreshToken: sessionStorage.getItem('refreshToken') || null,
         sessionID: null,
         isLoading: false,
+        isLoggedid: false,
         isAuthenticated: !!sessionStorage.getItem('accessToken'),
         error: null,
     },
@@ -97,6 +98,7 @@ const authSlice = createSlice({
             .addCase(loginUser.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.isAuthenticated = true;
+                state.isLoggedid=action.payload.isLoggedid;
                 state.user = action.payload.user;
                 state.token = action.payload.token;
                 state.refreshToken = action.payload.refreshToken;
@@ -125,6 +127,7 @@ const authSlice = createSlice({
             .addCase(getUserProfile.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.user = action.payload;
+                state.sessionID= action.payload.sessionID || action.payload.sessionId;
             })
             .addCase(getUserProfile.rejected, (state, action) => {
                 state.isLoading = false;

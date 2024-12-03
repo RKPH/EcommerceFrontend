@@ -12,7 +12,7 @@ const DetailProduct = () => {
     const [error, setError] = useState(null); // To handle and display errors
     const [loading, setLoading] = useState(true); // Loading state
     const [value, setValue] = useState(1); // Quantity state
-    const { isAuthenticated, user ,sessionID} = useSelector((state) => state.auth);
+    const { isAuthenticated, user ,sessionID,isLoggedid} = useSelector((state) => state.auth);
     const [message, setMessage] = useState(""); // To display success or error message after adding to cart
 
 
@@ -42,6 +42,7 @@ const DetailProduct = () => {
 
             // Make the API call to track behavior
             await AxiousInstance.authAxios.post("/tracking", {
+                isLoggedid,
                 sessionId,
                 user: userId,
                 productId: id,
