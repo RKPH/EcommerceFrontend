@@ -7,6 +7,7 @@ import MenPage from "../Pages/Product/MenPage.jsx";
 import WomenPage from "../Pages/Product/WomenPage.jsx";
 import DetailProduct from "../Pages/Product/DetailProduct.jsx";
 import UserPage from "../Pages/User/UserPage.jsx";
+import Register from "../Pages/User/Register.jsx";
 
 Homepage;
 
@@ -30,6 +31,11 @@ export const publicRoutes = [
   {
     path: "/Login",
     component: LoginPage,
+    layout: NoheaderLayout,
+  },
+  {
+    path: "/Register",
+    component: Register,
     layout: NoheaderLayout,
   },
   {

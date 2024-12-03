@@ -14,6 +14,19 @@ export const loginUser = createAsyncThunk(
     }
 );
 
+// Async thunk for registering a new user
+export const registerUser = createAsyncThunk(
+    'auth/registerUser',
+    async (userDetails, { rejectWithValue }) => {
+        try {
+            const response = await AxiosInstance.publicAxios.post('/auth/register', userDetails);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || 'Something went wrong');
+        }
+    }
+);
+
 // Async thunk for refreshing the token
 export const refreshToken = createAsyncThunk(
     'auth/refreshToken',
@@ -98,7 +111,7 @@ const authSlice = createSlice({
             .addCase(loginUser.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.isAuthenticated = true;
-                state.isLoggedid=action.payload.isLoggedid;
+                state.isLoggedid = action.payload.isLoggedid;
                 state.user = action.payload.user;
                 state.token = action.payload.token;
                 state.refreshToken = action.payload.refreshToken;
@@ -107,6 +120,23 @@ const authSlice = createSlice({
                 sessionStorage.setItem('refreshToken', action.payload.refreshToken);
             })
             .addCase(loginUser.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+            })
+            .addCase(registerUser.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(registerUser.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.isAuthenticated = true;
+                state.token = action.payload.token;
+                state.refreshToken = action.payload.refreshToken;
+                state.sessionID = action.payload.sessionID || action.payload.sessionId;
+                sessionStorage.setItem('accessToken', action.payload.token);
+                sessionStorage.setItem('refreshToken', action.payload.refreshToken);
+            })
+            .addCase(registerUser.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload;
             })
@@ -127,7 +157,7 @@ const authSlice = createSlice({
             .addCase(getUserProfile.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.user = action.payload;
-                state.sessionID= action.payload.sessionID || action.payload.sessionId;
+                state.sessionID = action.payload.sessionID || action.payload.sessionId;
             })
             .addCase(getUserProfile.rejected, (state, action) => {
                 state.isLoading = false;

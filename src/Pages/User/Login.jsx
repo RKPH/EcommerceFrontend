@@ -26,7 +26,7 @@ export function Login() {
 
   return (
       <div
-          className="h-screen bg-cover bg-center flex items-center justify-center flex-col"
+          className="h-screen bg-cover bg-center flex items-center flex-col"
           style={{
             backgroundImage: `url('https://media.cntraveler.com/photos/5eb18e42fc043ed5d9779733/16:9/w_4288,h_2412,c_limit/BlackForest-Germany-GettyImages-147180370.jpg')`,
           }}
@@ -128,10 +128,13 @@ export function Login() {
               {isLoading ? "Signing In..." : "Sign In"}
             </button>
             {error && <p className="text-red-500 mt-4">{error}</p>}
-            <div className="mt-4 flex justify-end">
+            <div className="mt-4 flex justify-between">
               <a href="#" className="text-black-600 hover:text-gray-400 font-medium">
                 Forgot password?
               </a>
+              <Link to="/Register" className="text-black-600 hover:text-gray-400 font-medium">
+                Don't have an account? Sign up'
+              </Link>
             </div>
           </form>
         </div>
