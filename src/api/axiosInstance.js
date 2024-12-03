@@ -61,7 +61,7 @@ authAxios.interceptors.response.use(
                 return axios(originalRequest);
             } catch (refreshError) {
                 console.error('Error refreshing token:', refreshError);
-                window.location.href = '/auth/login';
+                window.location.href = '/login';
                 return Promise.reject(refreshError);
             }
         }
