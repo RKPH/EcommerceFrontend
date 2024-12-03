@@ -8,6 +8,7 @@ const authAxios = axios.create({
 
 const publicAxios = axios.create({
     baseURL: 'http://localhost:3000/api/v1',
+    withCredentials: true,
 });
 
 // Request interceptor to add the token to the Authorization header
