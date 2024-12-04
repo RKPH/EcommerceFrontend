@@ -46,7 +46,7 @@ export const logoutUserApi = createAsyncThunk(
     'auth/logoutUserApi',
     async (_, { rejectWithValue }) => {
         try {
-            await AxiosInstance.publicAxios.post('/auth/logout');
+            await AxiosInstance.publicAxios.post('/auth/logout'); // Let backend clear cookies
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Logout failed');
         }
@@ -142,14 +142,16 @@ const authSlice = createSlice({
                 state.isAuthenticated = false;
                 state.user = null;
                 state.isLoggedid = false;
-                localStorage.removeItem('isAuthenticated'); // Remove isAuthenticated from localStorage
-                Cookies.remove('accessToken'); // Remove accessToken cookie
-                Cookies.remove('refreshToken'); // Remove refreshToken cookie
+                localStorage.removeItem('isAuthenticated'); // Clean up frontend state
             })
             .addCase(logoutUserApi.rejected, (state, action) => {
-                state.error = action.payload;
+                state.isAuthenticated = false;
+                state.user = null;
+                state.isLoggedid = false;
+                localStorage.removeItem('isAuthenticated');
+                state.error = action.payload; // Optional: Log the error for debugging
             })
-            // Handle the refresh token logic
+        // Handle the refresh token logic
             .addCase(refreshToken.pending, (state) => {
                 state.isLoading = true;
             })

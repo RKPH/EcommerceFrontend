@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { logoutUser } from "../../Redux/AuthSlice.js";
+import {  logoutUserApi } from "../../Redux/AuthSlice.js";
 import AxiosInstance from "../../api/axiosInstance.js";
 
 const UserPage = () => {
@@ -61,7 +61,7 @@ const UserPage = () => {
     };
 
     const handleLogout = () => {
-        dispatch(logoutUser());
+        dispatch(logoutUserApi());
         navigate("/"); // Navigate to the homepage after logout
     };
 

@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import ImageList from "@mui/material/ImageList";
 import ImageListItem from "@mui/material/ImageListItem";
 import AxiousInstance from "../../api/axiosInstance.js";
+import { toast } from "react-toastify";
 
 const DetailProduct = () => {
     const { id } = useParams(); // Get the product ID from the route
@@ -13,7 +14,7 @@ const DetailProduct = () => {
     const [loading, setLoading] = useState(true); // Loading state
     const [value, setValue] = useState(1); // Quantity state
     const { isAuthenticated, user ,sessionID,isLoggedid} = useSelector((state) => state.auth);
-    const [message, setMessage] = useState(""); // To display success or error message after adding to cart
+
 
 
 
@@ -64,7 +65,8 @@ const DetailProduct = () => {
     // Handle Add to Cart
     const HandleAddToCart = async () => {
         if (!user) {
-            setMessage("You must be logged in to add items to the cart.");
+
+            toast.error("You must be logged in to add items to the cart.")
             // Optionally redirect to login page
             // navigate('/login');
             return;
@@ -80,14 +82,17 @@ const DetailProduct = () => {
             // Send request to backend to add product to cart
             const response = await AxiosInstance.authAxios.post(`/cart/add`, data);
             console.log("Add to Cart Response:", response.data);
-            setMessage("Product added to your cart successfully!");
+
+            toast.success("Product added to your cart successfully!", {
+                className: "toast-success",
+                style: { backgroundColor: "green", color: "white" },
+            });
             trackViewBehavior(); // Track the add to cart behavior
             // Optionally clear the message after 3 seconds
-            setTimeout(() => setMessage(""), 3000);
 
         } catch (error) {
             console.error("Error adding product to cart:", error.response || error);
-            setMessage(error.response?.data?.message || "An error occurred while adding the product to the cart.");
+           toast.error(error.response?.data?.message || "Failed to add product to the cart.");
         }
     };
 
@@ -112,7 +117,7 @@ const DetailProduct = () => {
     return (
         <div className="w-full h-full flex">
             {/* Product Images */}
-            <div className="w-3/4 h-full flex justify-center items-center">
+            <div className="w-2/3 h-full flex justify-center items-center">
                 <ImageList variant="masonry" cols={2} gap={4}>
                     {product?.productImage.map((item, index) => (
                         <ImageListItem key={index}>
@@ -134,7 +139,7 @@ const DetailProduct = () => {
             </div>
 
             {/* Product Details */}
-            <div className="w-1/4 h-full py-7 flex px-12">
+            <div className="w-1/3 h-full py-7 flex px-12">
                 {product ? (
                     <div className="w-full">
                         {/* Category and Type */}
@@ -185,8 +190,6 @@ const DetailProduct = () => {
                             </button>
                         </div>
 
-                        {/* Success/Failure Message */}
-                        {message && <div className="mt-4 text-center text-sm text-red-500">{message}</div>}
                     </div>
                 ) : (
                     <p>Product not found</p>
