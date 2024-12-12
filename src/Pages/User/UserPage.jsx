@@ -67,7 +67,7 @@ const UserPage = () => {
 
     return (
         <div className="h-screen flex items-center py-6 w-full flex-col">
-            <div className="w-3/4">
+            <div className="w-4/5">
                 <div className="bg-gray-100 p-8 max-w-md w-full">
                     <h3 className="text-3xl text-blue-gray-800 mb-4 text-center">
                         Welcome, {user?.user?.name || user?.name || "Guest"}
@@ -119,12 +119,10 @@ const UserPage = () => {
                                 <p className="text-gray-500">Your cart is empty</p>
                             )}
                         </div>
-                        <div className="mt-4 w-1/3 px-10 space-y-3">
+                        <div className="mt-4 w-1/3 px-4 space-y-3">
                             <div className="flex justify-between items-center">
                                 <h1 className="font-bold text-2xl">Order Summary</h1>
-                                <p className="font-normal text-xl text-black">
-                                    Total: {calculateTotal().toLocaleString()}₫
-                                </p>
+
                             </div>
                             <div className="flex justify-between text-black">
                                 <p className="font-normal text-xl">Subtotal</p>
