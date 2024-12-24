@@ -8,6 +8,7 @@ import WomenPage from "../Pages/Product/WomenPage.jsx";
 import DetailProduct from "../Pages/Product/DetailProduct.jsx";
 import UserPage from "../Pages/User/UserPage.jsx";
 import Register from "../Pages/User/Register.jsx";
+import Cart from "../Pages/User/Cart.jsx";
 
 Homepage;
 
@@ -45,6 +46,10 @@ export const publicRoutes = [
   {
     path: "/product/:id",
     component: DetailProduct,
+  },
+  {
+    path: "/cart",
+    component: Cart,
   },
   {
     path: "*",

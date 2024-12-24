@@ -136,6 +136,7 @@ const authSlice = createSlice({
             })
             .addCase(getUserProfile.rejected, (state, action) => {
                 state.isLoading = false;
+                state.isAuthenticated = false;
                 state.error = action.payload;
             })
             .addCase(logoutUserApi.fulfilled, (state) => {
@@ -157,10 +158,13 @@ const authSlice = createSlice({
             })
             .addCase(refreshToken.fulfilled, (state, action) => {
                 state.isLoading = false;
+                state.isAuthenticated = true;
+                state.user = action.payload.user;
                 // No need to set cookies here as the backend is managing them
             })
             .addCase(refreshToken.rejected, (state, action) => {
                 state.isLoading = false;
+                state.isAuthenticated = false;
                 state.error = action.payload;
             });
     },

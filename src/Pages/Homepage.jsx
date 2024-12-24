@@ -4,16 +4,14 @@ import ProductCard from "../Components/ProductCard";
 
 import banner from "../assets/banner.png";
 import "./Homepage.css";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import Rating from "@mui/material/Rating";
+import {Link} from "react-router-dom";
+import axiosInstance from "../api/axiosInstance.js";
 
 const Homepage = () => {
   const [categories, setCategories] = useState([]); // Store fetched types
   const [products, setProducts] = useState([]); // Store fetched products
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [showPrev, setShowPrev] = useState(false);
-  const [showNext, setShowNext] = useState(true);
-  const listRef = useRef(null);
 
   // Fetch all product types
   const fetchCategories = async () => {
@@ -40,10 +38,22 @@ const Homepage = () => {
     }
   };
 
+  const fetchAllProducts= async () => {
+    try {
+      const response = await  axiosInstance.publicAxios.get(
+        "http://localhost:3000/api/v1/products/all"
+      );
+      setProducts(response.data.data); // Assuming the response contains an array of products
+      console.log(response.data.data)
+    } catch (error) {
+      console.error("Error fetching products:", error.message || error);
+    }
+  }
+
   // Fetch categories and products on component mount
   useEffect(() => {
     const initializeData = async () => {
-      await fetchCategories();
+      await fetchAllProducts();
     };
     initializeData();
   }, []);
@@ -51,23 +61,9 @@ const Homepage = () => {
   // Fetch products when the selected category changes
   useEffect(() => {
     if (selectedCategory) {
-      fetchProductsByType(selectedCategory);
+     fetchAllProducts()
     }
   }, [selectedCategory]);
-
-  const handleScroll = () => {
-    const list = listRef.current;
-    setShowPrev(list.scrollLeft > 0);
-    setShowNext(list.scrollWidth > list.scrollLeft + list.clientWidth);
-  };
-
-  const scrollLeft = () => {
-    listRef.current.scrollBy({ left: -600, behavior: "smooth" });
-  };
-
-  const scrollRight = () => {
-    listRef.current.scrollBy({ left: 600, behavior: "smooth" });
-  };
 
   return (
     <main className="w-full h-full">
@@ -232,51 +228,32 @@ const Homepage = () => {
             New Arrivals
           </span>
         </div>
-        <ul className="flex gap-x-4 w-full bg-white font-[AdihausDIN] text-base font-bold">
-          {categories.map((category) => (
-            <li
-              key={category}
-              className={`p-3 border border-black cursor-pointer ${
-                selectedCategory === category
-                  ? "bg-black text-white"
-                  : "hover:bg-black hover:text-white"
-              }`}
-              onClick={() => setSelectedCategory(category)}
-            >
-              {category}
-            </li>
-          ))}
-        </ul>
 
-        {/* Product List with Navigation */}
-        <div className="flex w-full items-center justify-center mt-2 relative">
-          {showPrev && (
-            <button
-              onClick={scrollLeft}
-              className="absolute left-0 z-10 p-4 px-5 bg-white text-black border border-black"
-            >
-              <ArrowBackIcon />
-            </button>
-          )}
-
-          <ul
-            ref={listRef}
-            onScroll={handleScroll}
-            className="flex gap-x-4 overflow-x-auto w-full py-2 min-h-fit flex-nowrap custom-scrollbar"
-          >
-            {products.map((product, index) => (
-              <ProductCard key={index} product={product} />
+        <div className="w-full mt-14 px-[100px]0">
+          <ul className="w-full flex justify-between">
+            {products.map((product) => (
+                <Link  to={`/product/${product._id}`}  className="w-72" key={product._id}>
+                  <div className="w-full h-[290px] bg-gray-200 rounded-[20px]">
+                    <img
+                        src={product.image[0]} // Displaying the first image from the image array
+                        alt="Product Image"
+                        className="w-full h-full object-cover rounded-t-[20px]"
+                    />
+                  </div>
+                  <div className="flex flex-col mt-4">
+                    <span className="font-bold text-lg">{product.name}</span>
+                    <Rating
+                        name="half-rating-read"
+                        defaultValue={2.5}
+                        precision={0.5}
+                        readOnly
+                    />
+                    <span className="font-bold text-xl">${product.price}</span>
+                  </div>
+                </Link>
             ))}
-          </ul>
 
-          {showNext && (
-            <button
-              onClick={scrollRight}
-              className="absolute right-0 z-10 p-4 px-5 bg-white text-black border border-black"
-            >
-              <ArrowForwardIcon />
-            </button>
-          )}
+          </ul>
         </div>
       </div>
     </main>

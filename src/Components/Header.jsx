@@ -33,14 +33,24 @@ const Header = () => {
     <header className="w-full h-[132px] bg-black">
       <div className="w-full h-10 bg-black  flex items-center justify-center">
         <span className="text-base text-gray-200">
-          Sign up and get 10% off on your first order. <span className="underline text-base text-white"> Sign up now</span>
+          {isAuthenticated ? (
+              `Welcome, ${user?.name || user?.user?.name}`
+          ) : (
+              <>
+                Sign up and get 10% off on your first order.{" "}
+                <Link to="/Login" className="underline text-base text-white">
+                  Sign up now
+                </Link>
+              </>
+          )}
         </span>
       </div>
       <div className="w-full h-[92px] bg-white px-[100px] flex items-center justify-between">
         {/*logo*/}
         <div>
           <Link to="/">
-            <img src="https://micro-front-end-sport-ecommerce-homepage.vercel.app//logo.png" alt="logo" className="h-14"/>
+            <img src="https://micro-front-end-sport-ecommerce-homepage.vercel.app//logo.png" alt="logo"
+                 className="h-14"/>
           </Link>
         </div>
         {/*nav links*/}
