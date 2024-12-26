@@ -229,15 +229,15 @@ const Homepage = () => {
           </span>
         </div>
 
-        <div className="w-full mt-14 px-[100px]0">
-          <ul className="w-full flex justify-between">
+        <div className="w-full mt-14 px-[100px]">
+          <ul className="w-full flex flex-wrap justify-between gap-y-2">
             {products.map((product) => (
-                <Link  to={`/product/${product._id}`}  className="w-72" key={product._id}>
+                <Link  to={`/product/${product.productID}`}  className="w-72" key={product._id}>
                   <div className="w-full h-[290px] bg-gray-200 rounded-[20px]">
                     <img
                         src={product.image[0]} // Displaying the first image from the image array
                         alt="Product Image"
-                        className="w-full h-full object-cover rounded-t-[20px]"
+                        className="w-full h-full object-contain rounded-t-[20px]"
                     />
                   </div>
                   <div className="flex flex-col mt-4">

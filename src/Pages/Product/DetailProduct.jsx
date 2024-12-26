@@ -132,7 +132,7 @@ const DetailProduct = () => {
                     <div className="w-1/3 h-full ">
                         <ul className="h-full w-full flex flex-col items-center space-y-3">
                             {product?.productImage?.map((image, index) => (
-                                <li key={index} className="w-fit h-[167px]">
+                                <li key={index} className="w-[170px] h-[167px] border border-gray-200 rounded-xl">
                                     <img
                                         src={image}
                                         alt={`Product Thumbnail ${index + 1}`}
@@ -148,7 +148,7 @@ const DetailProduct = () => {
                         <img
                             src={mainImage}
                             alt={product?.name}
-                            className="w-full h-[530px]  rounded-xl border border-black"
+                            className="w-full h-[530px] object-contain rounded-xl border border-black"
                         />
                     </div>
                 </div>

@@ -9,6 +9,7 @@ import DetailProduct from "../Pages/Product/DetailProduct.jsx";
 import UserPage from "../Pages/User/UserPage.jsx";
 import Register from "../Pages/User/Register.jsx";
 import Cart from "../Pages/User/Cart.jsx";
+import OrderPage from "../Pages/User/Checkout.jsx";
 
 Homepage;
 
@@ -50,6 +51,10 @@ export const publicRoutes = [
   {
     path: "/cart",
     component: Cart,
+  },
+  {
+    path: "/Order",
+    component: OrderPage,
   },
   {
     path: "*",

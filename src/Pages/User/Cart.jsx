@@ -15,9 +15,10 @@ const Cart = () => {
     try {
       const response = await AxiosInstance.authAxios.get("/cart/get");
       const items = response.data.data || [];
+      console.log("Cart items:", items);
       setCartItems(items);
 
-      const productIds = items.map((item) => item.product._id);
+      const productIds = items.map((item) => item.product);
       fetchProductDetails(productIds);
     } catch (error) {
       console.error("Error fetching cart items:", error.message);
@@ -31,6 +32,7 @@ const Cart = () => {
       );
       const productResponses = await Promise.all(productRequests);
       setProductDetails(productResponses.map((res) => res.data.data));
+
     } catch (error) {
       console.error("Error fetching product details:", error.message);
     }
@@ -45,7 +47,7 @@ const Cart = () => {
   const calculateTotal = () => {
     return cartItems.reduce((total, cartItem) => {
       const product = productDetails.find(
-          (product) => product._id === cartItem.product._id
+          (product) => product.productID === cartItem.product
       );
       if (product) {
         return total + product.price * cartItem.quantity;
@@ -71,7 +73,7 @@ const Cart = () => {
                 {cartItems.length > 0 ? (
                     cartItems.map((cartItem, index) => {
                       const product = productDetails.find(
-                          (product) => product._id === cartItem.product._id
+                          (product) => product.productID === cartItem.product
                       );
 
                       if (product) {
@@ -87,7 +89,7 @@ const Cart = () => {
                             <div key={index} className="flex w-full h-32 border my-7">
                               <div className="w-fit h-32">
                                 <img
-                                    className="w-32 h-32 object-cover rounded-md"
+                                    className="w-32 h-32 object-contain rounded-md"
                                     src={imageToDisplay}
                                     alt={product.name}
                                 />
