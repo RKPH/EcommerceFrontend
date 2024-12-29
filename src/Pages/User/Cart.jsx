@@ -1,40 +1,24 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-
-import LocalOfferIcon from "@mui/icons-material/LocalOffer";
-import DeleteIcon from "@mui/icons-material/Delete";
 import AxiosInstance from "../../api/axiosInstance.js";
-import { GetColorName } from 'hex-color-to-color-name';
+import Breadcrumbs from "@mui/material/Breadcrumbs";
+import Typography from "@mui/material/Typography";
+
+import DeleteIcon from "@mui/icons-material/Delete";
+import { Link } from "react-router-dom";
+import {toast} from "react-toastify";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
-  const [productDetails, setProductDetails] = useState([]);
-  const user = useSelector((state) => state.auth.user);
-
+  const user = useSelector((state) => state.auth.user); // Redux state for the logged-in user
+  console.log("user", user);
   const fetchCart = async () => {
     try {
       const response = await AxiosInstance.authAxios.get("/cart/get");
       const items = response.data.data || [];
-      console.log("Cart items:", items);
       setCartItems(items);
-
-      const productIds = items.map((item) => item.product);
-      fetchProductDetails(productIds);
     } catch (error) {
       console.error("Error fetching cart items:", error.message);
-    }
-  };
-
-  const fetchProductDetails = async (productIds) => {
-    try {
-      const productRequests = productIds.map((id) =>
-          AxiosInstance.authAxios.get(`/products/${id}`)
-      );
-      const productResponses = await Promise.all(productRequests);
-      setProductDetails(productResponses.map((res) => res.data.data));
-
-    } catch (error) {
-      console.error("Error fetching product details:", error.message);
     }
   };
 
@@ -46,72 +30,96 @@ const Cart = () => {
 
   const calculateTotal = () => {
     return cartItems.reduce((total, cartItem) => {
-      const product = productDetails.find(
-          (product) => product.productID === cartItem.product
-      );
-      if (product) {
-        return total + product.price * cartItem.quantity;
+      if (cartItem.product) {
+        return total + cartItem.product.price * cartItem.quantity;
       }
       return total;
     }, 0);
   };
 
+  const handleDeleteItem = (productID) => {
+    // Implement delete logic here
+    console.log("Delete item with ID:", productID);
+  };
+
+  const handleCreateOrder = async () => {
+    if (!cartItems.length) {
+      alert("Your cart is empty!");
+      return;
+    }
+
+    try {
+      // Combine user address for shippingAddress
+      const shippingAddress = `${user.user.address.street}, ${user.user.address.city}`;
+      const PaymentMethod = "COD"; // Hardcoded for demonstration
+
+      const products = cartItems.map((item) => ({
+        product: item.product._id,
+        quantity: item.quantity,
+      }));
+
+      const orderData = {
+        user: user._id,
+        shippingAddress,
+        PaymentMethod,
+        products,
+      };
+
+      const response = await AxiosInstance.authAxios.post("/orders/addOrder", orderData);
+      console.log("Order created successfully:", response.data);
+      toast.success("Order created successfully!");
+
+    } catch (error) {
+      console.error("Error creating order:", error.message);
+      alert("Error creating order. Please try again.");
+    }
+  };
+
   return (
       <div className="h-screen flex items-center py-6 w-full flex-col px-[100px]">
+        <div className="w-full mb-10">
+          <Breadcrumbs aria-label="breadcrumb">
+            <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+              Home
+            </Link>
+            <Typography color="text.primary">Cart</Typography>
+          </Breadcrumbs>
+        </div>
         <div className="w-full">
           <div className="w-full h-80 my-4 flex flex-col space-y-2">
-            <h1 className="font-bold font-integralcf text-3xl uppercase">
-              Your Cart
-            </h1>
+            <h1 className="font-bold font-integralcf text-3xl uppercase">Your Cart</h1>
             <div className="flex">
-            <span className="font-normal text-base">
-              Total items: {cartItems.length}
-            </span>
+              <span className="font-normal text-base">Total items: {cartItems.length}</span>
             </div>
             <div className="w-full grid grid-cols-12 gap-x-5 justify-between">
               <div className="mt-4 col-span-7 p-4 border border-gray-300 rounded-2xl">
                 {cartItems.length > 0 ? (
                     cartItems.map((cartItem, index) => {
-                      const product = productDetails.find(
-                          (product) => product.productID === cartItem.product
-                      );
-
+                      const product = cartItem.product;
                       if (product) {
-                        const colorIndex = product.color.findIndex(
-                            (c) => c.toLowerCase() === cartItem.color.toLowerCase()
-                        );
-                        const imageToDisplay =
-                            colorIndex !== -1 && product.image[colorIndex]
-                                ? product.image[colorIndex]
-                                : product.image[0];
-
                         return (
                             <div key={index} className="flex w-full h-32 border my-7">
                               <div className="w-fit h-32">
                                 <img
                                     className="w-32 h-32 object-contain rounded-md"
-                                    src={imageToDisplay}
+                                    src={product.image[0]} // Display the first product image
                                     alt={product.name}
                                 />
                               </div>
                               <div className="flex w-full flex-col justify-between py-2 px-4">
                                 <div className="flex flex-col justify-between">
                                   <div className="flex justify-between">
-                                    <p className="font-bold text-xl">
-                                      {product.name}
-                                    </p>
+                                    <p className="font-bold text-xl">{product.name}</p>
                                     <DeleteIcon
                                         className="cursor-pointer text-red-500"
-                                        onClick={() => console.log("Delete item")}
+                                        onClick={() => handleDeleteItem(cartItem.productID)}
                                     />
                                   </div>
                                   {cartItem.size && (
-                                      <p className="text-sm font-normal text-gray-400">
-                                        Size: {cartItem.size}
-                                      </p>
+                                      <p className="text-sm font-normal text-gray-400">Size: {cartItem.size}</p>
                                   )}
                                   <p className="text-sm font-normal text-gray-400">
-                                    Color: {GetColorName(cartItem.color)}
+                                    Color: {cartItem.color}
                                   </p>
                                 </div>
                                 <div className="flex justify-between">
@@ -119,15 +127,9 @@ const Cart = () => {
                                     {product.price.toLocaleString()}₫
                                   </p>
                                   <div className="flex h-9 w-24 items-center justify-center bg-gray-200 border rounded-3xl p-1">
-                                    <button className="w-1/3 text-xl font-bold">
-                                      -
-                                    </button>
-                                    <div className="w-1/3 text-center">
-                                      {cartItem.quantity}
-                                    </div>
-                                    <button className="w-1/3 text-xl font-bold">
-                                      +
-                                    </button>
+                                    <button className="w-1/3 text-xl font-bold">-</button>
+                                    <div className="w-1/3 text-center">{cartItem.quantity}</div>
+                                    <button className="w-1/3 text-xl font-bold">+</button>
                                   </div>
                                 </div>
                               </div>
@@ -171,22 +173,10 @@ const Cart = () => {
                       {calculateTotal().toLocaleString()}₫
                     </p>
                   </div>
-                  <div className="w-full flex items-center justify-between">
-                    <div className="w-2/3 h-12 flex items-center relative">
-                      <input
-                          type="text"
-                          placeholder="Apply promo code"
-                          className="border w-full bg-[#F0F0F0] h-full border-gray-300 p-2 pl-12 rounded-3xl"
-                      />
-                      <div className="absolute left-4 text-gray-500 cursor-pointer">
-                        <LocalOfferIcon className="text-gray-300" />
-                      </div>
-                    </div>
-                    <button className="w-1/4 h-12 py-2 bg-black text-white font-semibold rounded-3xl hover:bg-gray-800 transition ">
-                      Apply
-                    </button>
-                  </div>
-                  <button className="w-full h-12 py-2 bg-black text-white font-semibold rounded-3xl hover:bg-gray-800 transition mt-4">
+                  <button
+                      onClick={handleCreateOrder}
+                      className="w-full h-12 py-2 bg-black text-white font-semibold rounded-3xl hover:bg-gray-800 transition mt-4"
+                  >
                     Checkout
                   </button>
                 </div>

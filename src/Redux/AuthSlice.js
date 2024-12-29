@@ -1,5 +1,6 @@
 ﻿import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import AxiosInstance from "../api/axiosInstance.js";
+import { toast } from "react-toastify"; // Import toast for notifications
 
 
 // Async thunk for login
@@ -138,6 +139,11 @@ const authSlice = createSlice({
                 state.isLoading = false;
                 state.isAuthenticated = false;
                 state.error = action.payload;
+                if (action.payload?.status === 401 || action.payload?.status === 500) {
+                    state.isAuthenticated = false;
+                    toast.error("Session expired, please log in again.");
+                    localStorage.removeItem('isAuthenticated');
+                }
             })
             .addCase(logoutUserApi.fulfilled, (state) => {
                 state.isAuthenticated = false;

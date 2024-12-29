@@ -1,63 +1,84 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import {  logoutUserApi } from "../../Redux/AuthSlice.js";
+import { logoutUserApi } from "../../Redux/AuthSlice.js";
 import AxiosInstance from "../../api/axiosInstance.js";
-
+import { toast } from "react-toastify";
 const UserPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const [cartItems, setCartItems] = useState([]);
-    const [productDetails, setProductDetails] = useState([]);
     const user = useSelector((state) => state.auth.user);
+    const [userDetails, setUserDetails] = useState({
+        name: "",
+        email: "",
+        address: {
+            street: "",
+            city: "",
+            state: "",
+            postalCode: "",
+            country: "",
+        },
+    });
+    const [message, setMessage] = useState(""); // For success or error messages
+    const [loading, setLoading] = useState(false); // For loading state
 
-    // Fetch cart items
-    const fetchCart = async () => {
-        try {
-            const response = await AxiosInstance.authAxios.get("/cart/get");
-            const items = response.data.data || []; // Assuming this is an array of cart items
-            setCartItems(items);
-            console.log("Cart items:", items);
-            // Extract product IDs from the cart items
-            const productIds = items.map(item => item.product._id); // Assuming each cart item has a 'productId'
-            fetchProductDetails(productIds); // Fetch product details using the productIds
-        } catch (error) {
-            console.error("Error fetching cart items:", error.message);
-        }
-    };
-
-    // Fetch product details for each product ID
-    const fetchProductDetails = async (productIds) => {
-        try {
-            const productRequests = productIds.map(id =>
-                AxiosInstance.authAxios.get(`/products/${id}`)
-            );
-            // Wait for all product details to be fetched
-            const productResponses = await Promise.all(productRequests);
-            setProductDetails(productResponses.map(res => res.data.data));
-        } catch (error) {
-            console.error("Error fetching product details:", error.message);
-        }
-    };
-
-    // Fetch cart and product details when the user data changes
+    // Fetch user details when the component mounts or the user data changes
     useEffect(() => {
         if (user) {
-            fetchCart(); // Fetch the cart details if the user exists
+            // Check user object structure and update state accordingly
+            setUserDetails({
+                name: user.name || user?.user?.name || "",
+                email: user.email || user?.user?.email || "",
+                address: user?.user?.address|| user.address || {
+                    street: "",
+                    city: "",
+                    state: "",
+                    postalCode: "",
+                    country: "",
+                },
+            });
         }
     }, [user]);
 
-    // Calculate total cost
-    const calculateTotal = () => {
-        return cartItems.reduce((total, cartItem) => {
-            const product = productDetails.find(
-                (product) => product._id === cartItem.product._id
-            );
-            if (product) {
-                return total + product.price * cartItem.quantity;
+    // Handle change of user details
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+
+        if (name.startsWith("address")) {
+            const fieldName = name.split(".")[1]; // Extract the property (e.g., 'street', 'city', etc.)
+
+            setUserDetails((prevDetails) => ({
+                ...prevDetails,
+                address: {
+                    ...prevDetails.address,
+                    [fieldName]: value, // Update the address field
+                },
+            }));
+        } else {
+            setUserDetails((prevDetails) => ({
+                ...prevDetails,
+                [name]: value, // For other fields like name and email
+            }));
+        }
+    };
+
+    // Handle form submission to update user details
+    const handleUpdateDetails = async () => {
+        setLoading(true);
+        setMessage(""); // Reset the message
+        try {
+            const response = await AxiosInstance.authAxios.put("/users/profile", userDetails);
+            if (response.status === 200) {
+                toast.success("User detail updated", {
+                    className: "toast-success",
+                    style: { backgroundColor: "green", color: "white" },
+                });
             }
-            return total;
-        }, 0);
+        } catch (error) {
+            setMessage(`Error updating user details: ${error.message}`);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleLogout = () => {
@@ -66,88 +87,161 @@ const UserPage = () => {
     };
 
     return (
-        <div className="h-screen flex items-center py-6 w-full flex-col">
-            <div className="w-4/5">
-                <div className="bg-gray-100 p-8 max-w-md w-full">
-                    <h3 className="text-3xl text-blue-gray-800 mb-4 text-center">
-                        Welcome, {user?.user?.name || user?.name || "Guest"}
-                    </h3>
-                    <button
-                        onClick={handleLogout}
-                        className="w-full py-2 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-800 transition"
-                    >
-                        Log Out
-                    </button>
-                </div>
-                <div className="w-full h-80 my-4 flex flex-col space-y-2">
-                    <h1 className="font-bold text-3xl uppercase">Your Bag</h1>
-                    <div className="flex">
-                        <span className="font-normal text-base">
-                            Total items: {cartItems.length}
+        <div className="h-screen flex items-center py-6 w-full flex-col px-[100px]">
+            <div className="w-full flex flex-col">
+                <div className="w-full flex items-end justify-end my-4">
+                    <div className="flex gap-x-2 w-1/5">
+                        <h4 className="text-base w-1/2 text-blue-gray-800 border-r">
+                            Welcome, {user?.user?.name || user?.name || "Guest"}
+                        </h4>
+                        <span
+                            onClick={handleLogout}
+                            className="w-auto text-black font-semibold cursor-pointer hover:text-blue-500 transition"
+                        >
+                            Log Out
                         </span>
                     </div>
-                    <div className="w-full flex">
-                        <div className="mt-4 w-2/3">
-                            {cartItems.length > 0 ? (
-                                cartItems.map((cartItem, index) => {
-                                    const product = productDetails.find(
-                                        (product) => product._id === cartItem.product._id
-                                    );
-
-                                    return product ? (
-                                        <div key={index} className="flex w-4/5 h-auto border my-2">
-                                            <div className="w-1/3">
-                                                <img
-                                                    className="w-60 h-60 object-cover"
-                                                    src={product.image}
-                                                    alt={product.name}
-                                                />
-                                            </div>
-                                            <div className="flex flex-col p-7 justify-between w-2/3">
-                                                <div className="flex justify-between">
-                                                    <p className="font-normal text-xl">{product.name}</p>
-                                                    <p className="font-normal text-xl text-gray-400">{product.price.toLocaleString()}₫</p>
-                                                </div>
-                                                <p>Quantity: {cartItem.quantity}</p>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <p key={index} className="text-gray-500">Loading product details...</p>
-                                    );
-                                })
-                            ) : (
-                                <p className="text-gray-500">Your cart is empty</p>
-                            )}
+                </div>
+                <div className="flex w-full my-10">
+                    <div className="w-1/5 flex flex-col px-2 gap-y-5 ">
+                        <div>
+                            <h3 className="text-lg text-black font-bold">Manage My Account</h3>
+                            <ul className="text-base flex flex-col gap-y-3 mt-4">
+                                <li className="text-gray-500 cursor-pointer px-7">My Profile</li>
+                                <li className="text-gray-500 cursor-pointer px-7">My Payment Options</li>
+                            </ul>
                         </div>
-                        <div className="mt-4 w-1/3 px-4 space-y-3">
-                            <div className="flex justify-between items-center">
-                                <h1 className="font-bold text-2xl">Order Summary</h1>
+                        <div>
+                            <h3 className="text-lg text-black font-bold">My orders</h3>
+                            <ul className="text-base flex flex-col gap-y-3 mt-4">
+                                <li className="text-gray-500 cursor-pointer px-7">Check my orders</li>
+                                <li className="text-gray-500 cursor-pointer px-7">My canelations</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div className="w-4/5 flex flex-col px-4 py-4 shadow-md">
+                        <h2 className="text-xl text-black font-bold">Edit your profile</h2>
+                        {message && (
+                            <div
+                                className={`my-4 p-2 text-white rounded-lg ${
+                                    message.includes("success") ? "bg-green-500" : "bg-red-500"
+                                }`}
+                            >
+                                {message}
+                            </div>
+                        )}
+                        <div className="flex flex-col gap-y-2 mt-4">
+                            <label htmlFor="name" className="text-black font-semibold">Your full name</label>
+                            <input
+                                id="name"
+                                name="name"
+                                type="text"
+                                value={userDetails.name}
+                                onChange={handleChange}
+                                className="w-full px-4 py-2 border rounded-lg focus:border-blue-500 focus:outline-none"
+                            />
+                        </div>
+                        <div className="flex flex-col gap-y-2 mt-4">
+                            <label htmlFor="email" className="text-black font-semibold">Your email</label>
+                            <input
+                                id="email"
+                                name="email"
+                                type="text"
+                                disabled={true}
+                                value={userDetails.email}
+                                onChange={handleChange}
+                                className="w-full px-4 py-2 border rounded-lg focus:border-blue-500 focus:outline-none"
+                            />
+                        </div>
+                        {/* Address Inputs */}
+                        <div className="space-y-4 mt-4">
+                            {/* Street Input */}
+                            <div className="flex flex-col">
+                                <label htmlFor="address.street" className="text-black font-semibold">Street</label>
+                                <input
+                                    type="text"
+                                    id="address.street"
+                                    name="address.street"
+                                    value={userDetails.address.street}
+                                    onChange={handleChange}
+                                    className="py-2 px-4 border rounded-lg"
+                                    placeholder="Street"
+                                />
+                            </div>
 
+                            {/* City and State Inputs */}
+                            <div className="flex gap-x-2">
+                                <div className="flex flex-col w-1/2">
+                                    <label htmlFor="address.city" className="text-black font-semibold">City</label>
+                                    <input
+                                        type="text"
+                                        id="address.city"
+                                        name="address.city"
+                                        value={userDetails.address.city}
+                                        onChange={handleChange}
+                                        className="py-2 px-4 border rounded-lg"
+                                        placeholder="City"
+                                    />
+                                </div>
+                                <div className="flex flex-col w-1/2">
+                                    <label htmlFor="address.state" className="text-black font-semibold">State</label>
+                                    <input
+                                        type="text"
+                                        id="address.state"
+                                        name="address.state"
+                                        value={userDetails.address.state}
+                                        onChange={handleChange}
+                                        className="py-2 px-4 border rounded-lg"
+                                        placeholder="State"
+                                    />
+                                </div>
                             </div>
-                            <div className="flex justify-between text-black">
-                                <p className="font-normal text-xl">Subtotal</p>
-                                <p className="font-normal text-xl text-black">
-                                    {calculateTotal().toLocaleString()}₫
-                                </p>
+
+                            {/* Postal Code and Country Inputs */}
+                            <div className="flex gap-x-2 my-4">
+                                <div className="flex flex-col w-1/2">
+                                    <label htmlFor="address.postalCode" className="text-black font-semibold">Postal Code</label>
+                                    <input
+                                        type="text"
+                                        id="address.postalCode"
+                                        name="address.postalCode"
+                                        value={userDetails.address.postalCode}
+                                        onChange={handleChange}
+                                        className="py-2 px-4 border rounded-lg"
+                                        placeholder="Postal Code"
+                                    />
+                                </div>
+                                <div className="flex flex-col w-1/2">
+                                    <label htmlFor="address.country" className="text-black font-semibold">Country</label>
+                                    <input
+                                        type="text"
+                                        id="address.country"
+                                        name="address.country"
+                                        value={userDetails.address.country}
+                                        onChange={handleChange}
+                                        className="py-2 px-4 border rounded-lg"
+                                        placeholder="Country"
+                                    />
+                                </div>
                             </div>
-                            <div className="flex justify-between text-black">
-                                <p className="font-normal text-xl">Shipping</p>
-                                <p className="font-normal text-xl text-black">0₫</p>
-                            </div>
-                            <div className="flex justify-between text-black">
-                                <p className="font-normal text-xl">Tax</p>
-                                <p className="font-normal text-xl text-black">0₫</p>
-                            </div>
-                            <div className="flex justify-between text-black">
-                                <p className="font-normal text-xl">Total</p>
-                                <p className="font-normal text-xl text-black">
-                                    {calculateTotal().toLocaleString()}₫
-                                </p>
-                            </div>
-                            <button className="w-full py-2 bg-black text-white font-semibold rounded-lg hover:bg-gray-800 transition mt-4">
-                                Checkout
+                        </div>
+
+                        <div className="flex justify-end gap-x-2 mt-4">
+                            <button className="mt-6 px-2">
+                                Cancel
                             </button>
+                            <button
+                                onClick={handleUpdateDetails}
+                                disabled={loading}
+                                className="mt-6 w-[216px] py-2 px-4 bg-black text-white rounded-lg hover:bg-blue-500 disabled:bg-gray-400"
+                            >
+                                {loading ? "Updating..." : "Update Profile"}
+                            </button>
+
+
                         </div>
+                        {/* Update Button */}
+
                     </div>
                 </div>
             </div>

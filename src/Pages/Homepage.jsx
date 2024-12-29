@@ -1,18 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import ProductCard from "../Components/ProductCard";
+import AxiosInstance from "../api/axiosInstance.js";
 
 import banner from "../assets/banner.png";
 import "./Homepage.css";
 import Rating from "@mui/material/Rating";
 import {Link} from "react-router-dom";
 import axiosInstance from "../api/axiosInstance.js";
+import {useSelector} from "react-redux";
 
 const Homepage = () => {
   const [categories, setCategories] = useState([]); // Store fetched types
   const [products, setProducts] = useState([]); // Store fetched products
   const [selectedCategory, setSelectedCategory] = useState("");
-
+  const { user, sessionID, isLoggedid } = useSelector((state) => state.auth);
   // Fetch all product types
   const fetchCategories = async () => {
     try {
@@ -38,17 +39,41 @@ const Homepage = () => {
     }
   };
 
-  const fetchAllProducts= async () => {
+  // Track user behavior
+  const trackViewBehavior = async (id) => {
     try {
-      const response = await  axiosInstance.publicAxios.get(
-        "http://localhost:3000/api/v1/products/all"
+      const sessionId = sessionID;
+      const userId = user?.id || user?.user?.id;
+
+      if (!sessionId || !userId) {
+        console.error("Session ID or User ID is missing!");
+        return;
+      }
+
+      await AxiosInstance.authAxios.post("/tracking", {
+        sessionId,
+        user: userId,
+        productId: id,
+        behavior: "view",
+      });
+    } catch (error) {
+      console.error("Error tracking view behavior:", error);
+    }
+  };
+
+  const fetchAllProducts = async () => {
+    try {
+      const response = await axiosInstance.publicAxios.get(
+          "http://localhost:3000/api/v1/products/all"
       );
-      setProducts(response.data.data); // Assuming the response contains an array of products
-      console.log(response.data.data)
+      const limitedProducts = response.data.data.slice(0, 30); // Limit to the first 30 products
+      setProducts(limitedProducts);
+      console.log(limitedProducts);
     } catch (error) {
       console.error("Error fetching products:", error.message || error);
     }
-  }
+  };
+
 
   // Fetch categories and products on component mount
   useEffect(() => {
@@ -232,7 +257,7 @@ const Homepage = () => {
         <div className="w-full mt-14 px-[100px]">
           <ul className="w-full flex flex-wrap justify-between gap-y-2">
             {products.map((product) => (
-                <Link  to={`/product/${product.productID}`}  className="w-72" key={product._id}>
+                <Link onClick={()=> {trackViewBehavior(product.productID)}} to={`/product/${product.productID}`}  className="w-72" key={product._id}>
                   <div className="w-full h-[290px] bg-gray-200 rounded-[20px]">
                     <img
                         src={product.image[0]} // Displaying the first image from the image array
