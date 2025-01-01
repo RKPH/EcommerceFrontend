@@ -10,7 +10,11 @@ const DefaultLayout = ({ children }) => {
       <Header />
       {/* Reset ErrorBoundary key when path changes */}
 
-      <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+      <Suspense  fallback={<div>Loading...</div>}>
+          <div className="bg-[#efefef]">
+              {children}
+          </div>
+      </Suspense>
     </div>
   );
 };

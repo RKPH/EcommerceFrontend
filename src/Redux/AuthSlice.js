@@ -130,7 +130,7 @@ const authSlice = createSlice({
             })
             .addCase(getUserProfile.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.user = action.payload;
+                state.user = action.payload.user;
                 state.sessionID = action.payload.sessionID;
                 state.isAuthenticated = true; // Ensure isAuthenticated is true after fetching profile
                 localStorage.setItem('isAuthenticated', true); // Ensure it's set in localStorage

@@ -10,35 +10,63 @@ import axiosInstance from "../api/axiosInstance.js";
 import {useSelector} from "react-redux";
 
 const Homepage = () => {
-  const [categories, setCategories] = useState([]); // Store fetched types
-  const [products, setProducts] = useState([]); // Store fetched products
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const { user, sessionID, isLoggedid } = useSelector((state) => state.auth);
-  // Fetch all product types
-  const fetchCategories = async () => {
-    try {
-      const response = await axios.get(
-        "http://localhost:3000/api/v1/products/types"
-      );
-      setCategories(response.data.data); // Assuming the response contains an array of types
-      setSelectedCategory(response.data.data[0]); // Default to the first type
-    } catch (error) {
-      console.error("Error fetching categories:", error.message || error);
-    }
-  };
+    const [categories, setCategories] = useState([]); // Store fetched types
+    const [dollProdcuts, setDollProducts] = useState([]); // Store fetched products
+    const [bicycleProducts, setBicycleProducts] = useState([]); // Store fetched products
+    const [cameraProducts, setCameraProducts] = useState([]); // Store fetched products
+    const [desktopProducts, setDesktopProducts] = useState([]); // Store fetched products
+    const [selectedCategory, setSelectedCategory] = useState("");
+    const { user, sessionID, isLoggedid } = useSelector((state) => state.auth);
+    // Fetch all product types
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:3000/api/v1/products/types"
+        );
+        setCategories(response.data.data); // Assuming the response contains an array of types
+        setSelectedCategory(response.data.data[0]); // Default to the first type
+      } catch (error) {
+        console.error("Error fetching categories:", error.message || error);
+      }
+    };
 
-  // Fetch products for a specific type
-  const fetchProductsByType = async (type) => {
-    try {
-      const response = await axios.get(
-        `http://localhost:3000/api/v1/products/types/${type}`
-      );
-      setProducts(response.data.data); // Assuming the response contains an array of products
-    } catch (error) {
-      console.error("Error fetching products:", error.message || error);
-    }
-  };
+    // Fetch products for a specific type
+    const fetchProductsByType = async (type) => {
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/api/v1/products/type/${type}?limit=4`
+        );
+        const fetchedProducts = response.data.data;
 
+        // Update the corresponding state based on the type
+        switch (type) {
+          case "dolls":
+            setDollProducts(fetchedProducts);
+            break;
+          case "bicycle":
+            setBicycleProducts(fetchedProducts);
+            break;
+          case "camera":
+            setCameraProducts(fetchedProducts);
+            break;
+          case "desktop":
+            setDesktopProducts(fetchedProducts);
+            break;
+          default:
+            break;
+        }
+
+      } catch (error) {
+        console.error("Error fetching products:", error.message || error);
+      }
+    };
+    // A utility function to fetch products by type
+
+    // Fetch products when the component mounts
+    useEffect(() => {
+      const productTypes = ['dolls', 'bicycle', 'camera', 'desktop'];
+      productTypes.forEach((type) => fetchProductsByType(type));
+    }, []);
   // Track user behavior
   const trackViewBehavior = async (id) => {
     try {
@@ -247,37 +275,65 @@ const Homepage = () => {
           </svg>
         </div>
       </div>
-      <div className="w-full mt-[72px] px-[100px]">
-        <div className="w-full text-center">
-          <span className="text-6xl font-integralcf font-bold text-black ">
-            New Arrivals
-          </span>
-        </div>
-
-        <div className="w-full mt-14 px-[100px]">
-          <ul className="w-full flex flex-wrap justify-between gap-y-2">
-            {products.map((product) => (
-                <Link onClick={()=> {trackViewBehavior(product.productID)}} to={`/product/${product.productID}`}  className="w-72" key={product._id}>
-                  <div className="w-full h-[290px] bg-gray-200 rounded-[20px]">
-                    <img
-                        src={product.image[0]} // Displaying the first image from the image array
-                        alt="Product Image"
-                        className="w-full h-full object-contain rounded-t-[20px]"
-                    />
-                  </div>
-                  <div className="flex flex-col mt-4">
-                    <span className="font-bold text-lg">{product.name}</span>
-                    <Rating
-                        name="half-rating-read"
-                        defaultValue={2.5}
-                        precision={0.5}
-                        readOnly
-                    />
-                    <span className="font-bold text-xl">${product.price}</span>
-                  </div>
+      <div className="w-full mt-16 px-[100px] ">
+        <div className="w-full text-center flex gap-x-5 justify-center">
+          <ul className="flex w-1/4 flex-wrap bg-white rounded-xl p-4">
+            <h1 className="text-2xl text-black font-semibold w-full text-start">Best seller Dolls</h1>
+            {dollProdcuts.map((product) => (
+                <Link to={`/product/${product.productID}`} key={product.productID} className="w-1/2 p-2 flex flex-col mb-2">
+                  <img
+                      src={product.image[0]}
+                      alt={product.name}
+                      className="w-full  h-32 rounded-md"
+                  />
+                  <h3 className="mt-2 text-sm font-normal text-center hover:underline">{product.name}</h3>
                 </Link>
             ))}
-
+            <span className="text-base font-normal text-center hover:text-blue-600 cursor-pointer">View all Dolls</span>
+          </ul>
+          <ul className="flex w-1/4 flex-wrap bg-white rounded-xl p-4">
+            <h1 className="text-2xl text-black font-semibold w-full text-start">Bicycle for all ages</h1>
+            {bicycleProducts.map((product) => (
+                <Link to={`/product/${product.productID}`} key={product.productID}
+                      className="w-1/2 p-2 flex flex-col mb-2">
+                  <img
+                      src={product.image[0]}
+                      alt={product.name}
+                      className="w-full h-32 rounded-md"
+                  />
+                  <h3 className="mt-2 text-sm font-normal  hover:underline">{product.name}</h3>
+                </Link>
+            ))}
+            <span className="text-base font-normal text-center hover:text-blue-600 cursor-pointer">View all bicycles</span>
+          </ul>
+          <ul className="flex w-1/4 flex-wrap bg-white rounded-xl p-4">
+            <h1 className="text-2xl text-black font-semibold w-full text-start">Gaming Corner</h1>
+            {desktopProducts.map((product) => (
+                <Link to={`/product/${product.productID}`} key={product.productID} className="w-1/2 p-2 flex flex-col mb-2">
+                  <img
+                      src={product.image[0]}
+                      alt={product.name}
+                      className="w-full h-32 rounded-md"
+                  />
+                  <h3 className="mt-2 text-sm font-normal  hover:underline">{product.name}</h3>
+                </Link>
+            ))}
+            <span className="text-base font-normal text-center hover:text-blue-600 cursor-pointer">View all desktops</span>
+          </ul>
+          <ul className="flex w-1/4 flex-wrap bg-white rounded-xl p-4">
+            <h1 className="text-2xl text-black font-semibold w-full text-start">Want to take good pictures</h1>
+            {cameraProducts.map((product) => (
+                <Link to={`/product/${product.productID}`} key={product.productID}
+                      className="w-1/2 p-2 flex flex-col mb-2">
+                  <img
+                      src={product.image[0]}
+                      alt={product.name}
+                      className="w-full h-32 rounded-md"
+                  />
+                  <h3 className="mt-2 text-sm font-normal  hover:underline">{product.name}</h3>
+                </Link>
+            ))}
+            <span className="text-base font-normal text-center hover:text-blue-600 cursor-pointer">View all cameras</span>
           </ul>
         </div>
       </div>

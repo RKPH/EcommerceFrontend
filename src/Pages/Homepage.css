@@ -19,7 +19,6 @@
 
 /* Scale effect on hover */
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
- 
   background-color: #555;
   cursor: pointer;
 }

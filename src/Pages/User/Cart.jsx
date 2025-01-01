@@ -11,7 +11,7 @@ import {toast} from "react-toastify";
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const user = useSelector((state) => state.auth.user); // Redux state for the logged-in user
-  console.log("user", user);
+  console.log("user", user?.address?.street);
   const fetchCart = async () => {
     try {
       const response = await AxiosInstance.authAxios.get("/cart/get");
@@ -50,7 +50,7 @@ const Cart = () => {
 
     try {
       // Combine user address for shippingAddress
-      const shippingAddress = `${user.user.address.street}, ${user.user.address.city}`;
+      const shippingAddress = `${user?.address?.street|| user?.user?.address?.street }, ${user?.address?.city ||user?.user?.address?.city}`;
       const PaymentMethod = "COD"; // Hardcoded for demonstration
 
       const products = cartItems.map((item) => ({
@@ -59,7 +59,7 @@ const Cart = () => {
       }));
 
       const orderData = {
-        user: user._id,
+        user: user._id || user?.user?._id,
         shippingAddress,
         PaymentMethod,
         products,
@@ -76,7 +76,7 @@ const Cart = () => {
   };
 
   return (
-      <div className="h-screen flex items-center py-6 w-full flex-col px-[100px]">
+      <div className="min-h-screen flex items-center py-6 w-full flex-col px-[100px]">
         <div className="w-full mb-10">
           <Breadcrumbs aria-label="breadcrumb">
             <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
@@ -86,13 +86,13 @@ const Cart = () => {
           </Breadcrumbs>
         </div>
         <div className="w-full">
-          <div className="w-full h-80 my-4 flex flex-col space-y-2">
+          <div className="w-full h-full my-4 flex flex-col space-y-2">
             <h1 className="font-bold font-integralcf text-3xl uppercase">Your Cart</h1>
             <div className="flex">
               <span className="font-normal text-base">Total items: {cartItems.length}</span>
             </div>
             <div className="w-full grid grid-cols-12 gap-x-5 justify-between">
-              <div className="mt-4 col-span-7 p-4 border border-gray-300 rounded-2xl">
+              <div className="mt-4 max-h-[500px] col-span-7 p-4 border border-gray-300 rounded-2xl overflow-y-scroll custom-scrollbar2">
                 {cartItems.length > 0 ? (
                     cartItems.map((cartItem, index) => {
                       const product = cartItem.product;
