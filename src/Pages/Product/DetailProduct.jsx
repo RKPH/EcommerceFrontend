@@ -1,10 +1,12 @@
-﻿import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect , useRef } from "react";
 import AxiosInstance from "../../api/axiosInstance.js";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import SliceOfProduct from "../../Components/SliceOfProduct.jsx";
 import FavoriteBorderTwoToneIcon from '@mui/icons-material/FavoriteBorderTwoTone';
 import Rating from "@mui/material/Rating";
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { GetColorName } from 'hex-color-to-color-name';
 import { Link } from 'react-router-dom';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
@@ -27,11 +29,13 @@ const DetailProduct = () => {
 
     const [selectedColor, setSelectedColor] = useState(null);
     const [recommendedProducts, setRecommendedProducts] = useState([]);
-    const [recommendedProducts2, setRecommendedProducts2] = useState([]);
+    const sessionRecommendedProductsRef = useRef([]); // Store recommendations (no re-render)
+    const [uiRecommendedProducts, setUiRecommendedProducts] = useState([]);
     const [selectedSize, setSelectedSize] = useState(null);
-    useEffect(() => {
-        user && fetchSessinBaseRecommendedProducts();
-    },[user])
+
+    // useEffect(() => {
+    //     user && fetchSessinBaseRecommendedProducts();
+    // },[user])
 
     console.log("User ", user)
     // Function to fetch product details
@@ -50,13 +54,14 @@ const DetailProduct = () => {
             setLoading(false); // Stop loading once request is complete
         }
     };
-    const fetchSessinBaseRecommendedProducts = async () => {
+    const fetchSessinBaseRecommendedProducts = async (type) => {
         setLoading2(true); // Start loading before the request
 
         try {
             const request = {
                 user_id: user?.user_id, // Assuming user_id is available in your component
                 product_id: id, // Assuming product_id is available in your component
+                event_type: type
             };
 
             console.log("Request:", request); // Log for debugging
@@ -66,9 +71,10 @@ const DetailProduct = () => {
 
             console.log("Recommended Products 2:", response?.data?.data); // Log for debugging
             setError2(null); // Clear any previous errors
-            setRecommendedProducts2(response?.data?.data); // Set recommended products
+            sessionRecommendedProductsRef.current = response.data;
+            setUiRecommendedProducts(response?.data?.data); // Set recommended products
         } catch (error) {
-            console.error("Error fetching recommended products:", error.message || error);
+            console.error("Error fetching recommended products:", error?.message || error);
             setError2(error.response?.data?.message || "An error occurred");
         } finally {
             setLoading2(false); // Stop loading in both success and error cases
@@ -94,7 +100,7 @@ const DetailProduct = () => {
 
 
     // Track user behavior
-    const trackViewBehavior = async () => {
+    const trackBehavior = async (id,product_name, event_type) => {
         try {
             const sessionId = sessionID;
             const userId = user?.id || user?.user?.id;
@@ -105,12 +111,13 @@ const DetailProduct = () => {
             }
 
             await AxiosInstance.authAxios.post("/tracking", {
-                isLoggedid,
                 sessionId,
                 user: userId,
                 productId: id,
-                behavior: "cart",
+                product_name: product_name,
+                behavior: event_type,
             });
+            console.log("View behavior tracked successfully");
         } catch (error) {
             console.error("Error tracking view behavior:", error);
         }
@@ -131,7 +138,7 @@ const DetailProduct = () => {
                 // Clear previous data before fetching new data
                 setProduct(null);
                 setRecommendedProducts([]);
-                setRecommendedProducts2([]);
+                setUiRecommendedProducts([]);
                 setError(null);
                 setError2(null);
                 setError3(null);
@@ -142,14 +149,11 @@ const DetailProduct = () => {
 
                 window.scroll(0, 0); // Scroll to the top of the page
 
-                // Fetch recommendations concurrently
-                const [sessionBasedRecommendations, generalRecommendations] = await Promise.all([
-                    fetchSessinBaseRecommendedProducts(), // Fetch session-based recommendations
-                    fetchRecommendedProducts() // Fetch general recommendations
-                ]);
+                // Fetch product details first
+                fetchProduct();
+                fetchSessinBaseRecommendedProducts("view")
+                fetchRecommendedProducts()
 
-                // Fetch the product details after both recommendations finish
-                await fetchProduct();
             } catch (error) {
                 console.error("Error during initialization:", error);
             }
@@ -159,44 +163,58 @@ const DetailProduct = () => {
     }, [user, id]); // Dependency array includes `user` and `id`
 
 
+
     // Handle Add to Cart
-    const HandleAddToCart = async () => {
-        if (!user) {
-            toast.error("You must be logged in to add items to the cart.");
-            return;
-        }
-        if(!selectedColor){
-            toast.error("Please select a color");
-            return;
-        }
-        if(product?.size[0]!="string") {
-            if(!selectedSize) {
-                toast.error("Please select a size");
-                return;
-            }
-        }
+            const HandleAddToCart = async (product_name) => {
+                if (!user) {
+                    toast.error("You must be logged in to add items to the cart.");
+                    return;
+                }
+                if(!selectedColor){
+                    toast.error("Please select a color");
+                    return;
+                }
+                if(product?.size[0]!="string") {
+                    if(!selectedSize) {
+                        toast.error("Please select a size");
+                        return;
+                    }
+                }
 
-        try {
-            const data = {
-                productId: id,
-                quantity: value,
-                color: selectedColor,
-                size: selectedSize,
+                try {
+                    const data = {
+                        productId: id,
+                        quantity: value,
+                        color: selectedColor,
+                        size: selectedSize,
+                    };
+                    const request = {
+                        user_id: user?.user_id, // Assuming user_id is available in your component
+                        product_id: id, // Assuming product_id is available in your component
+                        event_type: "cart"
+                    };
+
+                    console.log("Request:", request); // Log for debugging
+
+                    // Pass request directly as the request body
+
+                    const response = await AxiosInstance.authAxios.post(`/cart/add`, data);
+                    console.log("Add to Cart Response:", response.data);
+
+                    toast.success("Product added to your cart successfully!", {
+                        className: "toast-success",
+                        style: { backgroundColor: "green", color: "white" },
+                    });
+                    const updateSessionRecommendation = await AxiosInstance.publicAxios.post(`/products/recommendations`, request);
+
+                    sessionRecommendedProductsRef.current = updateSessionRecommendation
+
+                    trackBehavior(id,product_name,"cart");
+                } catch (error) {
+                    console.error("Error adding product to cart:", error.response || error);
+                    toast.error(error.response?.data?.message || "Failed to add product to the cart.");
+                }
             };
-
-            const response = await AxiosInstance.authAxios.post(`/cart/add`, data);
-            console.log("Add to Cart Response:", response.data);
-
-            toast.success("Product added to your cart successfully!", {
-                className: "toast-success",
-                style: { backgroundColor: "green", color: "white" },
-            });
-            trackViewBehavior();
-        } catch (error) {
-            console.error("Error adding product to cart:", error.response || error);
-            toast.error(error.response?.data?.message || "Failed to add product to the cart.");
-        }
-    };
 
     // Handle quantity changes
     const incrementQuantity = () => {
@@ -217,15 +235,15 @@ const DetailProduct = () => {
     };
 
     // Conditional rendering
-    if (loading) return <div className="w-full h-full flex  items-center mt-40 justify-center px-[100px] 3xl:pr[100px] ">
-        <div className="w-full h-full flex items-center justify-center ">
+    if (loading) return <div className="w-full min-h-screen flex bg-white mt-40 justify-center px-[100px] 3xl:pr[100px] ">
+        <div className="w-full flex  justify-center ">
             <img src={gif} alt="loading" className="w-20 h-20"/>
         </div>
     </div>;
     if (error) return <div>Error: {error}</div>;
 
     return (
-        <div className="w-full h-full flex flex-col px-[100px] 3xl:pr[100px] ">
+        <div className="w-full h-full flex flex-col 3xl:px-[200px] md:px-[100px]  ">
             <div className="w-full  py-10 ">
                 <Breadcrumbs aria-label="breadcrumb">
                     <Link to="/" style={{textDecoration: 'none', color: 'inherit'}}>
@@ -238,19 +256,20 @@ const DetailProduct = () => {
                         {product.category}
                     </Link>
                     <Typography color="text.primary">{product.type}</Typography>
+                    <Typography color={"text.primary"}>{product.name}</Typography>
                 </Breadcrumbs>
             </div>
             <div className="w-full flex mb-10 bg-white p-3 py-4 rounded-xl">
-                <div className="w-1/2 flex justify-start ">
-                    <div className="w-full h-auto flex justify-between">
+                <div className="w-1/2 flex justify-between ">
+
                         <div className="w-1/3  h-full ">
                             <ul className="h-full w-full flex flex-col  space-y-3">
                                 {product?.productImage?.map((image, index) => (
-                                    <li key={index} className="w-[250px] h-[167px] border border-gray-200 rounded-xl">
+                                    <li key={index} className="w-full h-[167px] border border-gray-200 rounded-xl">
                                         <img
                                             src={image}
                                             alt={`Product Thumbnail ${index + 1}`}
-                                            className="w-full h-full object-contain rounded-xl cursor-pointer hover:border-2 hover:border-black  transition duration-300 ease-in-out"
+                                            className="h-full w-full object-contain rounded-xl cursor-pointer hover:border-2 hover:border-black  transition duration-300 ease-in-out"
                                             onMouseEnter={() => setMainImage(image)} // Update mainImage on hover
                                         />
                                     </li>
@@ -258,31 +277,31 @@ const DetailProduct = () => {
                             </ul>
                         </div>
 
-                        <div className="w-2/3  h-full ">
+                        <div className="w-2/3 mx-2 h-full ">
                             <img
                                 src={mainImage}
                                 alt={product?.name}
-                                className="w-full h-[530px] object-contain rounded-xl border border-black"
+                                className="h-[530px] w-full object-contain rounded-xl border border-black"
                             />
                         </div>
-                    </div>
+
                 </div>
 
                 {/* Product Details */}
-                <div className="w-1/2 h-full flex px-12">
+                <div className="w-1/2 h-full flex px-12 ">
                     {product ? (
                         <div className="w-full">
                             {/* Product Name and Price */}
                             <div className="flex w-full flex-col gap-y-3">
-                                <h1 className="text-3xl font-bold uppercase">{product.name}</h1>
-                                <Rating name="half-rating-read" defaultValue={2.5} precision={0.5} readOnly/>
-                                <p className="text-2xl font-semibold">{product.price.toLocaleString()}₫</p>
+                                <h1 className="text-2xl font-bold uppercase">{product.name}</h1>
+                                <Rating name="half-rating-read" size={"small"} defaultValue={product.rating} precision={0.5} readOnly/>
+                                <p className="text-3xl font-semibold">${product.price.toLocaleString()}</p>
                                 <p className="text-base mb-3 wrap whitespace-normal">{product.description}</p>
                             </div>
                             <div className="w-full h-[1px] bg-gray-200 my-3"></div>
                             {/* Colors */}
                             <div className="flex w-full flex-col gap-y-3 my-3">
-                                <h1 className="text-lg font-normal">Selected color</h1>
+                                <h1 className="text-base font-normal">Selected color</h1>
                                 <ul className="flex gap-x-3 flex-wrap whitespace-normal ">
                                     {product?.color?.map((color, index) => (
                                         <div
@@ -290,13 +309,13 @@ const DetailProduct = () => {
                                             onMouseEnter={() => handleColorHover(index)} // Change image on hover
                                             onClick={() => setSelectedColor(color)} // Update selected color
                                             className={`w-auto h-10 cursor-pointer mb-3 relative flex items-center gap-x-2 
-  border ${selectedColor === color ? "border-black border-2" : "border-gray-100"} 
-  px-1 hover:border-black hover:border-2`}
+                                            border ${selectedColor === color ? "border-black border-2" : "border-gray-100"} 
+                                            px-1 hover:border-black hover:border-2`}
                                         >
                                             <img
                                                 src={product?.image[index]}
                                                 alt={color}
-                                                className="w-1/3 h-full object-cover " // Prevent shrinking of the image
+                                                className="text-[0px] w-1/3 h-full object-contain " // Prevent shrinking of the image
                                             />
                                             <span
                                                 className="w-full text-sm whitespace-nowrap">{GetColorName(color)} {product.name}</span> {/* Allow the text to take up remaining space */}
@@ -311,13 +330,13 @@ const DetailProduct = () => {
                                 product?.size[0] != "string" && (
                                     <>
                                         <div className="flex w-full flex-col gap-y-3 my-3">
-                                            <h1 className="text-lg font-normal">Choose size</h1>
+                                            <h1 className="text-base font-normal">Choose size</h1>
                                             <ul className="flex gap-x-2">
                                                 {product?.size?.map((sizeItem, index) => (
                                                     <li
                                                         onClick={() => setSelectedSize(sizeItem)} // Update selected size
                                                         key={index}
-                                                        className={`w-12 h-6 rounded-xs border text-base lowercase bg-gray-200 text-center flex items-center justify-center cursor-pointer ${
+                                                        className={`w-20 h-10 rounded-md border text-base  text-center flex items-center justify-center cursor-pointer ${
                                                             selectedSize === sizeItem ? 'border-black border-2' : ''
                                                         } hover:border-2 hover:border-black mb-3`}
                                                     >
@@ -334,30 +353,33 @@ const DetailProduct = () => {
                             {/* Add to Cart */}
                             <div className="flex items-center justify-between gap-x-4 my-3 py-3">
                                 <div
-                                    className="flex h-10 w-1/4 items-center justify-center bg-gray-200 border rounded-3xl">
+                                    className="flex h-10 w-1/4 items-center justify-center bg-white rounded-md border border-gray-300">
                                     <button onClick={decrementQuantity}
-                                            className="w-1/3 text-xl font-bold rounded-tl-3xl rounded-b-3xl">
+                                            className="w-1/3 h-full text-xl font-bold border border-gray-300  hover:bg-red-500">
                                         -
                                     </button>
                                     <div
-                                        className="w-1/3 h-full flex items-center justify-center text-center">{value}</div>
+                                        className="w-1/3 h-full flex items-center justify-center border border-gray-300 text-center">{value}</div>
                                     <button onClick={incrementQuantity}
-                                            className="w-1/3 h-full text-xl font-bold bg-red-200 rounded-tr-3xl rounded-br-3xl">
+                                            className="w-1/3 h-full text-xl font-bold border border-gray-300  hover:bg-red-500">
                                         +
                                     </button>
                                 </div>
-                                <button
-                                    onClick={HandleAddToCart}
-                                    className="bg-black h-10 w-1/3 text-white px-4 py-2 rounded-3xl"
-                                >
-                                    Add to Cart
-                                </button>
-                                <button
-                                    className="bg-black h-10 w-1/3 text-white px-4 py-2 rounded-3xl gap-x-3 flex items-center justify-center"
-                                >
-                                    Add to wishlist <FavoriteBorderTwoToneIcon fontSize={"small"}
-                                                                               className="text-base"/>
-                                </button>
+                                <div className="flex items-center w-full gap-x-5">
+                                    <button
+                                        onClick={()=>HandleAddToCart(product.name)}
+                                        className="bg-red-500 h-10 w-1/3 rounded-md text-white px-4 py-2 hover:bg-red-400"
+                                    >
+                                        Add to Cart
+                                    </button>
+                                    <button
+                                        className=" h-10 w-10 border text-white rounded-md px-4 py-2  gap-x-3 flex items-center justify-center hover:bg-red-500"
+                                    >
+                                        <FavoriteBorderTwoToneIcon  fontSize={"small"}
+                                                                    className="text-base text-black" />
+                                    </button>
+                                </div>
+
                             </div>
                         </div>
                     ) : (
@@ -371,45 +393,7 @@ const DetailProduct = () => {
                 {
                     error2 && <div>{error2}</div>
                 }
-                {loading2 ? (
-                    <div className="flex items-center justify-center h-80">
-                        <div className="loader"></div>
-                        {/* Replace with your custom loader */}
-                        <span>Loading recommended products...</span>
-                    </div>
-                ) : (
-                    <ul className="w-full flex gap-x-2 overflow-x-auto custom-scrollbar pb-5">
-                        {recommendedProducts2.map((product) => (
-                            <Link
-                                onClick={() => {
-                                    trackViewBehavior(product.product_id); // Use top-level product_id
-                                }}
-                                to={`/product/${product.product_id}`} // Use top-level product_id
-                                className="w-52 flex-shrink-0 border border-gray-300 rounded-lg"
-                                key={product.product_id} // Ensure unique key
-                            >
-                                <div className="w-full h-[140px] bg-gray-200 rounded-[20px] ">
-                                    <img
-                                        src={product?.productDetails.image[0]} // Primary image
-                                        alt={product?.productDetails.name}
-                                        className="w-full h-full object-fit rounded-t-[20px]"
-                                    />
-                                </div>
-                                <div className="flex flex-col mt-4 p-2">
-                                    <span
-                                        className="font-semibold text-base hover:underline">{product.productDetails.name}</span>
-                                    <Rating
-                                        name="half-rating-read"
-                                        defaultValue={2.5} // Placeholder rating
-                                        precision={0.5}
-                                        readOnly
-                                    />
-                                    <span className="font-bold text-xl">${product.productDetails.price}</span>
-                                </div>
-                            </Link>
-                        ))}
-                    </ul>
-                )}
+                <SliceOfProduct products={uiRecommendedProducts} TrackViewBehavior={trackBehavior} isLoading={loading2}/>
             </div>
 
             <div className="w-full mb-5 flex gap-y-5 bg-white rounded-xl flex-col py-4 px-4">
@@ -417,45 +401,9 @@ const DetailProduct = () => {
                 {
                     error3 && <div>{error3}</div>
                 }
-                {loading3 ? (
-                    <div className="flex items-center justify-center h-80">
-                        <div className="loader"></div>
-                        {/* Replace with your custom loader */}
-                        <span>Loading recommended products...</span>
-                    </div>
-                ) : (
-                    <ul className="w-full flex gap-x-2 overflow-x-auto custom-scrollbar pb-5">
-                        {recommendedProducts.map((product) => (
-                            <Link
-                                onClick={() => {
-                                    trackViewBehavior(product.product_id); // Use top-level product_id
-                                }}
-                                to={`/product/${product.product_id}`} // Use top-level product_id
-                                className="w-52 flex-shrink-0 border border-gray-300 rounded-lg"
-                                key={product.product_id} // Ensure unique key
-                            >
-                                <div className="w-full h-[140px] bg-gray-200 rounded-[20px] ">
-                                    <img
-                                        src={product?.productDetails.image[0]} // Primary image
-                                        alt={product?.productDetails.name}
-                                        className="w-full h-full object-fit rounded-t-[20px]"
-                                    />
-                                </div>
-                                <div className="flex flex-col mt-4 p-2">
-                                    <span
-                                        className="font-semibold text-base hover:underline">{product.productDetails.name}</span>
-                                    <Rating
-                                        name="half-rating-read"
-                                        defaultValue={2.5} // Placeholder rating
-                                        precision={0.5}
-                                        readOnly
-                                    />
-                                    <span className="font-bold text-xl">${product.productDetails.price}</span>
-                                </div>
-                            </Link>
-                        ))}
-                    </ul>
-                )}
+
+                <SliceOfProduct products={recommendedProducts} TrackViewBehavior={trackBehavior} isLoading={loading3}/>
+
             </div>
         </div>
     );

@@ -22,13 +22,13 @@ authAxios.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
       // Handle 401 and 500 errors
-      if ([401, 500].includes(error.response?.status)) {
-          // Dispatch logout and show toast
-
-          toast.error("Session expired, please log in again.");
-          window.location.href = "/login"; // Redirect to the login page
-          return Promise.reject(error);
-      }
+      // if ([401, 500].includes(error.response?.status)) {
+      //     // Dispatch logout and show toast
+      //
+      //     toast.error("Session expired, please log in again.");
+      //     window.location.href = "/login"; // Redirect to the login page
+      //     return Promise.reject(error);
+      // }
     // Check if the error is due to session expiration
     if (error.response?.status === 404 && !originalRequest._retry) {
       originalRequest._retry = true;

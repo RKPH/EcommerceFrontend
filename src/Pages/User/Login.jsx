@@ -20,11 +20,11 @@ export function Login() {
   };
 
   // Redirect to homepage after login
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/"); // Navigate to the homepage
-    }
-  }, [isAuthenticated, navigate]);
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     navigate("/"); // Navigate to the homepage
+  //   }
+  // }, [isAuthenticated, navigate]);
 
   return (
     <div

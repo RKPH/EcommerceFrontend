@@ -6,10 +6,14 @@ import LoginPage from "../Pages/User/Login.jsx";
 import MenPage from "../Pages/Product/MenPage.jsx";
 import WomenPage from "../Pages/Product/WomenPage.jsx";
 import DetailProduct from "../Pages/Product/DetailProduct.jsx";
-import UserPage from "../Pages/User/UserPage.jsx";
+import UserPage from "../Pages/User/User/UserPage.jsx";
 import Register from "../Pages/User/Register.jsx";
 import Cart from "../Pages/User/Cart.jsx";
 import OrderPage from "../Pages/User/Checkout.jsx";
+import Checkout from "../Pages/User/Checkout.jsx";
+import OrderTracking from "../Pages/Product/OrderTracking.jsx";
+import paymentSuccessfully from "../Pages/Product/PaymentSuccessfully.jsx";
+import productTypes from "../Pages/Product/productTypes.jsx";
 
 Homepage;
 
@@ -45,6 +49,10 @@ export const publicRoutes = [
     component: UserPage,
   },
   {
+    path: "/products/type/:type",
+    component:productTypes
+  },
+  {
     path: "/product/:id",
     component: DetailProduct,
   },
@@ -55,6 +63,18 @@ export const publicRoutes = [
   {
     path: "/Order",
     component: OrderPage,
+  },
+  {
+    path: "/checkout",
+    component: Checkout
+  },
+  {
+    path: "/checkout/success/:orderId",
+    component: paymentSuccessfully
+  },
+  {
+    path: "/Order/:orderId",
+    component: OrderTracking,
   },
   {
     path: "*",

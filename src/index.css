@@ -49,7 +49,7 @@
 
 /* Target horizontal scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
-    height: 6px; /* Adjust height for horizontal scrollbar */
+    height: 2px; /* Adjust height for horizontal scrollbar */
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -88,4 +88,17 @@
 
     background-color: #555;
     cursor: pointer;
+}
+
+
+.custom-scrollbar-hidden {
+    scrollbar-width: none;
+}
+
+.custom-scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+}
+
+.carousel-inner {
+    transition: transform 0.5s ease-in-out; /* Apply smooth transition */
 }

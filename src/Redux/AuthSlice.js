@@ -42,6 +42,19 @@ export const getUserProfile = createAsyncThunk(
     }
 );
 
+// Async thunk for updating user profile
+export const updateUserInfo = createAsyncThunk(
+    'auth/updateUserInfo',
+    async (userInfo, { rejectWithValue }) => {
+        try {
+            const response = await AxiosInstance.authAxios.put('/users/profile', userInfo);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || 'Update failed');
+        }
+    }
+);
+
 // Async thunk for logging out
 export const logoutUserApi = createAsyncThunk(
     'auth/logoutUserApi',
@@ -76,7 +89,7 @@ const authSlice = createSlice({
     name: 'auth',
     initialState: {
         user: null,
-        sessionID:null,
+        sessionID: null,
         isLoading: false,
         isLoggedid: false,
         isAuthenticated: !!localStorage.getItem('isAuthenticated'), // Check in localStorage for authentication status
@@ -88,7 +101,6 @@ const authSlice = createSlice({
             state.isAuthenticated = false;
             state.isLoggedid = false;
             localStorage.removeItem('isAuthenticated'); // Remove authentication status from localStorage
-
         },
     },
     extraReducers: (builder) => {
@@ -103,6 +115,7 @@ const authSlice = createSlice({
                 state.isLoggedid = action.payload.isLoggedid;
                 state.sessionID = action.payload.sessionID;
                 state.user = action.payload.user;
+                window.location.href = "/"; // Redirect to home page
                 localStorage.setItem('isAuthenticated', true); // Save in localStorage
             })
             .addCase(loginUser.rejected, (state, action) => {
@@ -139,7 +152,7 @@ const authSlice = createSlice({
                 state.isLoading = false;
                 state.isAuthenticated = false;
                 state.error = action.payload;
-                if (action.payload?.status === 401 || action.payload?.status === 500) {
+                if (action.payload?.status === 401 || action.payload?.status === 500 || action.payload?.status === 404) {
                     state.isAuthenticated = false;
                     toast.error("Session expired, please log in again.");
                     localStorage.removeItem('isAuthenticated');
@@ -158,7 +171,6 @@ const authSlice = createSlice({
                 localStorage.removeItem('isAuthenticated');
                 state.error = action.payload; // Optional: Log the error for debugging
             })
-        // Handle the refresh token logic
             .addCase(refreshToken.pending, (state) => {
                 state.isLoading = true;
             })
@@ -172,6 +184,20 @@ const authSlice = createSlice({
                 state.isLoading = false;
                 state.isAuthenticated = false;
                 state.error = action.payload;
+            })
+            // Handling updateUserInfo logic
+            .addCase(updateUserInfo.pending, (state) => {
+                state.isLoading = true;
+            })
+            .addCase(updateUserInfo.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.user = action.payload.user; // Update user information in state
+
+            })
+            .addCase(updateUserInfo.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+                toast.error(action.payload || "Failed to update user information");
             });
     },
 });
