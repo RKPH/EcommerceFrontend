@@ -43,7 +43,7 @@ const OrderTracking = () => {
     }, [orderId]);
 
     return (
-        <div className="min-h-screen flex items-center py-6 w-full flex-col px-4 px-[100px] bg-gray-100">
+        <div className="min-h-screen flex items-center py-6 w-full flex-col px-4 3xl:px-[200px] md:px-[100px] bg-gray-100">
             {/* Breadcrumbs */}
             <div className="w-full mb-5">
                 <Breadcrumbs aria-label="breadcrumb" className="text-sm text-gray-600">

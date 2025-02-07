@@ -1,4 +1,5 @@
 ﻿import React, { useState, useEffect , useRef } from "react";
+import axios   from "axios";
 import AxiosInstance from "../../api/axiosInstance.js";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -41,7 +42,7 @@ const DetailProduct = () => {
     // Function to fetch product details
     const fetchProduct = async () => {
         try {
-            const response = await AxiosInstance.publicAxios.get(`/products/${id}`);
+            const response = await AxiosInstance.normalAxios.get(`/products/${id}`);
             console.log("Response Data:", response?.data); // Log for debugging
             const fetchedProduct = response?.data?.data;
 
@@ -67,7 +68,7 @@ const DetailProduct = () => {
             console.log("Request:", request); // Log for debugging
 
             // Pass request directly as the request body
-            const response = await AxiosInstance.publicAxios.post(`/products/recommendations`, request);
+            const response = await AxiosInstance.normalAxios.post(`/products/recommendations`, request);
 
             console.log("Recommended Products 2:", response?.data?.data); // Log for debugging
             setError2(null); // Clear any previous errors
@@ -86,7 +87,7 @@ const DetailProduct = () => {
     const fetchRecommendedProducts = async () => {
         setLoading3(true); // Start loading before the request
         try {
-            const response = await AxiosInstance.publicAxios.post(`/products/predict/${id}`);
+            const response = await AxiosInstance.normalAxios.post(`/products/predict/${id}`);
             console.log("Recommended Products:", response.data.data); // Log for debugging
             setError3(null); // Clear any previous errors
             setRecommendedProducts(response?.data?.data); // Set recommended products
@@ -205,7 +206,7 @@ const DetailProduct = () => {
                         className: "toast-success",
                         style: { backgroundColor: "green", color: "white" },
                     });
-                    const updateSessionRecommendation = await AxiosInstance.publicAxios.post(`/products/recommendations`, request);
+                    const updateSessionRecommendation = await AxiosInstance.normalAxios.post(`/products/recommendations`, request);
 
                     sessionRecommendedProductsRef.current = updateSessionRecommendation
 

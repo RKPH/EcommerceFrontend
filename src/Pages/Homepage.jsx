@@ -124,10 +124,10 @@ const Homepage = () => {
                 {/* Categories Menu */}
                 <div className="w-1/4 bg-white flex flex-col gap-y-2">
                     <div className="w-full">
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSn-gB8SVKd114vdBG9WFSlmUJ4urXby4lq7Q&s"  className="w-full h-full bg-comtain" alt=""/>
+                        <img src="https://c8.alamy.com/comp/2J5EH7W/online-retailers-e-commerce-web-banner-on-red-background-various-shopping-icons-online-shopping-concept-2J5EH7W.jpg"  className="w-full h-full bg-comtain" alt=""/>
                     </div>
                     <div className="w-full">
-                        <img src="https://img.freepik.com/premium-vector/2025-new-year-sale-banner_1281977-121.jpg"  className="w-full h-full bg-comtain" alt=""/>
+                        <img src="https://img.freepik.com/free-vector/final-sale-modern-banner-design-template_87202-1262.jpg?t=st=1738330117~exp=1738333717~hmac=4bd3256a2a616ecba75b961538a2d2bbd43e0421f439a07d87619641211454ca&w=1380"  className="w-full h-full bg-comtain" alt=""/>
                     </div>
                 </div>
 
@@ -142,21 +142,21 @@ const Homepage = () => {
                             <div
                                 className="flex h-full items-center justify-center bg-gray-400 dark:bg-gray-700 carousel-inners dark:text-white">
                                 <img
-                                    src="https://salt.tikicdn.com/ts/brickv2og/49/2b/b8/335095f52ed2cca60543f9b5f049c96b.jpg"
+                                    src="https://img.freepik.com/free-vector/gradient-11-11-singles-day-shopping-day-landing-page-template_23-2149681763.jpg?t=st=1738330055~exp=1738333655~hmac=362ac4bdaacc737a64c6269ab1f78af5c75caae75183518e2a87426c75d82865&w=1380"
                                     className="bg-contain h-full w-full"
                                 />
                             </div>
                             <div
                                 className="flex h-full items-center justify-center bg-gray-400 carousel-inners dark:bg-gray-700 dark:text-white">
                                 <img
-                                    src="https://www.vlance.vn/uploads/portfolio/view/a0ccbd99baf95a690bcd2be87fc684b84bcb97551.png"
+                                    src="https://static.vecteezy.com/system/resources/previews/001/937/856/non_2x/paper-art-shopping-online-on-smartphone-sale-promotion-backgroud-banner-for-market-ecommerce-free-vector.jpg"
                                     className="bg-contain h-full w-full"
                                 />
                             </div>
                             <div
                                 className="flex h-full items-center justify-center bg-gray-400 carousel-inners dark:bg-gray-700 dark:text-white">
                                 <img
-                                    src="https://salt.tikicdn.com/ts/brickv2og/c0/f4/20/333a4bf61378b404f0ca015332b85d12.png"
+                                    src="https://redseer.com/wp-content/uploads/2024/09/Blog-Banner-for-Website-Content-23-scaled.jpg"
                                     className="bg-cover h-full w-full"
                                 />
                             </div>
@@ -247,7 +247,7 @@ const Homepage = () => {
             {/* Browse By Types Section */}
             <div className="w-full min-h-fit flex gap-y-5 flex-col bg-white mt-10 p-4 rounded-xl">
                 <div className="w-full flex items-center gap-x-2">
-                    <div className="w-[20px] h-[40px] bg-red-600 rounded-md"></div>
+                    <div className="w-[20px] h-[40px] bg-red-500 rounded-md"></div>
                     <span className="text-sm text-red-600 font-semibold">Types</span>
                 </div>
 
@@ -304,7 +304,7 @@ const Homepage = () => {
             <div className="w-full mt-10">
                 <div className="w-full mb-5 flex gap-y-5 bg-white rounded-xl flex-col py-4 px-4">
                     <div className="w-full flex items-center gap-x-2">
-                        <div className="w-[20px] h-[40px] bg-red-600 rounded-md"></div>
+                        <div className="w-[20px] h-[40px] bg-red-500 rounded-md"></div>
                         <span className="text-sm text-red-600 font-semibold">This month</span>
                     </div>
                     <div className="flex items-center gap-x-2 text-black">

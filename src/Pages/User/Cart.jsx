@@ -19,6 +19,9 @@ const Cart = () => {
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user); // Redux state for the logged-in user
   const [TrendingProducts, setTrendingProducts] = useState([]);
+  const [uiRecommendedProducts, setUiRecommendedProducts] = useState([]);
+  const [loading2, setLoading2] = useState(false);
+  const [error2, setError2] = useState(null);
 
   const trackBehavior = async (id, product_name, event_type) => {
     try {
@@ -79,14 +82,19 @@ const Cart = () => {
       return [...prevSelectedItems, itemId]; // Add to selected items
     });
   };
+  useEffect(() => { fetchSessinBaseRecommendedProducts(); }, []);
 
   useEffect(() => {
     if (user) {
       fetchCart();
     }
     fetchTrendingProducts();
+
   }, [user]);
 
+  useEffect(() => {
+    fetchSessinBaseRecommendedProducts();
+  }, [cartItems]);
   const fetchTrendingProducts = async () => {
     try {
       const response = await axios.get(
@@ -98,6 +106,45 @@ const Cart = () => {
       console.error("Error fetching trending products:", error.message || error);
     }
   };
+  console.log("Product ID from cart:", cartItems[length-1]?.productID);
+
+  const fetchSessinBaseRecommendedProducts = async () => {
+    console.log("Fetching recommended products...");
+    setLoading2(true); // Start loading before the request
+
+    try {
+      // Ensure cartItems is not empty and access the last item safely
+      const lastCartItem = cartItems.length > 0 ? cartItems[cartItems.length - 1] : null;
+
+      if (!lastCartItem) {
+        console.error("No items in cart");
+        return;
+      }
+
+      const request = {
+        user_id: user?.user_id, // Assuming user_id is available in your component
+        product_id: lastCartItem?.productID, // Access the productID of the last cart item
+        event_type: "cart"
+      };
+
+      console.log("Request:", request); // Log for debugging
+
+      // Pass request directly as the request body
+      const response = await AxiosInstance.normalAxios.post(`/products/recommendations`, request);
+
+      console.log("Recommended Products 2:", response?.data?.data); // Log for debugging
+      setError2(null); // Clear any previous errors
+
+      setUiRecommendedProducts(response?.data?.data); // Set recommended products
+      setLoading2(false); // Stop loading
+    } catch (error) {
+      console.error("Error fetching recommended products:", error?.message || error);
+      setError2(error.response?.data?.message || "An error occurred");
+    } finally {
+      setLoading2(false); // Stop loading in both success and error cases
+    }
+  };
+
 
   const calculateTotal = () => {
     return cartItems.reduce((total, cartItem) => {
@@ -202,109 +249,117 @@ const Cart = () => {
           </Breadcrumbs>
         </div>
         {cartItems.length > 0 ? (
-            <>
-              <div className="w-full min-h-fit max-h-[500px] overflow-y-auto mb-4">
-                <table className="w-full text-left border-separate border-spacing-y-6 border-spacing-x-0">
-                  <thead className="bg-gray-100">
-                  <tr>
-                    <th className="py-2 px-4">Select</th>
-                    <th className="py-2 px-4">Product</th>
-                    <th className="py-2 px-4">Price</th>
-                    <th className="py-2 px-4">Quantity</th>
-                    <th className="py-2 px-4">Subtotal</th>
-                    <th className="py-2 px-4">
-                      <DeleteIcon />
-                    </th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  {cartItems.map((item) => (
-                      <tr key={item.id} className="bg-white">
-                        <td className="py-2 px-4">
-                          <input
-                              type="checkbox"
-                              checked={selectedItems.includes(item._id)}
-                              onChange={() => handleSelectItem(item._id)}
-                          />
-                        </td>
-                        <td className="flex items-center space-x-4">
-                          <Link
-                              className="py-2 px-2 flex items-center space-x-4"
-                              to={`/product/${item.product.productID}`}
-                              onClick={() =>
-                                  trackBehavior(item.product.productID, item.product.name, "view")
-                              }
-                          >
-                            <img
-                                src={item.product.image[0]}
-                                alt={item.product.name}
-                                className="w-24 h-24 object-cover rounded text-[0px]"
+            <div className="flex flex-col w-full ">
+              <div className="w-full flex items-start  gap-x-2">
+                <div className="w-full min-h-fit max-h-[500px]  overflow-y-auto ">
+                  <table className="w-full text-left border-separate border-spacing-y-4 border-spacing-x-0">
+                    <thead className="bg-gray-100">
+                    <tr>
+                      <th className="py-2 px-4">Select</th>
+                      <th className="py-2 px-4">Product</th>
+                      <th className="py-2 px-4">Price</th>
+                      <th className="py-2 px-4">Quantity</th>
+                      <th className="py-2 px-4">Subtotal</th>
+                      <th className="py-2 px-4">
+                        <DeleteIcon />
+                      </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {cartItems.map((item) => (
+                        <tr key={item.id} className="bg-white">
+                          <td className="py-2 px-4">
+                            <input
+                                type="checkbox"
+                                checked={selectedItems.includes(item._id)}
+                                onChange={() => handleSelectItem(item._id)}
                             />
-                            <div className="flex flex-col">
-                              <span className="text-lg font-semibold">{item.product.name}</span>
-                              <span className="text-xs text-gray-800">Color: {GetColorName(item.color)}</span>
-                              <span className="text-xs text-gray-800">Size: {item.size}</span>
-                            </div>
-                          </Link>
-                        </td>
-                        <td className="py-2 px-4">{item.product.price} VND</td>
-                        <td className="py-2 px-4">
-                          <div className="flex items-center">
-                            <button
+                          </td>
+                          <td className="flex items-center space-x-4">
+                            <Link
+                                className="py-2 px-2 flex items-center space-x-4"
+                                to={`/product/${item.product.productID}`}
                                 onClick={() =>
-                                    UpdateCart(item._id, Math.max(item.quantity - 1, 1))
+                                    trackBehavior(item.product.productID, item.product.name, "view")
                                 }
-                                className="w-7 h-7 bg-gray-100 text-gray-800 hover:bg-gray-300 flex items-center justify-center"
                             >
-                              -
-                            </button>
-                            <span className="w-7 h-7 border flex items-center justify-center text-center">
+                              <img
+                                  src={item.product.image[0]}
+                                  alt={item.product.name}
+                                  className="w-24 h-24 object-cover rounded text-[0px]"
+                              />
+                              <div className="flex flex-col">
+                                <span className="text-lg font-semibold">{item.product.name}</span>
+                                <span className="text-xs text-gray-800">Color: {GetColorName(item.color)}</span>
+                                <span className="text-xs text-gray-800">Size: {item.size}</span>
+                              </div>
+                            </Link>
+                          </td>
+                          <td className="py-2 px-4">{item.product.price} VND</td>
+                          <td className="py-2 px-4">
+                            <div className="flex items-center">
+                              <button
+                                  onClick={() =>
+                                      UpdateCart(item._id, Math.max(item.quantity - 1, 1))
+                                  }
+                                  className="w-7 h-7 bg-gray-100 text-gray-800 hover:bg-gray-300 flex items-center justify-center"
+                              >
+                                -
+                              </button>
+                              <span className="w-7 h-7 border flex items-center justify-center text-center">
                                               {item.quantity}
                                             </span>
+                              <button
+                                  onClick={() => UpdateCart(item._id, item.quantity + 1)}
+                                  className="w-7 h-7 bg-gray-100 text-gray-800 hover:bg-gray-300 flex items-center justify-center"
+                              >
+                                +
+                              </button>
+                            </div>
+                          </td>
+                          <td className="py-2 px-4">
+                            ${ (item.product.price.toFixed(2) * item.quantity).toFixed(2) }
+                          </td>
+                          <td className="py-2 px-4">
                             <button
-                                onClick={() => UpdateCart(item._id, item.quantity + 1)}
-                                className="w-7 h-7 bg-gray-100 text-gray-800 hover:bg-gray-300 flex items-center justify-center"
+                                className="text-red-500"
+                                onClick={() => handleDeleteItem(item._id)}
                             >
-                              +
+                              <DeleteIcon />
                             </button>
-                          </div>
-                        </td>
-                        <td className="py-2 px-4">
-                          ${ (item.product.price.toFixed(2) * item.quantity).toFixed(2) }
-                        </td>
-                        <td className="py-2 px-4">
-                          <button
-                              className="text-red-500"
-                              onClick={() => handleDeleteItem(item._id)}
-                          >
-                            <DeleteIcon />
-                          </button>
-                        </td>
-                      </tr>
-                  ))}
-                  </tbody>
-                </table>
-              </div>
-              <div className="w-full max-w-sm p-4 border border-black rounded-lg shadow-md bg-white ml-auto mt-4">
-                <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-gray-600">Total Items:</span>
-                  <span>{selectedItems.length}</span>
+                          </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                  </table>
                 </div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-gray-600">Total Price:</span>
-                  <span className="font-semibold">${calculateTotal().toFixed(2)}</span>
-                </div>
-                <div className="w-full flex items-center justify-center">
-                  <button
-                      onClick={handleCreateOrder}
-                      className="w-2/3 mt-4 py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                  >
-                    Proceed to Checkout
-                  </button>
+                <div className="w-full h-fit max-w-sm p-4  shadow-md bg-white ml-auto mt-4">
+                  <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-gray-600">Total Items:</span>
+                    <span>{selectedItems.length}</span>
+                  </div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-gray-600">Total Price:</span>
+                    <span className="font-semibold">${calculateTotal().toFixed(2)}</span>
+                  </div>
+                  <div className="w-full flex items-center justify-center">
+                    <button
+                        onClick={handleCreateOrder}
+                        className="w-2/3 mt-4 py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                    >
+                      Proceed to Checkout
+                    </button>
+                  </div>
                 </div>
               </div>
-            </>
+              <div className="w-full mt-10  ">
+                <div className="w-full mb-5 flex gap-y-5 bg-white rounded-xl flex-col py-4 px-4">
+                  <h1 className="text-xl text-black font-normal w-full text-start">You may also like</h1>
+                  <SliceOfProduct products={uiRecommendedProducts} TrackViewBehavior={trackViewBehavior} isLoading={loading2}/>
+                </div>
+              </div>
+            </div>
         ) : (
             <>
               <div className="flex bg-white w-full min-h-[100px] flex-col items-center justify-center gap-y-2 p-4">

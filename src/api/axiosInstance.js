@@ -7,14 +7,20 @@ import { toast } from "react-toastify"; // Import toast for notifications
 
 // Create two Axios instances for authenticated and public requests
 const authAxios = axios.create({
-  baseURL: "http://localhost:3000/api/v1",
+  baseURL: "http://103.155.161.94:3000/api/v1",
   withCredentials: true, // Include cookies with requests
 });
 
 const publicAxios = axios.create({
-  baseURL: "http://localhost:3000/api/v1",
+  baseURL: "http://103.155.161.94:3000/api/v1",
   withCredentials: true, // Include cookies with requests
 });
+
+const normalAxios = axios.create({
+    baseURL: "http://103.155.161.94:3000/api/v1",
+    withCredentials: false, // Include cookies with requests
+});
+
 
 // Response interceptor to handle session expiration and retry logic
 authAxios.interceptors.response.use(
@@ -50,4 +56,4 @@ authAxios.interceptors.response.use(
   }
 );
 
-export default { authAxios, publicAxios };
+export default { authAxios, publicAxios ,normalAxios};

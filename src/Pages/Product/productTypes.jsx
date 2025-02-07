@@ -3,6 +3,7 @@ import AxiosInstance from "../../api/axiosInstance";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import Paginition from "../../Components/Pagination.jsx";
+import Rating from "@mui/material/Rating";
 
 const ProductCategoryPage = () => {
     let { type } = useParams();
@@ -24,7 +25,7 @@ const ProductCategoryPage = () => {
         const fetchProducts = async () => {
             setLoading(true);
             try {
-                const response = await AxiosInstance.authAxios.get(`/products/type/${type}`, {
+                const response = await AxiosInstance.normalAxios.get(`/products/type/${type}`, {
                     params: {
                         page: currentPage,
                         limit: productsPerPage,
@@ -35,7 +36,7 @@ const ProductCategoryPage = () => {
                         category: filters.category,
                     },
                 });
-
+                console.log("products by types ", response.dataz)
                 // Update products and pagination state
                 setProducts(response.data.data);
                 setTotalProducts(response.data.pagination.totalProducts); // totalProducts from API response
@@ -69,7 +70,7 @@ const ProductCategoryPage = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col md:flex-row px-4 3xl:px-[200px] md:px-[100px] py-6 bg-gray-100">
+        <div className="min-h-screen flex flex-col md:flex-row px-4 3xl:px-[200px] md:px-[100px] gap-x-2 py-6 bg-gray-100">
             {/* Filters Section */}
             <div className="w-full md:w-1/5 bg-white p-4 rounded-md shadow mb-6 md:mb-0">
                 <h3 className="text-lg font-bold mb-4">Filters</h3>
@@ -143,35 +144,56 @@ const ProductCategoryPage = () => {
             </div>
 
             {/* Products Section */}
-            <div className="w-full md:w-4/5 bg-white p-4 rounded-md shadow">
-                <h3 className="text-lg font-bold mb-4">Products</h3>
+            <div className="w-full md:w-4/5 flex flex-col gap-y-2 rounded-md shadow">
+                <div className="w-full p-4 flex items-center text-center bg-white">
+                    <h3 className="text-lg font-bold mb-4 uppercase ">{type}</h3>
+                </div>
+
                 {loading ? (
                     <p>Loading...</p>
                 ) : products.length > 0 ? (
-                    <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                        {products.map((product) => (
-                            <li
-                                key={product.id}
-                                className="border p-4 rounded-md shadow hover:shadow-lg transition-shadow"
-                            >
-                                <img
-                                    src={product.image}
-                                    alt={product.name}
-                                    className="w-full h-40 object-cover rounded-md mb-4"
-                                />
-                                <h4 className="font-semibold text-lg mb-2">{product.name}</h4>
-                                <p className="text-gray-600">Brand: {product.brand}</p>
-                                <p className="text-gray-600">Price: ${product.price}</p>
-                                <p className="text-gray-600">Category: {product.category}</p>
+                    <div className="w-full bg-white p-4">
+                        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                            {products.map((product) => (
                                 <Link
-                                    to={`/product/${product.productID}`}
-                                    className="text-blue-500 hover:underline mt-2 block"
+                                    onClick={() => {
+                                        trackViewBehavior(
+                                            product?.productID || product?.product_id,
+                                            product?.name || product?.productDetails?.name,
+                                            "view"
+                                        );
+                                    }}
+                                    to={`/product/${product?.productID || product?.product_id}`}
+                                    className="border w-52 flex-shrink-0 border-gray-300 hover:shadow-lg  "
+                                    key={product?.productID || product.product_id}
                                 >
-                                    View Details
+                                    <div className="w-full h-[200px] bg-gray-200">
+                                        <img
+                                            src={product?.productImage?.[0] || product?.productDetails?.image?.[0]}
+                                            alt={product?.name || product?.productDetails?.name}
+                                            className="w-full h-full object-fit rounded-lg"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col p-2">
+                                <span className="font-normal text-base hover:underline">
+                                    {product?.name || product?.productDetails?.name}
+                                </span>
+                                        <Rating
+                                            name="half-rating-read"
+                                            size="small"
+                                            defaultValue={product?.rating || product?.productDetails?.rating}
+                                            precision={0.5}
+                                            readOnly
+                                        />
+                                        <span className="font-bold text-lg">
+                                    ${product?.price || product?.productDetails?.price}
+                                </span>
+                                    </div>
                                 </Link>
-                            </li>
-                        ))}
-                    </ul>
+                            ))}
+                        </ul>
+                    </div>
+
                 ) : (
                     <p className="text-gray-600">No products found matching the filters.</p>
                 )}
