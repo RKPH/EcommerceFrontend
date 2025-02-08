@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  react-app:
+    build: .
+    ports:
+      - "5173:5173"
+    env_file:
+      - .env
+    environment:
+      - REACT_APP_API_URL=${REACT_APP_API_URL}
+    volumes:
+      - .:/app
+      - /app/node_modules
