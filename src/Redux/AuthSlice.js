@@ -1,7 +1,6 @@
 ﻿import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import AxiosInstance from "../api/axiosInstance.js";
-import { toast } from "react-toastify"; // Import toast for notifications
-
+import AxiosInstance from '../api/axiosInstance.js';
+import { toast } from 'react-toastify';
 
 // Async thunk for login
 export const loginUser = createAsyncThunk(
@@ -9,7 +8,14 @@ export const loginUser = createAsyncThunk(
     async (credentials, { rejectWithValue }) => {
         try {
             const response = await AxiosInstance.publicAxios.post('/auth/login', credentials);
-            return response.data;
+            const { token, refreshToken, user } = response.data;
+
+            // Store token and refresh token in localStorage
+            localStorage.setItem('token', token);
+            localStorage.setItem('refreshToken', refreshToken);
+            localStorage.setItem('isAuthenticated', 'true');
+
+            return { user, token, refreshToken };
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Something went wrong');
         }
@@ -22,7 +28,14 @@ export const registerUser = createAsyncThunk(
     async (userDetails, { rejectWithValue }) => {
         try {
             const response = await AxiosInstance.publicAxios.post('/auth/register', userDetails);
-            return response.data;
+            const { token, refreshToken, user } = response.data;
+
+            // Store token and refresh token in localStorage
+            localStorage.setItem('token', token);
+            localStorage.setItem('refreshToken', refreshToken);
+            localStorage.setItem('isAuthenticated', 'true');
+
+            return { user, token, refreshToken };
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Something went wrong');
         }
@@ -60,7 +73,12 @@ export const logoutUserApi = createAsyncThunk(
     'auth/logoutUserApi',
     async (_, { rejectWithValue }) => {
         try {
-            await AxiosInstance.publicAxios.post('/auth/logout'); // Let backend clear cookies
+            await AxiosInstance.publicAxios.post('/auth/logout');
+
+            // Clear local storage
+            localStorage.removeItem('token');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('isAuthenticated');
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Logout failed');
         }
@@ -71,14 +89,20 @@ export const logoutUserApi = createAsyncThunk(
 export const refreshToken = createAsyncThunk(
     'auth/refreshToken',
     async (_, { rejectWithValue }) => {
-        const refreshToken = Cookies.get('refreshToken');
-        if (!refreshToken) {
+        const storedRefreshToken = localStorage.getItem('refreshToken');
+        if (!storedRefreshToken) {
             return rejectWithValue('No refresh token found');
         }
 
         try {
-            const response = await AxiosInstance.publicAxios.post('/auth/refresh', { refreshToken });
-            return response.data;
+            const response = await AxiosInstance.publicAxios.post('/auth/refresh', { refreshToken: storedRefreshToken });
+            const { token, refreshToken } = response.data;
+
+            // Update tokens in local storage
+            localStorage.setItem('token', token);
+            localStorage.setItem('refreshToken', refreshToken);
+
+            return { token, refreshToken };
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Token refresh failed');
         }
@@ -91,16 +115,16 @@ const authSlice = createSlice({
         user: null,
         sessionID: null,
         isLoading: false,
-        isLoggedid: false,
-        isAuthenticated: !!localStorage.getItem('isAuthenticated'), // Check in localStorage for authentication status
+        isAuthenticated: !!localStorage.getItem('isAuthenticated'), // Persist authentication status
         error: null,
     },
     reducers: {
         logoutUser: (state) => {
             state.user = null;
             state.isAuthenticated = false;
-            state.isLoggedid = false;
-            localStorage.removeItem('isAuthenticated'); // Remove authentication status from localStorage
+            localStorage.removeItem('token');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('isAuthenticated');
         },
     },
     extraReducers: (builder) => {
@@ -111,12 +135,9 @@ const authSlice = createSlice({
             })
             .addCase(loginUser.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.isAuthenticated = true; // Set to true after successful login
-                state.isLoggedid = action.payload.isLoggedid;
-                state.sessionID = action.payload.sessionID;
+                state.isAuthenticated = true;
                 state.user = action.payload.user;
-                window.location.href = "/"; // Redirect to home page
-                localStorage.setItem('isAuthenticated', true); // Save in localStorage
+                window.location.href = '/';
             })
             .addCase(loginUser.rejected, (state, action) => {
                 state.isLoading = false;
@@ -130,8 +151,6 @@ const authSlice = createSlice({
                 state.isLoading = false;
                 state.isAuthenticated = true;
                 state.user = action.payload.user;
-                state.sessionID = action.payload.sessionID;
-                localStorage.setItem('isAuthenticated', true); // Save in localStorage
             })
             .addCase(registerUser.rejected, (state, action) => {
                 state.isLoading = false;
@@ -144,32 +163,23 @@ const authSlice = createSlice({
             .addCase(getUserProfile.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.user = action.payload.user;
-                state.sessionID = action.payload.sessionID;
-                state.isAuthenticated = true; // Ensure isAuthenticated is true after fetching profile
-                localStorage.setItem('isAuthenticated', true); // Ensure it's set in localStorage
+                state.isAuthenticated = true;
             })
             .addCase(getUserProfile.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isAuthenticated = false;
                 state.error = action.payload;
-                if (action.payload?.status === 401 || action.payload?.status === 500 || action.payload?.status === 404) {
-                    state.isAuthenticated = false;
-                    toast.error("Session expired, please log in again.");
-                    localStorage.removeItem('isAuthenticated');
-                }
+                toast.error('Session expired, please log in again.');
+                localStorage.removeItem('isAuthenticated');
             })
             .addCase(logoutUserApi.fulfilled, (state) => {
                 state.isAuthenticated = false;
                 state.user = null;
-                state.isLoggedid = false;
-                localStorage.removeItem('isAuthenticated'); // Clean up frontend state
             })
             .addCase(logoutUserApi.rejected, (state, action) => {
                 state.isAuthenticated = false;
                 state.user = null;
-                state.isLoggedid = false;
-                localStorage.removeItem('isAuthenticated');
-                state.error = action.payload; // Optional: Log the error for debugging
+                state.error = action.payload;
             })
             .addCase(refreshToken.pending, (state) => {
                 state.isLoading = true;
@@ -177,27 +187,23 @@ const authSlice = createSlice({
             .addCase(refreshToken.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.isAuthenticated = true;
-                state.user = action.payload.user;
-                // No need to set cookies here as the backend is managing them
             })
             .addCase(refreshToken.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isAuthenticated = false;
                 state.error = action.payload;
             })
-            // Handling updateUserInfo logic
             .addCase(updateUserInfo.pending, (state) => {
                 state.isLoading = true;
             })
             .addCase(updateUserInfo.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.user = action.payload.user; // Update user information in state
-
+                state.user = action.payload.user;
             })
             .addCase(updateUserInfo.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload;
-                toast.error(action.payload || "Failed to update user information");
+                toast.error(action.payload || 'Failed to update user information');
             });
     },
 });
