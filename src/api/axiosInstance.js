@@ -6,6 +6,7 @@ const BASE_URL = "http://103.155.161.94:3000/api/v1";
 
 // Function to get the token from localStorage
 const getToken = () => localStorage.getItem("token");
+const getReToken = () => localStorage.getItem("refreshToken");
 
 // Create an Axios instance for authenticated requests
 const authAxios = axios.create({
@@ -25,12 +26,29 @@ const normalAxios = axios.create({
     withCredentials: false,
 });
 
+const refreshTokenAxios = axios.create({
+    baseURL: BASE_URL,  // Ensure BASE_URL is defined
+    withCredentials: true // Include cookies with requests
+});
+
 // **Attach token to headers for all authenticated requests**
 authAxios.interceptors.request.use(
     (config) => {
         const token = getToken();
         if (token) {
             config.headers["Authorization"] = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
+
+refreshTokenAxios.interceptors.request.use(
+    (config) => {
+        const refreshToken = getReToken(); // Ensure this function returns a valid token
+        if (refreshToken) {
+            config.headers["Authorization"] = `Bearer ${refreshToken}`;
         }
         return config;
     },
@@ -58,7 +76,7 @@ authAxios.interceptors.response.use(
 
             try {
                 // Send request to refresh the token
-                const response = await publicAxios.post("/auth/refresh-token");
+                const response = await refreshTokenAxios.post("/auth/refresh-token");
                 const newToken = response.data.token;
                 localStorage.setItem("token", newToken);
 

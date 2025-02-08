@@ -98,7 +98,7 @@ const Cart = () => {
   const fetchTrendingProducts = async () => {
     try {
       const response = await axios.get(
-          "http://localhost:3000/api/v1/products/trending"
+          "http://103.155.161.94:3000/api/v1/products/trending"
       );
       setTrendingProducts(response.data.data); // Assuming the response contains an array of products
       console.log("Fetched Trending Products:", response.data.data); // Log the fetched products
