@@ -1,59 +1,81 @@
 ﻿import axios from "axios";
+import { toast } from "react-toastify";
 
-import { toast } from "react-toastify"; // Import toast for notifications
+// Base URL for API requests
+const BASE_URL = "http://localhost:3000/api/v1";
 
+// Function to get the token from localStorage
+const getToken = () => localStorage.getItem("token");
 
-
-
-// Create two Axios instances for authenticated and public requests
+// Create an Axios instance for authenticated requests
 const authAxios = axios.create({
-  baseURL: "http://103.155.161.94:3000/api/v1",
-  withCredentials: true, // Include cookies with requests
+    baseURL: BASE_URL,
+    withCredentials: true,
 });
 
+// Create an Axios instance for public requests
 const publicAxios = axios.create({
-  baseURL: "http://103.155.161.94:3000/api/v1",
-  withCredentials: true, // Include cookies with requests
+    baseURL: BASE_URL,
+    withCredentials: true,
 });
 
+// Create an Axios instance for normal requests (without credentials)
 const normalAxios = axios.create({
-    baseURL: "http://103.155.161.94:3000/api/v1",
-    withCredentials: false, // Include cookies with requests
+    baseURL: BASE_URL,
+    withCredentials: false,
 });
 
-
-// Response interceptor to handle session expiration and retry logic
-authAxios.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-      // Handle 401 and 500 errors
-      // if ([401, 500].includes(error.response?.status)) {
-      //     // Dispatch logout and show toast
-      //
-      //     toast.error("Session expired, please log in again.");
-      //     window.location.href = "/login"; // Redirect to the login page
-      //     return Promise.reject(error);
-      // }
-    // Check if the error is due to session expiration
-    if (error.response?.status === 404 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      try {
-        // Attempt to refresh the session
-        await publicAxios.post("/auth/refresh-token");
-
-        // Retry the original request after session refresh
-        return authAxios(originalRequest);
-      } catch (refreshError) {
-        console.error("Error refreshing session:", refreshError);
-        window.location.href = "/login"; // Redirect to login if session refresh fails
-        return Promise.reject(refreshError);
-      }
-    }
-
-    return Promise.reject(error);
-  }
+// **Attach token to headers for all authenticated requests**
+authAxios.interceptors.request.use(
+    (config) => {
+        const token = getToken();
+        if (token) {
+            config.headers["Authorization"] = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
 );
 
-export default { authAxios, publicAxios ,normalAxios};
+// **Handle session expiration and retry logic**
+authAxios.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
+
+        // If request fails with 401 Unauthorized or 500 Server Error, log out
+        if ([401, 500].includes(error.response?.status)) {
+            toast.error("Session expired, please log in again.");
+            localStorage.removeItem("token");
+            localStorage.removeItem("refreshToken");
+            window.location.href = "/login"; // Redirect to login page
+            return Promise.reject(error);
+        }
+
+        // If request fails with 404, attempt to refresh the token
+        if (error.response?.status === 404 && !originalRequest._retry) {
+            originalRequest._retry = true;
+
+            try {
+                // Send request to refresh the token
+                const response = await publicAxios.post("/auth/refresh-token");
+                const newToken = response.data.token;
+                localStorage.setItem("token", newToken);
+
+                // Update Authorization header and retry request
+                originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
+                return authAxios(originalRequest);
+            } catch (refreshError) {
+                console.error("Error refreshing session:", refreshError);
+                localStorage.removeItem("token");
+                localStorage.removeItem("refreshToken");
+                window.location.href = "/login"; // Redirect to login if refresh fails
+                return Promise.reject(refreshError);
+            }
+        }
+
+        return Promise.reject(error);
+    }
+);
+
+export default { authAxios, publicAxios, normalAxios };
