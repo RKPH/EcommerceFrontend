@@ -12,6 +12,7 @@ import { useSelector } from "react-redux";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import {Link} from "react-router-dom";
+import axiosInstance from "../api/axiosInstance.js";
 
 const Homepage = () => {
     const [isLoading, setIsLoading] = useState(true);
@@ -29,7 +30,7 @@ const Homepage = () => {
     const fetchTypes = async () => {
         try {
             const response = await axios.get(
-                "http://localhost:3000/api/v1/types/get"
+                "http://103.155.161.94:3000/api/v1/types/get"
             );
             setTypes(response.data.data);
             console.log("Fetched Types:", response.data.data);
@@ -40,8 +41,8 @@ const Homepage = () => {
 
     const fetchAllProducts = async () => {
         try {
-            const response = await axios.get(
-                "http://localhost:3000/api/v1/products/all"
+            const response = await axiosInstance.normalAxios.get(
+                "http://103.155.161.94:3000/api/v1/products/all"
             );
             setProducts(response.data.data);
             setIsLoading(false);
@@ -54,7 +55,7 @@ const Homepage = () => {
     const fetchTrendingProducts = async () => {
         try {
             const response = await axios.get(
-                "http://localhost:3000/api/v1/products/trending"
+                "http://103.155.161.94:3000/api/v1/products/trending"
             );
             setTrendingProducts(response.data.data);
             console.log("Fetched Trending Products:", response.data.data);

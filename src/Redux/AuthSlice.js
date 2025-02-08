@@ -70,7 +70,7 @@ export const updateUserInfo = createAsyncThunk(
 
 // Async thunk for logging out
 export const logoutUserApi = createAsyncThunk(
-    'auth/logoutUserApi',
+    'auth/logoutUsergit pullApi',
     async (_, { rejectWithValue }) => {
         try {
             await AxiosInstance.publicAxios.post('/auth/logout');
