@@ -288,14 +288,7 @@ const UserPage = () => {
                                     >
                                         <ShoppingBagIcon/>  <span>My orders</span>
                                     </li>
-                                    <li
-                                        className={`text-black cursor-pointer hover:bg-gray-200 p-3 ${
-                                            activeSection === "My Cancellations" && "bg-gray-200"
-                                        }`}
-                                        onClick={() => setActiveSection("My Cancellations")}
-                                    >
-                                        My Cancellations
-                                    </li>
+
                                 </ul>
                             </div>
                         </div>

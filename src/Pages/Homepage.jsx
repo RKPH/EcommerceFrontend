@@ -30,7 +30,7 @@ const Homepage = () => {
     const fetchTypes = async () => {
         try {
             const response = await axios.get(
-                "http://103.155.161.94:3000/api/v1/types/get"
+                "http://localhost:3000/api/v1/types/get"
             );
             setTypes(response.data.data);
             console.log("Fetched Types:", response.data.data);
@@ -41,8 +41,8 @@ const Homepage = () => {
 
     const fetchAllProducts = async () => {
         try {
-            const response = await axiosInstance.normalAxios.get(
-                "http://103.155.161.94:3000/api/v1/products/all"
+            const response = await axios.get(
+                "http://localhost:3000/api/v1/products/all"
             );
             setProducts(response.data.data);
             setIsLoading(false);
@@ -55,7 +55,7 @@ const Homepage = () => {
     const fetchTrendingProducts = async () => {
         try {
             const response = await axios.get(
-                "http://103.155.161.94:3000/api/v1/products/trending"
+                "http://localhost:3000/api/v1/products/trending"
             );
             setTrendingProducts(response.data.data);
             console.log("Fetched Trending Products:", response.data.data);
@@ -323,7 +323,7 @@ const Homepage = () => {
 
             <div className="w-full my-20 bg-white  flex flex-col  justify-center gap-y-5 rounded-xl">
                 <span className="text-xl font-normal p-4">Today suggestion</span>
-                <ul className="grid grid-cols-7 gap-x-1 gap-y-5  px-4">
+                <ul className="grid md:grid-cols-6 3xl:grid-cols-7  gap-x-1 gap-y-5  px-4">
                     {isLoading
                         ? Array.from({ length: 5 }).map((_, index) => (
                             <div

@@ -95,7 +95,7 @@ export const refreshToken = createAsyncThunk(
         }
 
         try {
-            const response = await AxiosInstance.publicAxios.post('/auth/refresh', { refreshToken: storedRefreshToken });
+            const response = await AxiosInstance.refreshTokenAxios.post('/auth/refresh', { refreshToken: storedRefreshToken });
             const { token, refreshToken } = response.data;
 
             // Update tokens in local storage

@@ -2,7 +2,7 @@
 import { toast } from "react-toastify";
 
 // Base URL for API requests
-const BASE_URL = "http://103.155.161.94:3000/api/v1";
+const BASE_URL = "http://localhost:3000/api/v1";
 
 // Function to get the token from localStorage
 const getToken = () => localStorage.getItem("token");
@@ -17,7 +17,6 @@ const authAxios = axios.create({
 // Create an Axios instance for public requests
 const publicAxios = axios.create({
     baseURL: BASE_URL,
-    withCredentials: true,
 });
 
 // Create an Axios instance for normal requests (without credentials)
@@ -47,6 +46,7 @@ authAxios.interceptors.request.use(
 refreshTokenAxios.interceptors.request.use(
     (config) => {
         const refreshToken = getReToken(); // Ensure this function returns a valid token
+        console.log("refreshToken", refreshToken);
         if (refreshToken) {
             config.headers["Authorization"] = `Bearer ${refreshToken}`;
         }
@@ -78,8 +78,11 @@ authAxios.interceptors.response.use(
                 // Send request to refresh the token
                 const response = await refreshTokenAxios.post("/auth/refresh-token");
                 const newToken = response.data.token;
+                const newRefreshToken = response.data.refreshToken;
+                console.log("newToken", newToken);
+                console.log("newRefreshToken", newRefreshToken);
                 localStorage.setItem("token", newToken);
-
+                localStorage.setItem("refreshToken", newRefreshToken);
                 // Update Authorization header and retry request
                 originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
                 return authAxios(originalRequest);
@@ -96,4 +99,4 @@ authAxios.interceptors.response.use(
     }
 );
 
-export default { authAxios, publicAxios, normalAxios };
+export default { authAxios, publicAxios, normalAxios , refreshTokenAxios };
