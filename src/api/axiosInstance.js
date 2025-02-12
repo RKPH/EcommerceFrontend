@@ -61,36 +61,47 @@ authAxios.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
-        // If request fails with 401 Unauthorized or 500 Server Error, log out
-        if ([401, 500].includes(error.response?.status)) {
-            toast.error("Session expired, please log in again.");
-            localStorage.removeItem("token");
-            localStorage.removeItem("refreshToken");
-            window.location.href = "/login"; // Redirect to login page
-            return Promise.reject(error);
-        }
-
-        // If request fails with 404, attempt to refresh the token
-        if (error.response?.status === 404 && !originalRequest._retry) {
-            originalRequest._retry = true;
+        // Check if the error is due to an expired token (401 Unauthorized) and retry has not been attempted
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true; // Mark request as retried to avoid infinite loop
 
             try {
                 // Send request to refresh the token
                 const response = await refreshTokenAxios.post("/auth/refresh-token");
-                const newToken = response.data.token;
-                const newRefreshToken = response.data.refreshToken;
-                console.log("newToken", newToken);
-                console.log("newRefreshToken", newRefreshToken);
+                const { token: newToken, refreshToken: newRefreshToken } = response.data;
+
+                console.log("newToken:", newToken);
+                console.log("newRefreshToken:", newRefreshToken);
+
+                // Update tokens in local storage
                 localStorage.setItem("token", newToken);
                 localStorage.setItem("refreshToken", newRefreshToken);
-                // Update Authorization header and retry request
+
+                // Update Authorization header for the retried request
                 originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
+
+                // Retry the original request with the new token
                 return authAxios(originalRequest);
             } catch (refreshError) {
                 console.error("Error refreshing session:", refreshError);
+
+                try {
+                    // Call logout API before clearing tokens
+                    await authAxios.post("/auth/logout", {
+                        refreshToken: localStorage.getItem("refreshToken"),
+                    });
+                } catch (logoutError) {
+                    console.error("Logout API call failed:", logoutError);
+                }
+
+                // Clear stored tokens and session data
                 localStorage.removeItem("token");
                 localStorage.removeItem("refreshToken");
-                window.location.href = "/login"; // Redirect to login if refresh fails
+                localStorage.removeItem("isAuthenticated");
+
+                // Redirect user to login page
+                window.location.href = "/login";
+
                 return Promise.reject(refreshError);
             }
         }
@@ -98,5 +109,6 @@ authAxios.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
 
 export default { authAxios, publicAxios, normalAxios , refreshTokenAxios };

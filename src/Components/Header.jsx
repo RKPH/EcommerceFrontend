@@ -92,8 +92,13 @@ const Header = () => {
         {/*user profile*/}
         <div className="flex items-center gap-x-4">
           <FavoriteBorderIcon className="text-gray-800" />
-          <Link to="/cart" className="text-gray-800 hover:text-black">
-             <ShoppingCartIcon />
+          <Link to="/cart" className="relative text-gray-800 hover:text-black">
+            <ShoppingCartIcon />
+            {user?.Cart > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                  {user?.Cart}
+                </span>
+            )}
           </Link>
           {isAuthenticated ? (
               <Tippy

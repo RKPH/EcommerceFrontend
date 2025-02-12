@@ -12,7 +12,7 @@ const EditProfile = ({ userDetail, message, loading, handleChange, handleUpdateD
         postalCode: false,
         country: false,
     });
-
+    const [hasChanges, setHasChanges] = useState(false);
     const toggleEdit = (field) => {
         setEditingFields((prev) => ({ ...prev, [field]: !prev[field] }));
     };
@@ -50,6 +50,7 @@ const EditProfile = ({ userDetail, message, loading, handleChange, handleUpdateD
                                 suppressContentEditableWarning={true}
                                 onBlur={(e) => {
                                     handleChange({ target: { name: "name", value: e.target.innerText } });
+                                    setHasChanges(true);
                                     toggleEdit("name");
                                 }}
                                 className={`text-base ${editingFields.name ? "border border-blue-500 bg-gray-100 p-1 rounded-md" : ""}`}
@@ -71,6 +72,7 @@ const EditProfile = ({ userDetail, message, loading, handleChange, handleUpdateD
                                 suppressContentEditableWarning={true}
                                 onBlur={(e) => {
                                     handleChange({ target: { name: "email", value: e.target.innerText } });
+                                    setHasChanges(true);
                                     toggleEdit("email");
                                 }}
                                 className={`text-base ${editingFields.email ? "border border-blue-500 bg-gray-100 p-1 rounded-md" : ""}`}
@@ -95,6 +97,7 @@ const EditProfile = ({ userDetail, message, loading, handleChange, handleUpdateD
                                 suppressContentEditableWarning={true}
                                 onBlur={(e) => {
                                     handleChange({ target: { name: "address.street", value: e.target.innerText } });
+                                    setHasChanges(true);
                                     toggleEdit("street");
                                 }}
                                 className={`text-base ${editingFields["street"] ? "border border-blue-500 bg-gray-100 p-1 rounded-md" : ""}`}
@@ -226,7 +229,7 @@ const EditProfile = ({ userDetail, message, loading, handleChange, handleUpdateD
                     </button>
                     <button
                         onClick={handleUpdateDetails}
-                        disabled={loading}
+                        disabled={!hasChanges}
                         className="px-6 py-2 bg-blue-600 text-white rounded-md shadow-md hover:bg-blue-700 disabled:bg-gray-400"
                     >
                         {loading ? "Updating..." : "Update Profile"}

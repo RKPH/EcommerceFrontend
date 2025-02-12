@@ -70,7 +70,7 @@ export const updateUserInfo = createAsyncThunk(
 
 // Async thunk for logging out
 export const logoutUserApi = createAsyncThunk(
-    'auth/logoutUsergit pullApi',
+    'auth/logoutUserApi',
     async (_, { rejectWithValue }) => {
         try {
             await AxiosInstance.publicAxios.post('/auth/logout');
@@ -125,6 +125,16 @@ const authSlice = createSlice({
             localStorage.removeItem('token');
             localStorage.removeItem('refreshToken');
             localStorage.removeItem('isAuthenticated');
+        },
+        updateCart: (state, action) => {
+            if (state.user) {
+                state.user.Cart= state.user.Cart + 1;
+            }
+        },
+        deleteCart: (state, action) => {
+            if (state.user) {
+                state.user.Cart= state.user.Cart - 1;
+            }
         },
     },
     extraReducers: (builder) => {
@@ -208,7 +218,7 @@ const authSlice = createSlice({
     },
 });
 
-export const { logoutUser } = authSlice.actions;
+export const { updateCart, deleteCart } = authSlice.actions;
 
 export const getUser = (state) => state.auth.user;
 

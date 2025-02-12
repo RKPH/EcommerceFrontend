@@ -4,6 +4,8 @@ import AxiosInstance from "../../api/axiosInstance.js";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import {useDispatch} from "react-redux";
+import {updateCart} from "../../Redux/AuthSlice.js";
 import SliceOfProduct from "../../Components/SliceOfProduct.jsx";
 import FavoriteBorderTwoToneIcon from '@mui/icons-material/FavoriteBorderTwoTone';
 import Rating from "@mui/material/Rating";
@@ -33,7 +35,7 @@ const DetailProduct = () => {
     const sessionRecommendedProductsRef = useRef([]); // Store recommendations (no re-render)
     const [uiRecommendedProducts, setUiRecommendedProducts] = useState([]);
     const [selectedSize, setSelectedSize] = useState(null);
-
+    const dispatch = useDispatch();
     // useEffect(() => {
     //     user && fetchSessinBaseRecommendedProducts();
     // },[user])
@@ -166,56 +168,56 @@ const DetailProduct = () => {
 
 
     // Handle Add to Cart
-            const HandleAddToCart = async (product_name) => {
-                if (!user) {
-                    toast.error("You must be logged in to add items to the cart.");
-                    return;
-                }
-                if(!selectedColor){
-                    toast.error("Please select a color");
-                    return;
-                }
-                if(product?.size[0]!="string") {
-                    if(!selectedSize) {
-                        toast.error("Please select a size");
-                        return;
-                    }
-                }
+    const HandleAddToCart = async (product_name) => {
+        if (!user) {
+            toast.error("You must be logged in to add items to the cart.");
+            return;
+        }
+        if(!selectedColor){
+            toast.error("Please select a color");
+            return;
+        }
+        if(product?.size[0]!="string") {
+            if(!selectedSize) {
+                toast.error("Please select a size");
+                return;
+            }
+        }
 
-                try {
-                    const data = {
-                        productId: id,
-                        quantity: value,
-                        color: selectedColor,
-                        size: selectedSize,
-                    };
-                    const request = {
-                        user_id: user?.user_id, // Assuming user_id is available in your component
-                        product_id: id, // Assuming product_id is available in your component
-                        event_type: "cart"
-                    };
-
-                    console.log("Request:", request); // Log for debugging
-
-                    // Pass request directly as the request body
-
-                    const response = await AxiosInstance.authAxios.post(`/cart/add`, data);
-                    console.log("Add to Cart Response:", response.data);
-
-                    toast.success("Product added to your cart successfully!", {
-                        className: "toast-success",
-                        style: { backgroundColor: "green", color: "white" },
-                    });
-                    const updateSessionRecommendation = await AxiosInstance.normalAxios.post(`/products/recommendations`, request);
-
-                    sessionRecommendedProductsRef.current = updateSessionRecommendation
-
-                    trackBehavior(id,product_name,"cart");
-                } catch (error) {
-                    console.error("Error adding product to cart:", error.response || error);
-                    toast.error(error.response?.data?.message || "Failed to add product to the cart.");
-                }
+        try {
+            const data = {
+                productId: id,
+                quantity: value,
+                color: selectedColor,
+                size: selectedSize,
             };
+            const request = {
+                user_id: user?.user_id, // Assuming user_id is available in your component
+                product_id: id, // Assuming product_id is available in your component
+                event_type: "cart"
+            };
+
+            console.log("Request:", request); // Log for debugging
+
+            // Pass request directly as the request body
+
+            const response = await AxiosInstance.authAxios.post(`/cart/add`, data);
+            console.log("Add to Cart Response:", response.data);
+            dispatch(updateCart(response.data.data));
+            toast.success("Product added to your cart successfully!", {
+                className: "toast-success",
+                style: { backgroundColor: "green", color: "white" },
+            });
+            const updateSessionRecommendation = await AxiosInstance.normalAxios.post(`/products/recommendations`, request);
+
+            sessionRecommendedProductsRef.current = updateSessionRecommendation
+
+            trackBehavior(id,product_name,"cart");
+        } catch (error) {
+            console.error("Error adding product to cart:", error.response || error);
+            toast.error(error.response?.data?.message || "Failed to add product to the cart.");
+        }
+    };
 
     // Handle quantity changes
     const incrementQuantity = () => {

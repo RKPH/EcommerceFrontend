@@ -9,6 +9,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import {useDispatch} from "react-redux";
+import {deleteCart} from "../../Redux/AuthSlice.js";
 import SliceOfProduct from "../../Components/SliceOfProduct.jsx";
 import axios from "axios";
 
@@ -22,7 +24,7 @@ const Cart = () => {
   const [uiRecommendedProducts, setUiRecommendedProducts] = useState([]);
   const [loading2, setLoading2] = useState(false);
   const [error2, setError2] = useState(null);
-
+  const dispatch = useDispatch();
   const trackBehavior = async (id, product_name, event_type) => {
     try {
       const sessionId = sessionID;
@@ -167,7 +169,7 @@ const Cart = () => {
       setCartItems((prevCartItems) =>
           prevCartItems.filter((item) => item._id !== cartItemID)
       );
-
+      dispatch(deleteCart());
       // Show a success message
       toast.success("Item removed from cart");
     } catch (error) {
