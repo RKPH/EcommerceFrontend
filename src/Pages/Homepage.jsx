@@ -30,7 +30,7 @@ const Homepage = () => {
     const fetchTypes = async () => {
         try {
             const response = await axios.get(
-                "http://localhost:3000/api/v1/types/get"
+                "http://103.155.161.94:3000/api/v1/types/get"
             );
             setTypes(response.data.data);
             console.log("Fetched Types:", response.data.data);
@@ -42,7 +42,7 @@ const Homepage = () => {
     const fetchAllProducts = async () => {
         try {
             const response = await axios.get(
-                "http://localhost:3000/api/v1/products/all"
+                "http://103.155.161.94:3000/api/v1/products/all"
             );
             setProducts(response.data.data);
             setIsLoading(false);
@@ -55,7 +55,7 @@ const Homepage = () => {
     const fetchTrendingProducts = async () => {
         try {
             const response = await axios.get(
-                "http://localhost:3000/api/v1/products/trending"
+                "http://103.155.161.94:3000/api/v1/products/trending"
             );
             setTrendingProducts(response.data.data);
             console.log("Fetched Trending Products:", response.data.data);
