@@ -1,10 +1,7 @@
 import NoheaderLayout from "../Layout/NoheaderLayout";
 import NotFound from "../Pages/404";
 import Homepage from "../Pages/Homepage";
-import KidsPage from "../Pages/Product/KidsPage.jsx";
 import LoginPage from "../Pages/User/Login.jsx";
-import MenPage from "../Pages/Product/MenPage.jsx";
-import WomenPage from "../Pages/Product/WomenPage.jsx";
 import DetailProduct from "../Pages/Product/DetailProduct.jsx";
 import UserPage from "../Pages/User/User/UserPage.jsx";
 import Register from "../Pages/User/Register.jsx";
@@ -14,6 +11,10 @@ import Checkout from "../Pages/User/Checkout.jsx";
 import OrderTracking from "../Pages/Product/OrderTracking.jsx";
 import paymentSuccessfully from "../Pages/Product/PaymentSuccessfully.jsx";
 import productTypes from "../Pages/Product/productTypes.jsx";
+import VerifyPage from "../Pages/User/Verify.jsx";
+import forgotpass from "../Pages/forgotpass.jsx";
+import ResetPassword from "../Pages/Resetpass.jsx";
+
 
 Homepage;
 
@@ -23,18 +24,6 @@ export const publicRoutes = [
     component: Homepage,
   },
   {
-    path: "/Men",
-    component: MenPage,
-  },
-  {
-    path: "/Women",
-    component: WomenPage,
-  },
-  {
-    path: "/Kid",
-    component: KidsPage,
-  },
-  {
     path: "/Login",
     component: LoginPage,
     layout: NoheaderLayout,
@@ -42,6 +31,21 @@ export const publicRoutes = [
   {
     path: "/Register",
     component: Register,
+    layout: NoheaderLayout,
+  },
+  {
+    path: "/verify",
+    component: VerifyPage,
+    layout: NoheaderLayout,
+  },
+  {
+    path: "/forgotpassword",
+    component: forgotpass,
+    layout: NoheaderLayout,
+  },
+  {
+    path: "/reset-password/:token",
+    component: ResetPassword,
     layout: NoheaderLayout,
   },
   {

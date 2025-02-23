@@ -50,7 +50,7 @@ const SliceOfProduct = ({ products, TrackViewBehavior, isLoading }) => {
                     ? // Render skeleton loaders if data is loading
                     Array.from({ length: 10 }).map((_, index) => (
                         <div
-                            className="w-52 flex-shrink-0 border border-gray-300 rounded-lg p-2"
+                            className="w-40 sm:w-52 flex-shrink-0 border border-gray-300 rounded-lg p-2"
                             key={index}
                         >
                             <Skeleton
@@ -77,20 +77,20 @@ const SliceOfProduct = ({ products, TrackViewBehavior, isLoading }) => {
                                 );
                             }}
                             to={`/product/${product?.productID || product?.product_id}`} // Use top-level product_id
-                            className="w-52 flex-shrink-0 border border-gray-300  hover:shadow-lg"
+                            className="w-40 sm:w-52 md:w-52 lg:w-60 xl:w-52 flex-shrink-0 border border-gray-300 hover:shadow-lg"
                             key={product?.productID || product.product_id} // Ensure unique key
                         >
                             <div className="w-full h-[200px] bg-gray-200 ">
                                 <img
-                                    src={product?.productImage?.[0] || product?.productDetails?.productImage?.[0]} // Safe access for both image arrays
+                                    src={product?.MainImage || product?.productDetails?.MainImage} // Safe access for both image arrays
                                     alt={product?.name || product?.productDetails?.name} // Product name with fallback
                                     className="w-full h-full object-fit "
                                 />
                             </div>
-                            <div className="flex flex-col  p-2">
-                                  <span className="font-normal text-base hover:underline">
-                                      {product?.name || product?.productDetails?.name}
-                                  </span>
+                            <div className="flex flex-col p-2">
+                                <span className="font-normal text-base hover:underline">
+                                    {product?.name || product?.productDetails?.name}
+                                </span>
                                 <Rating
                                     name="half-rating-read"
                                     size={"small"}
@@ -99,8 +99,8 @@ const SliceOfProduct = ({ products, TrackViewBehavior, isLoading }) => {
                                     readOnly
                                 />
                                 <span className="font-bold text-lg">
-                                      ${product?.price || product?.productDetails?.price}
-                                  </span>
+                                    ${product?.price || product?.productDetails?.price}
+                                </span>
                             </div>
                         </Link>
                     ))}

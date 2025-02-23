@@ -1,7 +1,6 @@
 ﻿import React, { useState, useEffect } from "react";
 import AxiosInstance from "../../api/axiosInstance";
-import { useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import Pagination from "../../Components/Pagination.jsx";
 import Rating from "@mui/material/Rating";
 
@@ -65,9 +64,9 @@ const ProductCategoryPage = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col md:flex-row px-4 3xl:px-[200px] md:px-[100px] gap-x-2 py-6 bg-gray-100">
+        <div className="min-h-screen flex flex-col md:flex-row px-4  md:px-6 lg:px-[100px] 2xl:px-[200px] gap-x-2 py-6 bg-gray-100">
             {/* Filters Section */}
-            <div className="w-full md:w-2/12 bg-white p-6 rounded-lg shadow-lg mb-6 md:mb-0">
+            <div className="w-full md:w-1/4 lg:w-1/5 bg-white p-6 rounded-lg shadow-lg mb-6 md:mb-0">
                 <h3 className="text-xl font-semibold text-gray-800 mb-5">Filters</h3>
 
                 {/* Brand Filter */}
@@ -91,14 +90,14 @@ const ProductCategoryPage = () => {
                             placeholder="Min"
                             value={filters.price[0]}
                             onChange={(e) => handleFilterChange("price", [Number(e.target.value), filters.price[1]])}
-                            className="w-1/3 p-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                            className="w-1/2 p-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                         />
                         <input
                             type="number"
                             placeholder="Max"
                             value={filters.price[1]}
                             onChange={(e) => handleFilterChange("price", [filters.price[0], Number(e.target.value)])}
-                            className="w-1/3 p-1 border text-sm border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                            className="w-1/2 p-1 border text-sm border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                         />
                     </div>
                 </div>
@@ -125,7 +124,7 @@ const ProductCategoryPage = () => {
             </div>
 
             {/* Products Section */}
-            <div className="w-full md:w-9/12 flex flex-col gap-y-2 rounded-md shadow">
+            <div className="w-full md:w-3/4 lg:w-4/5 flex flex-col gap-y-2 rounded-md shadow">
                 <div className="w-full p-4 flex items-center gap-x-2 text-center bg-white">
                     <h3 className="text-lg font-bold uppercase">{type}</h3>
                     <span className="text-base font-normal">{totalProducts}</span>
@@ -135,11 +134,11 @@ const ProductCategoryPage = () => {
                     <p>Loading...</p>
                 ) : products.length > 0 ? (
                     <div className="w-full bg-white p-4">
-                        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-1">
+                        <ul className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 gap-4">
                             {products.map((product) => (
-                                <Link to={`/product/${product.productID || product.product_id}`} key={product.productID || product.product_id} className="border w-52 flex-shrink-0 border-gray-300 hover:shadow-lg">
+                                <Link to={`/product/${product.productID || product.product_id}`} key={product.productID || product.product_id} className="border w-full flex flex-col border-gray-300 hover:shadow-lg rounded-lg">
                                     <div className="w-full h-[200px] bg-gray-200">
-                                        <img src={product.productImage?.[0]} alt={product.name} className="w-full h-full object-fit rounded-lg" />
+                                        <img src={product.productImage?.[0]} alt={product.name} className="w-full h-full object-cover rounded-t-lg" />
                                     </div>
                                     <div className="flex flex-col p-2">
                                         <span className="font-normal text-base hover:underline">{product.name}</span>

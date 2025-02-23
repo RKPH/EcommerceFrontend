@@ -8,7 +8,7 @@ const PaymentSuccessPage = () => {
     const {orderId} = useParams();
     console.log("order id" ,orderId)
     const [orders, setOrders] = useState(null);
-    const [TrendingProducts, setTrendingProducts] = useState([]);
+
     useEffect(() => {
         const fetchOrders = async () => {
             try {
@@ -24,45 +24,9 @@ const PaymentSuccessPage = () => {
                 });
             }
         };
-        fetchTrendingProducts()
+
         fetchOrders();
     }, []);
-
-    const fetchTrendingProducts = async () => {
-        try {
-            const response = await axios.get(
-                "http://localhost:3000/api/v1/products/trending"
-            );
-            setTrendingProducts(response.data.data); // Assuming the response contains an array of products
-            console.log("Fetched Trending Products:", response.data.data); // Log the fetched products
-        } catch (error) {
-            console.error("Error fetching trending products:", error.message || error);
-        }
-    }
-
-    // Track user behavior
-    const trackViewBehavior = async (id,product_name, event_type) => {
-        try {
-            const sessionId = sessionID;
-            const userId = user?.id || user?.user?.id;
-
-            if (!sessionId || !userId) {
-                console.error("Session ID or User ID is missing!");
-                return;
-            }
-
-            await AxiosInstance.authAxios.post("/tracking", {
-                sessionId,
-                user: userId,
-                productId: id,
-                product_name: product_name,
-                behavior: event_type,
-            });
-            console.log("View behavior tracked successfully");
-        } catch (error) {
-            console.error("Error tracking view behavior:", error);
-        }
-    };
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-5">
@@ -118,20 +82,10 @@ const PaymentSuccessPage = () => {
                     >
                         Back to Home
                     </button>
-                    <button
-                        onClick={() => window.location.href = "/order-history"}
-                        className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-md transition duration-200"
-                    >
-                        View Order History
-                    </button>
+
                 </div>
             </div>
-            <div className="w-full mt-10 px-[100px] ">
-                <div className="w-full mb-5 flex gap-y-5 bg-white rounded-xl flex-col py-4 px-4">
-                    <h1 className="text-xl text-black font-semibold w-full text-start">View other products</h1>
-                    <SliceOfProduct products={TrendingProducts} TrackViewBehavior={trackViewBehavior}/>
-                </div>
-            </div>
+
         </div>
     );
 };

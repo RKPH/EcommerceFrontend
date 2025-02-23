@@ -20,14 +20,14 @@ const Cart = () => {
   const [selectedItems, setSelectedItems] = useState([]); // New state for selected items
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user); // Redux state for the logged-in user
+  const [error2, setError2] = useState(null);
   const [TrendingProducts, setTrendingProducts] = useState([]);
   const [uiRecommendedProducts, setUiRecommendedProducts] = useState([]);
   const [loading2, setLoading2] = useState(false);
-  const [error2, setError2] = useState(null);
   const dispatch = useDispatch();
   const trackBehavior = async (id, product_name, event_type) => {
     try {
-      const sessionId = sessionID;
+      const sessionId = user.sessionID;
       const userId = user?.id || user?.user?.id;
 
       if (!sessionId || !userId) {
@@ -242,8 +242,8 @@ const Cart = () => {
 
   return (
       <div className="min-h-screen flex items-center py-6 w-full flex-col 3xl:px-[200px] md:px-[100px]">
-        <div className="w-full mb-5">
-          <Breadcrumbs aria-label="breadcrumb">
+        <div className="w-full mb-5 px-4 md:px-0">
+          <Breadcrumbs aria-label="breadcrumb" className="text-sm md:text-base">
             <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
               Home
             </Link>
@@ -251,54 +251,125 @@ const Cart = () => {
           </Breadcrumbs>
         </div>
         {cartItems.length > 0 ? (
-            <div className="flex flex-col w-full ">
-              <div className="w-full flex items-start  gap-x-2">
-                <div className="w-full min-h-fit max-h-[500px]  overflow-y-auto ">
-                  <table className="w-full text-left border-separate border-spacing-y-4 border-spacing-x-0">
-                    <thead className="bg-gray-100">
-                    <tr>
-                      <th className="py-2 px-4">Select</th>
-                      <th className="py-2 px-4">Product</th>
-                      <th className="py-2 px-4">Price</th>
-                      <th className="py-2 px-4">Quantity</th>
-                      <th className="py-2 px-4">Subtotal</th>
-                      <th className="py-2 px-4">
-                        <DeleteIcon />
-                      </th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {cartItems.map((item) => (
-                        <tr key={item.id} className="bg-white">
-                          <td className="py-2 px-4">
-                            <input
-                                type="checkbox"
-                                checked={selectedItems.includes(item._id)}
-                                onChange={() => handleSelectItem(item._id)}
+            <div className="flex flex-col w-full">
+              {/* Table for larger screens */}
+              <div className="hidden md:block w-full min-h-fit max-h-[500px] overflow-y-auto">
+                <table className="w-full text-left border-separate border-spacing-y-4 border-spacing-x-0">
+                  <thead className="bg-gray-100">
+                  <tr>
+                    <th className="py-2 px-4">Select</th>
+                    <th className="py-2 px-4">Product</th>
+                    <th className="py-2 px-4">Price</th>
+                    <th className="py-2 px-4">Quantity</th>
+                    <th className="py-2 px-4">Subtotal</th>
+                    <th className="py-2 px-4">
+                      <DeleteIcon />
+                    </th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  {cartItems.map((item) => (
+                      <tr key={item.id} className="bg-white">
+                        <td className="py-2 px-4">
+                          <input
+                              type="checkbox"
+                              checked={selectedItems.includes(item._id)}
+                              onChange={() => handleSelectItem(item._id)}
+                          />
+                        </td>
+                        <td className="flex items-center space-x-4">
+                          <Link
+                              className="py-2 px-2 flex items-center space-x-4"
+                              to={`/product/${item.product.productID}`}
+                              onClick={() =>
+                                  trackBehavior(item.product.productID, item.product.name, "view")
+                              }
+                          >
+                            <img
+                                src={item.product.MainImage}
+                                alt={item.product.name}
+                                className="w-24 h-24 object-cover rounded text-[0px]"
                             />
-                          </td>
-                          <td className="flex items-center space-x-4">
-                            <Link
-                                className="py-2 px-2 flex items-center space-x-4"
-                                to={`/product/${item.product.productID}`}
+                            <div className="flex flex-col">
+                              <span className="text-lg font-semibold">{item.product.name}</span>
+
+                            </div>
+                          </Link>
+                        </td>
+                        <td className="py-2 px-4">{item.product.price} VND</td>
+                        <td className="py-2 px-4">
+                          <div className="flex items-center">
+                            <button
                                 onClick={() =>
-                                    trackBehavior(item.product.productID, item.product.name, "view")
+                                    UpdateCart(item._id, Math.max(item.quantity - 1, 1))
                                 }
+                                className="w-7 h-7 bg-gray-100 text-gray-800 hover:bg-gray-300 flex items-center justify-center"
                             >
-                              <img
-                                  src={item.product.image[0]}
-                                  alt={item.product.name}
-                                  className="w-24 h-24 object-cover rounded text-[0px]"
-                              />
-                              <div className="flex flex-col">
-                                <span className="text-lg font-semibold">{item.product.name}</span>
-                                <span className="text-xs text-gray-800">Color: {GetColorName(item.color)}</span>
-                                <span className="text-xs text-gray-800">Size: {item.size}</span>
-                              </div>
-                            </Link>
-                          </td>
-                          <td className="py-2 px-4">{item.product.price} VND</td>
-                          <td className="py-2 px-4">
+                              -
+                            </button>
+                            <span className="w-7 h-7 border flex items-center justify-center text-center">
+                                  {item.quantity}
+                                </span>
+                            <button
+                                onClick={() => UpdateCart(item._id, item.quantity + 1)}
+                                className="w-7 h-7 bg-gray-100 text-gray-800 hover:bg-gray-300 flex items-center justify-center"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </td>
+                        <td className="py-2 px-4">
+                          ${(item.product.price.toFixed(2) * item.quantity).toFixed(2)}
+                        </td>
+                        <td className="py-2 px-4">
+                          <button
+                              className="text-red-500"
+                              onClick={() => handleDeleteItem(item._id)}
+                          >
+                            <DeleteIcon />
+                          </button>
+                        </td>
+                      </tr>
+                  ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Card layout for mobile */}
+              <div className="md:hidden w-full">
+                {cartItems.map((item) => (
+                    <div key={item.id} className="bg-white p-4 mb-4 shadow-lg rounded-lg border border-gray-200 relative">
+                      <div className="flex justify-between items-start">
+                        {/* Column 1: Image and Checkbox */}
+                        <div className="flex items-center space-x-4">
+                          <input
+                              type="checkbox"
+                              checked={selectedItems.includes(item._id)}
+                              onChange={() => handleSelectItem(item._id)}
+                              className="mr-2"
+                          />
+                          <img
+                              src={item.product.MainImage}
+                              alt={item.product.name}
+                              className="w-16 h-16 object-cover rounded"
+                          />
+                        </div>
+
+                        {/* Column 2: Name, Delete Icon, Price, and Quantity */}
+                        <div className="flex flex-col flex-grow ml-4">
+                          <div className="flex justify-between items-center">
+                            <span className="text-base font-semibold">{item.product.name}</span>
+                            <button
+                                className="text-red-500"
+                                onClick={() => handleDeleteItem(item._id)}
+                            >
+                              <DeleteIcon />
+                            </button>
+                          </div>
+                          <div className="flex justify-between items-center mt-2">
+                            <span className="text-base font-semibold">
+                              Price: ${(item.product.price.toFixed(2) * item.quantity).toFixed(2)}
+                            </span>
                             <div className="flex items-center">
                               <button
                                   onClick={() =>
@@ -309,8 +380,8 @@ const Cart = () => {
                                 -
                               </button>
                               <span className="w-7 h-7 border flex items-center justify-center text-center">
-                                              {item.quantity}
-                                            </span>
+                                {item.quantity}
+                              </span>
                               <button
                                   onClick={() => UpdateCart(item._id, item.quantity + 1)}
                                   className="w-7 h-7 bg-gray-100 text-gray-800 hover:bg-gray-300 flex items-center justify-center"
@@ -318,47 +389,39 @@ const Cart = () => {
                                 +
                               </button>
                             </div>
-                          </td>
-                          <td className="py-2 px-4">
-                            ${ (item.product.price.toFixed(2) * item.quantity).toFixed(2) }
-                          </td>
-                          <td className="py-2 px-4">
-                            <button
-                                className="text-red-500"
-                                onClick={() => handleDeleteItem(item._id)}
-                            >
-                              <DeleteIcon />
-                            </button>
-                          </td>
-                        </tr>
-                    ))}
-                    </tbody>
-                  </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                ))}
+              </div>
+
+              {/* Order Summary */}
+              <div className="w-full md:max-w-sm  md:ml-auto p-4 bg-white shadow-md rounded-lg mt-4">
+                <h2 className="text-base md:text-lg font-semibold mb-4">Order Summary</h2>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-gray-600">Total Items:</span>
+                  <span className="font-semibold">{selectedItems.length}</span>
                 </div>
-                <div className="w-full h-fit max-w-sm p-4  shadow-md bg-white ml-auto mt-4">
-                  <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-gray-600">Total Items:</span>
-                    <span>{selectedItems.length}</span>
-                  </div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-gray-600">Total Price:</span>
-                    <span className="font-semibold">${calculateTotal().toFixed(2)}</span>
-                  </div>
-                  <div className="w-full flex items-center justify-center">
-                    <button
-                        onClick={handleCreateOrder}
-                        className="w-2/3 mt-4 py-2 px-4 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                    >
-                      Proceed to Checkout
-                    </button>
-                  </div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-gray-600">Total Price:</span>
+                  <span className="font-semibold">${calculateTotal().toFixed(2)}</span>
+                </div>
+                <div className="w-full flex items-center justify-center">
+                  <button
+                      onClick={handleCreateOrder}
+                      className="w-full mt-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                  >
+                    Proceed to Checkout
+                  </button>
                 </div>
               </div>
-              <div className="w-full mt-10  ">
+
+              {/* Recommended Products */}
+              <div className="w-full mt-10">
                 <div className="w-full mb-5 flex gap-y-5 bg-white rounded-xl flex-col py-4 px-4">
                   <h1 className="text-xl text-black font-normal w-full text-start">You may also like</h1>
-                  <SliceOfProduct products={uiRecommendedProducts} TrackViewBehavior={trackViewBehavior} isLoading={loading2}/>
+                  <SliceOfProduct products={uiRecommendedProducts} TrackViewBehavior={trackViewBehavior} isLoading={loading2} />
                 </div>
               </div>
             </div>

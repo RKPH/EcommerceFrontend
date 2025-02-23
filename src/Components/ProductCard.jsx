@@ -10,15 +10,14 @@ const ProductCard = ({ product }) => {
         name,
         price,
         category,
-        image, // Assuming `image` is the primary image
-        productImage = [], // Fallback in case productImage array is empty
+        MainImage
     } = product;
 
     // Fallback for image src if `productImage` array is empty
-    const imgSrc = image || productImage[0] || "path/to/fallback/image.jpg"; // Default fallback image
+    const imgSrc = MainImage || "path/to/fallback/image.jpg"; // Default fallback image
 
     // Extract authentication state and user data
-    const { isAuthenticated, user ,sessionID , isLoggedid} = useSelector((state) => state.auth);
+    const {  user ,sessionID , isLoggedid} = useSelector((state) => state.auth);
 
     // Function to track view behavior
     const trackViewBehavior = async () => {

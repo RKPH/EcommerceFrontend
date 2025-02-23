@@ -1,19 +1,18 @@
-﻿import React, { useState, useEffect , useRef } from "react";
+﻿import React, { useState, useEffect , useRef, useCallback } from "react";
 import axios   from "axios";
 import AxiosInstance from "../../api/axiosInstance.js";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import {useDispatch} from "react-redux";
-import {updateCart} from "../../Redux/AuthSlice.js";
+import {updateCart} from "../../Redux/CartSlice.js";
 import SliceOfProduct from "../../Components/SliceOfProduct.jsx";
-import FavoriteBorderTwoToneIcon from '@mui/icons-material/FavoriteBorderTwoTone';
+
 import Rating from "@mui/material/Rating";
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import { GetColorName } from 'hex-color-to-color-name';
+
 import { Link } from 'react-router-dom';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
-import Typography from '@mui/material/Typography';
+    import Typography from '@mui/material/Typography';
 import gif from "../../../public/loading.gif";
 
 const DetailProduct = () => {
@@ -28,17 +27,15 @@ const DetailProduct = () => {
     const [loading3, setLoading3] = useState(true); // Loading state
     const [value, setValue] = useState(1); // Quantity state
     const [mainImage, setMainImage] = useState(""); // State to handle main image
-    const {  sessionID, isLoggedid } = useSelector((state) => state.auth);
 
-    const [selectedColor, setSelectedColor] = useState(null);
     const [recommendedProducts, setRecommendedProducts] = useState([]);
     const sessionRecommendedProductsRef = useRef([]); // Store recommendations (no re-render)
     const [uiRecommendedProducts, setUiRecommendedProducts] = useState([]);
-    const [selectedSize, setSelectedSize] = useState(null);
+
+    //review and rating
+    const [userRating, setUserRating] = useState(0); // State for user rating
+    const [userReview, setUserReview] = useState(""); // State for user review
     const dispatch = useDispatch();
-    // useEffect(() => {
-    //     user && fetchSessinBaseRecommendedProducts();
-    // },[user])
 
     console.log("User ", user)
     // Function to fetch product details
@@ -49,7 +46,7 @@ const DetailProduct = () => {
             const fetchedProduct = response?.data?.data;
 
             setProduct(fetchedProduct); // Set product state
-            setMainImage(fetchedProduct?.productImage[0]); // Set the default main image
+            setMainImage(fetchedProduct?.MainImage); // Set the default main image
 
             console.error("Error fetching product:", error.message || error);
             setError(error?.response?.data?.message || "An error occurred");
@@ -62,7 +59,7 @@ const DetailProduct = () => {
 
         try {
             const request = {
-                user_id: user?.user_id, // Assuming user_id is available in your component
+                user_id: user?.user_id || "314124", // Assuming user_id is available in your component
                 product_id: id, // Assuming product_id is available in your component
                 event_type: type
             };
@@ -83,8 +80,73 @@ const DetailProduct = () => {
             setLoading2(false); // Stop loading in both success and error cases
         }
     };
+    // Dummy reviews data
 
 
+    // Initialize reviews with dummy data
+    const [reviews, setReviews] = useState([]);
+
+
+    useEffect(() => {
+        const fetchReviews = async () => {
+            try {
+                const { data } = await AxiosInstance.normalAxios.get(`/reviews/${id}/reviews`);
+
+                if (data.reviews.length > 0) {
+                    const formattedReviews = data.reviews.map(review => ({
+                        id: review._id,
+                        name: review.name,
+                        rating: review.rating,
+                        comment: review.comment,
+                        date: new Date(review.date).toISOString().split("T")[0] // Format date
+                    }));
+
+                    setReviews(formattedReviews);
+                }
+            } catch (error) {
+                console.error("Error fetching reviews, using dummy data:", error);
+            }
+        };
+
+        fetchReviews();
+    }, [id]);
+    // Handle review submission
+    const handleSubmitReview = async () => {
+        if (!user) {
+            toast.error("You must be logged in to submit a review.");
+            return;
+        }
+        if (userRating === 0) {
+            toast.error("Please select a rating.");
+            return;
+        }
+        if (!userReview) {
+            toast.error("Please enter a review.");
+            return;
+        }
+
+        const newReview = {
+            id: reviews.length + 1, // Temporary ID for dummy
+            name: user.name || "Anonymous",
+            rating: userRating,
+            comment: userReview,
+            date: new Date().toISOString().split("T")[0]
+        };
+
+        setReviews([...reviews, newReview]); // Add to UI immediately
+
+        // Send to backend
+        try {
+            await AxiosInstance.authAxios.post(`/reviews/${id}/add`, newReview);
+            toast.success("Review submitted successfully!");
+        } catch (error) {
+            console.error("Error submitting review:", error);
+            toast.error("Error submitting review, but added locally.");
+        }
+
+        setUserRating(0);
+        setUserReview("");
+    };
 
     const fetchRecommendedProducts = async () => {
         setLoading3(true); // Start loading before the request
@@ -105,7 +167,7 @@ const DetailProduct = () => {
     // Track user behavior
     const trackBehavior = async (id,product_name, event_type) => {
         try {
-            const sessionId = sessionID;
+            const sessionId = user.sessionID;
             const userId = user?.id || user?.user?.id;
 
             if (!sessionId || !userId) {
@@ -126,14 +188,6 @@ const DetailProduct = () => {
         }
     };
 
-    // Fetch product details when the component mounts
-    // useEffect(() => {
-    //     window.scroll(0, 0); // Scroll to the top of the page
-    //     fetchProduct();
-    //     fetchSessinBaseRecommendedProducts();
-    //     fetchRecommendedProducts()
-    //
-    // }, [id]); // Dependency array includes `id` to refetch if the route changes
 
     useEffect(() => {
         const initialize = async () => {
@@ -166,58 +220,52 @@ const DetailProduct = () => {
     }, [user, id]); // Dependency array includes `user` and `id`
 
 
-
-    // Handle Add to Cart
-    const HandleAddToCart = async (product_name) => {
-        if (!user) {
-            toast.error("You must be logged in to add items to the cart.");
-            return;
-        }
-        if(!selectedColor){
-            toast.error("Please select a color");
-            return;
-        }
-        if(product?.size[0]!="string") {
-            if(!selectedSize) {
-                toast.error("Please select a size");
+    const HandleAddToCart = useCallback(
+        async (product_name) => {
+            if (!user) {
+                toast.error("You must be logged in to add items to the cart.");
                 return;
             }
-        }
 
-        try {
-            const data = {
-                productId: id,
-                quantity: value,
-                color: selectedColor,
-                size: selectedSize,
-            };
-            const request = {
-                user_id: user?.user_id, // Assuming user_id is available in your component
-                product_id: id, // Assuming product_id is available in your component
-                event_type: "cart"
-            };
+            try {
+                const data = {
+                    productId: id,
+                    quantity: value,
+                };
 
-            console.log("Request:", request); // Log for debugging
+                const request = {
+                    user_id: user?.user_id, // Assuming user_id is available in your component
+                    product_id: id, // Assuming product_id is available in your component
+                    event_type: "cart",
+                };
 
-            // Pass request directly as the request body
+                console.log("Request:", request); // Log for debugging
 
-            const response = await AxiosInstance.authAxios.post(`/cart/add`, data);
-            console.log("Add to Cart Response:", response.data);
-            dispatch(updateCart(response.data.data));
-            toast.success("Product added to your cart successfully!", {
-                className: "toast-success",
-                style: { backgroundColor: "green", color: "white" },
-            });
-            const updateSessionRecommendation = await AxiosInstance.normalAxios.post(`/products/recommendations`, request);
+                const response = await AxiosInstance.authAxios.post(`/cart/add`, data);
+                console.log("Add to Cart Response:", response.data);
+                dispatch(updateCart(response.data.Length));
+                toast.success("Product added to your cart successfully!", {
+                    className: "toast-success",
+                    style: { backgroundColor: "green", color: "white" },
+                });
 
-            sessionRecommendedProductsRef.current = updateSessionRecommendation
-
-            trackBehavior(id,product_name,"cart");
-        } catch (error) {
-            console.error("Error adding product to cart:", error.response || error);
-            toast.error(error.response?.data?.message || "Failed to add product to the cart.");
-        }
-    };
+                trackBehavior(id, product_name, "cart");
+            } catch (error) {
+                console.error("Error adding product to cart:", error.response || error);
+                toast.error(
+                    error.response?.data?.message || "Failed to add product to the cart."
+                );
+            }
+        },
+        [
+            user,
+            product,
+            id,
+            value,
+            dispatch,
+            trackBehavior,
+        ]
+    );
 
     // Handle quantity changes
     const incrementQuantity = () => {
@@ -233,12 +281,10 @@ const DetailProduct = () => {
     };
 
     // Handle color hover to change main image
-    const handleColorHover = (index) => {
-        setMainImage(product?.image[index]); // Update the main image based on hovered color index
-    };
+
 
     // Conditional rendering
-    if (loading) return <div className="w-full min-h-screen flex bg-white mt-40 justify-center px-[100px] 3xl:pr[100px] ">
+    if (loading) return <div className="w-full min-h-screen flex bg-white mt-40 justify-center  md:px-6 lg:px-[100px] 2xl:px-[200px]">
         <div className="w-full flex  justify-center ">
             <img src={gif} alt="loading" className="w-20 h-20"/>
         </div>
@@ -246,150 +292,83 @@ const DetailProduct = () => {
     if (error) return <div>Error: {error}</div>;
 
     return (
-        <div className="w-full h-full flex flex-col 3xl:px-[200px] md:px-[100px]  ">
-            <div className="w-full  py-10 ">
+        <div className="w-full h-full flex flex-col  md:px-6 lg:px-[100px] 2xl:px-[200px]">
+            <div className="w-full mb-5 px-4 py-4 md:px-0">
                 <Breadcrumbs aria-label="breadcrumb">
                     <Link to="/" style={{textDecoration: 'none', color: 'inherit'}}>
                         Home
                     </Link>
                     <Link
-                        to={`/product/${product.category}`}
-                        style={{textDecoration: 'none', color: 'inherit'}}
-                    >
-                        {product.category}
-                    </Link>
-                    <Typography color="text.primary">{product.type}</Typography>
+                        to={`/products/type/${product.type}`}
+                        style={{textDecoration: 'none', color: 'inherit'}}>{product.type}</Link>
                     <Typography color={"text.primary"}>{product.name}</Typography>
                 </Breadcrumbs>
             </div>
-            <div className="w-full flex mb-10 bg-white p-3 py-4 rounded-xl">
-                <div className="w-1/2 flex justify-between ">
 
-                        <div className="w-1/3  h-full ">
-                            <ul className="h-full w-full flex flex-col  space-y-3">
-                                {product?.productImage?.map((image, index) => (
-                                    <li key={index} className="w-full h-[167px] border border-gray-200 rounded-xl">
-                                        <img
-                                            src={image}
-                                            alt={`Product Thumbnail ${index + 1}`}
-                                            className="h-full w-full object-contain rounded-xl cursor-pointer hover:border-2 hover:border-black  transition duration-300 ease-in-out"
-                                            onMouseEnter={() => setMainImage(image)} // Update mainImage on hover
-                                        />
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-
-                        <div className="w-2/3 mx-2 h-full ">
-                            <img
-                                src={mainImage}
-                                alt={product?.name}
-                                className="h-[530px] w-full object-contain rounded-xl border border-black"
-                            />
-                        </div>
-
+            <div className="w-full flex flex-col gap-y-4 md:flex-row mb-10 bg-white p-5 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 ease-in-out">
+                {/* Main Image Section */}
+                <div className="w-full md:w-1/2 flex flex-col">
+                    <div className="w-full h-[300px] md:h-[430px] overflow-hidden rounded-xl">
+                        <img
+                            src={mainImage}
+                            alt={product?.name}
+                            className="h-full w-full object-contain rounded-xl border-2 border-gray-200 shadow-md transition-transform duration-300 ease-in-out transform hover:scale-105"
+                        />
+                    </div>
                 </div>
 
-                {/* Product Details */}
-                <div className="w-1/2 h-full flex px-12 ">
+                {/* Product Details Section */}
+                <div className="w-full md:w-1/2 h-full flex flex-col px-5 md:px-12">
                     {product ? (
                         <div className="w-full">
                             {/* Product Name and Price */}
-                            <div className="flex w-full flex-col gap-y-3">
-                                <h1 className="text-2xl font-bold uppercase">{product.name}</h1>
-                                <Rating name="half-rating-read" size={"small"} defaultValue={product.rating} precision={0.5} readOnly/>
-                                <p className="text-3xl font-semibold">${product.price.toLocaleString()}</p>
-                                <p className="text-base mb-3 wrap whitespace-normal">{product.description}</p>
+                            <div className="flex w-full flex-col gap-y-4 mb-4">
+                                <h1 className="text-2xl md:text-3xl font-semibold text-gray-800 tracking-tight">{product.name}</h1>
+                                <div className="flex items-center gap-x-3 text-gray-500">
+                                    <Rating name="half-rating-read" size="small" defaultValue={product.rating} precision={0.5} readOnly />
+                                    <span>({reviews.length})</span>
+                                </div>
+                                <p className="text-3xl font-semibold text-red-600">${product.price.toLocaleString()}</p>
+                                <p className="text-lg text-gray-600 mb-4">{product.description}</p>
                             </div>
-                            <div className="w-full h-[1px] bg-gray-200 my-3"></div>
-                            {/* Colors */}
-                            <div className="flex w-full flex-col gap-y-3 my-3">
-                                <h1 className="text-base font-normal">Selected color</h1>
-                                <ul className="flex gap-x-3 flex-wrap whitespace-normal ">
-                                    {product?.color?.map((color, index) => (
-                                        <div
-                                            key={index}
-                                            onMouseEnter={() => handleColorHover(index)} // Change image on hover
-                                            onClick={() => setSelectedColor(color)} // Update selected color
-                                            className={`w-auto h-10 cursor-pointer mb-3 relative flex items-center gap-x-2 
-                                            border ${selectedColor === color ? "border-black border-2" : "border-gray-100"} 
-                                            px-1 hover:border-black hover:border-2`}
-                                        >
-                                            <img
-                                                src={product?.image[index]}
-                                                alt={color}
-                                                className="text-[0px] w-1/3 h-full object-contain " // Prevent shrinking of the image
-                                            />
-                                            <span
-                                                className="w-full text-sm whitespace-nowrap">{GetColorName(color)} {product.name}</span> {/* Allow the text to take up remaining space */}
-                                        </div>
 
-                                    ))}
-                                </ul>
-                            </div>
-                            <div className="w-full h-[1px] bg-gray-200 my-3"></div>
-                            {/* Sizes */}
-                            {
-                                product?.size[0] != "string" && (
-                                    <>
-                                        <div className="flex w-full flex-col gap-y-3 my-3">
-                                            <h1 className="text-base font-normal">Choose size</h1>
-                                            <ul className="flex gap-x-2">
-                                                {product?.size?.map((sizeItem, index) => (
-                                                    <li
-                                                        onClick={() => setSelectedSize(sizeItem)} // Update selected size
-                                                        key={index}
-                                                        className={`w-20 h-10 rounded-md border text-base  text-center flex items-center justify-center cursor-pointer ${
-                                                            selectedSize === sizeItem ? 'border-black border-2' : ''
-                                                        } hover:border-2 hover:border-black mb-3`}
-                                                    >
-                                                        {sizeItem}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                        <div className="w-full h-[1px] bg-gray-200 my-3"></div>
-                                    </>
-                                )
-                            }
+                            {/* Divider */}
+                            <div className="w-full h-[1px] bg-gray-200 my-4"></div>
 
-                            {/* Add to Cart */}
-                            <div className="flex items-center justify-between gap-x-4 my-3 py-3">
-                                <div
-                                    className="flex h-10 w-1/4 items-center justify-center bg-white rounded-md border border-gray-300">
-                                    <button onClick={decrementQuantity}
-                                            className="w-1/3 h-full text-xl font-bold border border-gray-300  hover:bg-red-500">
+                            {/* Quantity and Add to Cart */}
+                            <div className="flex items-center justify-between gap-x-6 my-4 py-3">
+                                <div className="flex items-center justify-between w-full lg:w-1/3 bg-gray-100 border border-gray-300 rounded-lg overflow-hidden">
+                                    <button
+                                        onClick={decrementQuantity}
+                                        className="w-1/3 h-12 flex justify-center items-center text-2xl font-semibold text-gray-600 hover:bg-gray-200 transition-colors duration-200"
+                                    >
                                         -
                                     </button>
-                                    <div
-                                        className="w-1/3 h-full flex items-center justify-center border border-gray-300 text-center">{value}</div>
-                                    <button onClick={incrementQuantity}
-                                            className="w-1/3 h-full text-xl font-bold border border-gray-300  hover:bg-red-500">
+                                    <div className="w-1/3 h-12 flex justify-center items-center border-l border-r border-gray-300 text-xl text-gray-800">
+                                        {value}
+                                    </div>
+                                    <button
+                                        onClick={incrementQuantity}
+                                        className="w-1/3 h-12 flex justify-center items-center text-2xl font-semibold text-gray-600 hover:bg-gray-200 transition-colors duration-200"
+                                    >
                                         +
                                     </button>
                                 </div>
-                                <div className="flex items-center w-full gap-x-5">
-                                    <button
-                                        onClick={()=>HandleAddToCart(product.name)}
-                                        className="bg-red-500 h-10 w-1/3 rounded-md text-white px-4 py-2 hover:bg-red-400"
-                                    >
-                                        Add to Cart
-                                    </button>
-                                    <button
-                                        className=" h-10 w-10 border text-white rounded-md px-4 py-2  gap-x-3 flex items-center justify-center hover:bg-red-500"
-                                    >
-                                        <FavoriteBorderTwoToneIcon  fontSize={"small"}
-                                                                    className="text-base text-black" />
-                                    </button>
-                                </div>
 
+                                <button
+                                    onClick={() => HandleAddToCart(product.name)}
+                                    className="w-full lg:w-1/2 h-12 bg-red-600 text-white text-lg font-semibold rounded-lg hover:bg-red-500 transition-colors duration-200"
+                                >
+                                    Add to Cart
+                                </button>
                             </div>
                         </div>
                     ) : (
-                        <p>Product not found</p>
+                        <p className="text-gray-500">Product not found</p>
                     )}
                 </div>
             </div>
+
 
             <div className="w-full mb-5 flex gap-y-5 bg-white rounded-xl flex-col py-4 px-4">
                 <h1 className="text-xl font-bold">You may also like</h1>
@@ -408,6 +387,77 @@ const DetailProduct = () => {
                 <SliceOfProduct products={recommendedProducts} TrackViewBehavior={trackBehavior} isLoading={loading3}/>
 
             </div>
+
+
+                {/* Reviews & Ratings Section */}
+                <div className="w-full mb-5 flex gap-y-5 bg-white rounded-xl flex-col py-4 px-4">
+                    <h1 className="text-xl font-bold mb-4">Customer Reviews</h1>
+
+                    {/* Review Form */}
+                    <div className="mb-8 border-b pb-6">
+                        <h2 className="text-lg font-semibold mb-4">Write a Review</h2>
+                        <div className="flex flex-col gap-4">
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm">Your Rating:</span>
+                                <Rating
+                                    name="user-rating"
+                                    value={userRating}
+                                    onChange={(event, newValue) => setUserRating(newValue)}
+                                    precision={0.5}
+                                />
+                            </div>
+                            <textarea
+                                value={userReview}
+                                onChange={(e) => setUserReview(e.target.value)}
+                                className="w-full p-3 border rounded-lg"
+                                placeholder="Write your review here..."
+                                rows="4"
+                            />
+                            <button
+                                onClick={handleSubmitReview}
+                                className="bg-red-500 text-white px-6 py-2 rounded-md self-end hover:bg-red-600"
+                            >
+                                Submit Review
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Reviews List */}
+                    <div className="space-y-6">
+                        {reviews.length === 0 ? (
+                            <div className="text-center text-gray-500">
+                                <p>No reviews available.</p>
+                            </div>
+                        ) : (
+                            reviews.map((review) => (
+                                <div key={review.id} className="border-b pb-4 hover:bg-gray-50 transition-all duration-200 ease-in-out">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="flex items-center gap-3">
+                                            {/* User Avatar */}
+                                            <img
+                                                src={user?.avatar || "default-avatar.png"}
+                                                alt={review.name}
+                                                className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
+                                            />
+                                            <span className="font-semibold text-gray-800">{review.name}</span>
+                                            <Rating
+                                                name="read-only"
+                                                value={review.rating}
+                                                readOnly
+                                                precision={0.5}
+                                                size="small"
+                                            />
+                                        </div>
+                                        <span className="text-sm text-gray-500">{review.date}</span>
+                                    </div>
+                                    <p className="text-gray-700">{review.comment}</p>
+                                </div>
+                            ))
+                        )}
+                    </div>
+
+                </div>
+
         </div>
     );
 };

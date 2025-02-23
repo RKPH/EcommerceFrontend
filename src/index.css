@@ -102,3 +102,98 @@
 .carousel-inner {
     transition: transform 0.5s ease-in-out; /* Apply smooth transition */
 }
+
+@keyframes typing {
+    0% { opacity: 0.3; transform: translateY(0px); }
+    50% { opacity: 1; transform: translateY(-3px); }
+    100% { opacity: 0.3; transform: translateY(0px); }
+}
+
+.dot-animation {
+    font-size: 20px;
+    animation: typing 1s infinite alternate;
+}
+
+.dot-animation:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.dot-animation:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.dot-animation:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+/* Container for the product card */
+.product-card {
+    width: 100%;
+    max-width: 250px; /* Reduce the max width to make the cards smaller */
+    background-color: white;
+    border: 1px solid #e0e0e0; /* Light gray border */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    overflow: hidden; /* Ensures content stays within rounded corners */
+    transition: transform 0.3s ease-in-out;
+    margin-bottom: 20px; /* Adds space between each card */
+}
+
+/* Hover effect for the card */
+.product-card:hover {
+    transform: translateY(-5px); /* Subtle hover lift effect */
+}
+
+/* Content padding inside the card */
+.product-card-content {
+    padding: 16px; /* Reduced padding to make the card smaller */
+}
+
+/* Product name */
+.product-name {
+    font-size: 1.125rem; /* Slightly smaller font size */
+    font-weight: 600;
+    color: #333; /* Dark text color */
+    margin-bottom: 12px;
+}
+
+/* Product price styling */
+.product-price {
+    font-size: 1rem; /* Slightly smaller font size */
+    color: #666; /* Slightly lighter text for the price */
+    margin-bottom: 16px;
+}
+
+/* Price value styling */
+.price-value {
+    color: #007bff; /* Blue color for price */
+    font-weight: 600;
+}
+
+/* Button styling */
+.view-product-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 10px 14px; /* Adjusted padding for the button */
+    background-color: #007bff; /* Blue background */
+    color: white;
+    font-size: 0.875rem; /* Smaller font size */
+    font-weight: 500;
+    border-radius: 5px;
+    text-decoration: none; /* Remove underline */
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+/* Hover effect for the button */
+.view-product-btn:hover {
+    background-color: #0056b3; /* Darker blue when hovered */
+    transform: scale(1.05); /* Slight scale effect on hover */
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 600px) {
+    .product-card {
+        max-width: 100%; /* Full width for smaller devices */
+    }
+}

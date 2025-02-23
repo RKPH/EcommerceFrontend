@@ -2,97 +2,72 @@
 
 const Footer = () => {
     return (
-        <footer className="bg-white text-black text-base flex flex-col ">
-            <section className="new-desktop-footer flex flex-col gap-y-4 " data-config="{}">
-                <div className="footer-first 3xl:px-[200px] md:px-[100px]  py-8">
-                    <div className="flex flex-wrap justify-between ">
-                        <div className="w-1/2 flex">
-                            <div className="w-1/2">
-                                <h3 className="font-bold text-base mb-2">CONTACT US</h3>
+        <footer className="bg-white text-black text-base flex flex-col">
+            <section className="new-desktop-footer flex flex-col gap-y-4" data-config="{}">
+                <div className="footer-first 3xl:px-[200px] md:px-[100px] px-[10px] py-8">
+                    <div className="flex flex-wrap justify-between">
+                        <div className="w-full md:w-1/2 flex flex-col md:flex-row">
+                            <div className="w-full md:w-1/2 mb-4 md:mb-0">
+                                <h3 className="font-bold text-lg mb-2">CONTACT US</h3>
                                 <ul className="list-none text-sm p-0">
                                     <li className="mb-1">
-                                        <a className="text-black hover:underline"
-                                           href="https://www.lazada.vn/helpcenter/">Hotline & Online chat (24/7)</a>
+                                        <a className="text-black hover:underline" href="https://www.lazada.vn/helpcenter/">Hotline & Online chat (24/7)</a>
                                     </li>
                                     <li className="mb-1">
-                                        <a className="text-black hover:underline"
-                                           href="https://www.lazada.vn/helpcenter/">Help Center</a>
+                                        <a className="text-black hover:underline" href="https://www.lazada.vn/helpcenter/">Help Center</a>
                                     </li>
                                     <li className="mb-1">
-                                        <a className="text-black hover:underline"
-                                           href="//www.lazada.vn/helpcenter/payments/">How to Buy</a>
+                                        <a className="text-black hover:underline" href="//www.lazada.vn/helpcenter/payments/">How to Buy</a>
                                     </li>
                                     <li className="mb-1">
-                                        <a className="text-black hover:underline"
-                                           href="//www.lazada.vn/helpcenter/shipping-and-delivery/">Shipping &
-                                            Delivery</a>
+                                        <a className="text-black hover:underline" href="//www.lazada.vn/helpcenter/shipping-and-delivery/">Shipping & Delivery</a>
                                     </li>
                                     <li className="mb-1">
-                                        <a className="text-black hover:underline"
-                                           href="https://www.lazada.vn/helpcenter/products-on-lazada/">International
-                                            Product Policy</a>
+                                        <a className="text-black hover:underline" href="https://www.lazada.vn/helpcenter/products-on-lazada/">International Product Policy</a>
                                     </li>
                                     <li className="mb-1">
-                                        <a className="text-black hover:underline"
-                                           href="//www.lazada.vn/helpcenter/returns/?spm=a2o4n.helpcenter.0.0.8e226171cswmxE">How
-                                            to Return</a>
+                                        <a className="text-black hover:underline" href="//www.lazada.vn/helpcenter/returns/?spm=a2o4n.helpcenter.0.0.8e226171cswmxE">How to Return</a>
                                     </li>
                                 </ul>
                             </div>
-                            <div className="w-1/2">
-                                <h3 className="font-bold text-base mb-2">LAZADA VIETNAM</h3>
+                            <div className="w-full md:w-1/2 mb-4 md:mb-0">
+                                <h3 className="font-bold text-lg mb-2">LAZADA VIETNAM</h3>
                                 <ul className="list-none text-sm p-0">
                                     <li className="mb-1">
-                                        <a className="text-black hover:underline" href="//group.lazada.com/en/about/">About
-                                            Lazada</a>
+                                        <a className="text-black hover:underline" href="//group.lazada.com/en/about/">About Lazada</a>
                                     </li>
                                     <li className="mb-1">
-                                        <a className="text-black hover:underline"
-                                           href="https://pages.lazada.vn/wow/i/vn/sell-on-lazada/register_now/">Sell on
-                                            Lazada</a>
+                                        <a className="text-black hover:underline" href="https://pages.lazada.vn/wow/i/vn/sell-on-lazada/register_now/">Sell on Lazada</a>
                                     </li>
                                     <li className="mb-1">
-                                        <a className="text-black hover:underline"
-                                           href="https://www.lazada.vn/affiliate/">Affiliate Program</a>
+                                        <a className="text-black hover:underline" href="https://www.lazada.vn/affiliate/">Affiliate Program</a>
                                     </li>
                                     <li className="mb-1">
-                                        <a className="text-black hover:underline"
-                                           href="//www.lazada.com/work-at-lazada/">Careers</a>
+                                        <a className="text-black hover:underline" href="//www.lazada.com/work-at-lazada/">Careers</a>
                                     </li>
                                     <li className="mb-1">
-                                        <a className="text-black hover:underline"
-                                           href="https://pages.lazada.vn/wow/gcp/route/lazada/vn/upr_1000345_lazada/channel/vn/upr-router/vn?hybrid=1&amp;data_prefetch=true&amp;prefetch_replace=1&amp;at_iframe=1&amp;wh_pid=/lazada/channel/vn/legal/terms-of-use">Terms
-                                            & Conditions</a>
+                                        <a className="text-black hover:underline" href="https://pages.lazada.vn/wow/gcp/route/lazada/vn/upr_1000345_lazada/channel/vn/upr-router/vn?hybrid=1&amp;data_prefetch=true&amp;prefetch_replace=1&amp;at_iframe=1&amp;wh_pid=/lazada/channel/vn/legal/terms-of-use">Terms & Conditions</a>
                                     </li>
                                     <li className="mb-1">
-                                        <a className="text-black hover:underline"
-                                           href="https://pages.lazada.vn/wow/gcp/route/lazada/vn/upr_1000345_lazada/channel/vn/upr-router/vn?hybrid=1&amp;data_prefetch=true&amp;prefetch_replace=1&amp;at_iframe=1&amp;wh_pid=/lazada/channel/vn/legal/privacy">Privacy
-                                            Policy</a>
+                                        <a className="text-black hover:underline" href="https://pages.lazada.vn/wow/gcp/route/lazada/vn/upr_1000345_lazada/channel/vn/upr-router/vn?hybrid=1&amp;data_prefetch=true&amp;prefetch_replace=1&amp;at_iframe=1&amp;wh_pid=/lazada/channel/vn/legal/privacy">Privacy Policy</a>
                                     </li>
                                     <li className="mb-1">
-                                        <a className="text-black hover:underline" href="https://www.lazada.vn/press/">Press
-                                            & Media</a>
+                                        <a className="text-black hover:underline" href="https://www.lazada.vn/press/">Press & Media</a>
                                     </li>
                                     <li className="mb-1">
-                                        <a className="text-black hover:underline"
-                                           href="https://pages.lazada.vn/wow/gcp/route/lazada/vn/upr_1000345_lazada/channel/vn/upr-router/vn?hybrid=1&amp;data_prefetch=true&amp;prefetch_replace=1&amp;at_iframe=1&amp;wh_pid=/lazada/channel/vn/legal/infringement/policy">Intellectual
-                                            Property Protection</a>
+                                        <a className="text-black hover:underline" href="https://pages.lazada.vn/wow/gcp/route/lazada/vn/upr_1000345_lazada/channel/vn/upr-router/vn?hybrid=1&amp;data_prefetch=true&amp;prefetch_replace=1&amp;at_iframe=1&amp;wh_pid=/lazada/channel/vn/legal/infringement/policy">Intellectual Property Protection</a>
                                     </li>
                                     <li className="mb-1">
-                                        <a className="text-black hover:underline"
-                                           href="https://pages.lazada.vn/wow/i/vn/LandingPage/quy-che-ban-hang">Operating
-                                            Regulation</a>
+                                        <a className="text-black hover:underline" href="https://pages.lazada.vn/wow/i/vn/LandingPage/quy-che-ban-hang">Operating Regulation</a>
                                     </li>
                                     <li className="mb-1">
-                                        <a className="text-black hover:underline"
-                                           href="https://pages.lazada.vn/wow/gcp/route/lazada/vn/upr_1000345_lazada/channel/vn/upr-router/vn?hybrid=1&amp;data_prefetch=true&amp;prefetch_replace=1&amp;wh_pid=/lazada/channel/vn/khuyen-mai/quy-trinh-giai-quyet-tranh-chap-khieu-nai">Procedure
-                                            of claim and dispute handling</a>
+                                        <a className="text-black hover:underline" href="https://pages.lazada.vn/wow/gcp/route/lazada/vn/upr_1000345_lazada/channel/vn/upr-router/vn?hybrid=1&amp;data_prefetch=true&amp;prefetch_replace=1&amp;at_iframe=1&amp;wh_pid=/lazada/channel/vn/khuyen-mai/quy-trinh-giai-quyet-tranh-chap-khieu-nai">Procedure of claim and dispute handling</a>
                                     </li>
                                 </ul>
                             </div>
                         </div>
-                        <div className="w-1/2 flex  justify-center">
-                            <div className="flex w-full gap-x-4 mb-4">
+                        <div className="w-full md:w-1/2 flex justify-center">
+                            <div className="flex w-full gap-x-4 mb-2">
                                 <div className="w-1/3 flex flex-col">
                                     <div className="w-full flex gap-x-1">
                                         <img loading="lazy"
@@ -103,37 +78,33 @@ const Footer = () => {
                                             <div>Download the App</div>
                                         </div>
                                     </div>
-
                                 </div>
-                                <div className="w-2/3 flex gap-x-4  ml-4">
+                                <div className="w-2/3 flex gap-x-4 ml-4">
                                     <a href="https://itunes.apple.com/app/id785385147" className="w-1/3 h-fit">
                                         <img loading="lazy"
                                              src="https://img.lazcdn.com/us/domino/287a1db8-9616-4998-87c2-98f42f4f664e_VN-126-42.png"
                                              alt="Apple App Download" className="w-full h-fit"/>
                                     </a>
-                                    <a href="https://play.google.com/store/apps/details?id=com.lazada.android"
-                                       className="w-1/3 h-fit">
+                                    <a href="https://play.google.com/store/apps/details?id=com.lazada.android" className="w-1/3 h-fit">
                                         <img loading="lazy"
                                              src="https://img.lazcdn.com/us/domino/00fecce4-0f30-4d24-8a14-a22e164b8d26_VN-126-42.png"
                                              alt="Android App Download" className="w-full h-fit"/>
                                     </a>
-                                    <a href="https://appgallery.huawei.com/#/app/C100164557"
-                                       className="w-1/3 h-fit">
+                                    <a href="https://appgallery.huawei.com/#/app/C100164557" className="w-1/3 h-fit">
                                         <img loading="lazy"
                                              src="https://img.lazcdn.com/us/domino/76421850-ecc3-468e-b747-51959d838184_VN-126-42.png"
                                              alt="Huawei App Download" className="w-full h-fit"/>
                                     </a>
                                 </div>
-
                             </div>
                         </div>
                     </div>
                 </div>
-                <div className="footer-second 3xl:px-[200px] md:px-[100px]  bg-gray-200 p-8">
-                    <div className="flex justify-between">
-                        <div className="w-1/3">
+                <div className="footer-second 3xl:px-[200px] md:px-[100px] px-[10px] bg-gray-200 p-8">
+                    <div className="flex flex-col md:flex-row justify-between">
+                        <div className="w-full md:w-1/3 mb-4 md:mb-0">
                             <h3 className="font-bold mb-2">Payment Methods</h3>
-                            <div className="flex flex-wrap">
+                            <div className="flex gap-2 flex-wrap">
                                 <span className="lzd-icon-payment mr-2">
                                     <img loading="lazy"
                                          src="https://img.lazcdn.com/us/domino/e33843e5-0363-4ec9-89d8-5967c636b1ab_VN-53-39.png"
@@ -174,9 +145,9 @@ const Footer = () => {
                                 </span>
                             </div>
                         </div>
-                        <div className="w-1/3">
+                        <div className="w-full md:w-1/3 mb-4 md:mb-0">
                             <h3 className="font-bold mb-2">Delivery Services</h3>
-                            <div className="flex flex-wrap">
+                            <div className="flex gap-2 flex-wrap">
                                 <img loading="lazy" className="h-10 mr-2" src="https://img.lazcdn.com/g/tps/imgextra/i3/O1CN01RNizk522j2cPtaRjc_!!6000000007155-2-tps-96-70.png" alt="Lazada Logistics" />
                                 <img loading="lazy" className="h-10 mr-2" src="https://img.lazcdn.com/g/tps/imgextra/i3/O1CN01ahATKv21NE8iPiA0Q_!!6000000006972-2-tps-96-70.png" alt="GHN" />
                                 <img loading="lazy" className="h-10 mr-2" src="https://img.lazcdn.com/g/tps/imgextra/i4/O1CN01S7cpxb1h5697fS0Bl_!!6000000004225-2-tps-96-70.png" alt="Ninja Van" />
@@ -186,7 +157,7 @@ const Footer = () => {
                                 <img loading="lazy" className="h-10 mr-2" src="https://img.lazcdn.com/g/tps/imgextra/i3/O1CN01TmRqKw1hqjKxGAxIf_!!6000000004329-2-tps-96-70.png" alt="JT" />
                             </div>
                         </div>
-                        <div className="w-1/3">
+                        <div className="w-full md:w-1/3 mb-4 md:mb-0">
                             <h3 className="font-bold mb-2">Verified by</h3>
                             <div className="flex flex-wrap">
                                 <a className="mr-2" href="https://img.lazcdn.com/g/tps/imgextra/i3/O1CN01dinKMe26jjo1yfe9j_!!6000000007698-0-tps-2480-3509.jpg" target="_blank" rel="noopener noreferrer">
@@ -211,11 +182,11 @@ const Footer = () => {
                         </div>
                     </div>
                 </div>
-                <div className="footer-fourth 3xl:px-[200px] md:px-[100px]  py-8">
-                    <div className="flex justify-between">
-                        <div className="w-1/3 flex flex-col justify-center">
+                <div className="footer-fourth 3xl:px-[200px] md:px-[100px] px-[10px] py-8">
+                    <div className="flex flex-col gap-y-4 md:flex-row justify-between">
+                        <div className="w-full md:w-1/3 flex flex-col justify-center">
                             <h3 className="font-bold mb-2">Lazada Southeast Asia</h3>
-                            <div className="flex">
+                            <div className="flex flex-wrap">
                                 <a className="mr-2" href="https://www.lazada.co.id" data-spm-click="gostr=/lzdpub.footer.venture;locaid=id">
                                     <img loading="lazy" className="h-8" src="https://img.lazcdn.com/us/domino/289777af-393a-4599-bbcb-2657299b19eb_VN-32-32.png" alt="id" />
                                 </a>
@@ -236,9 +207,9 @@ const Footer = () => {
                                 </a>
                             </div>
                         </div>
-                        <div className="w-1/3 flex flex-col justify-center">
+                        <div className="w-full md:w-1/3 flex flex-col justify-center">
                             <h3 className="font-bold mb-2">Follow Us</h3>
-                            <div className="flex">
+                            <div className="flex flex-wrap">
                                 <a className="mr-2" href="https://www.facebook.com/LazadaSingapore" data-spm-click="gostr=/lzdpub.footer.sns;locaid=d_fbk">
                                     <img loading="lazy" src="https://img.lazcdn.com/g/tps/imgextra/i3/O1CN01Wdetn224xMIRNihao_!!6000000007457-2-tps-34-34.png" alt="fb" />
                                 </a>
@@ -256,7 +227,7 @@ const Footer = () => {
                                 </a>
                             </div>
                         </div>
-                        <div className="w-1/3 flex flex-col justify-center items-center">
+                        <div className="w-full md:w-1/3 flex flex-col justify-center items-center py-4">
                             <div className="text-center">
                                 <div>© Lazada 2025</div>
                             </div>

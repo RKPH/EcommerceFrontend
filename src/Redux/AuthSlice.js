@@ -1,13 +1,14 @@
 ﻿import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import AxiosInstance from '../api/axiosInstance.js';
 import { toast } from 'react-toastify';
-
+import {setCart} from "./CartSlice.js";
 // Async thunk for login
 export const loginUser = createAsyncThunk(
     'auth/loginUser',
     async (credentials, { rejectWithValue }) => {
         try {
             const response = await AxiosInstance.publicAxios.post('/auth/login', credentials);
+
             const { token, refreshToken, user } = response.data;
 
             // Store token and refresh token in localStorage
@@ -33,7 +34,7 @@ export const registerUser = createAsyncThunk(
             // Store token and refresh token in localStorage
             localStorage.setItem('token', token);
             localStorage.setItem('refreshToken', refreshToken);
-            localStorage.setItem('isAuthenticated', 'true');
+
 
             return { user, token, refreshToken };
         } catch (error) {
@@ -42,13 +43,36 @@ export const registerUser = createAsyncThunk(
     }
 );
 
+export const verifyUser = createAsyncThunk(
+    'auth/verifyUser',
+    async ({ verificationCode }, { rejectWithValue }) => {
+        try {
+            // Send userId and verificationCode to the backend for verification
+            const response = await AxiosInstance.authAxios.post('/auth/verify', {  verificationCode });
+
+            // Assuming you will return user data after successful verification
+            const { user, message } = response.data;
+            localStorage.setItem('isAuthenticated', 'true');
+            return { user, message };
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || 'Verification failed');
+        }
+    }
+);
+
+
 // Async thunk for getting user profile
 export const getUserProfile = createAsyncThunk(
     'auth/getUserProfile',
-    async (_, { rejectWithValue }) => {
+    async (_, { dispatch, rejectWithValue }) => {
         try {
             const response = await AxiosInstance.authAxios.get('/auth/profile');
-            return response.data;
+            const user = response.data.user;
+
+            // Dispatch setCart to sync cart count with user profile
+            dispatch(setCart(user.Cart || 0));
+
+            return { user };
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Something went wrong');
         }
@@ -71,7 +95,7 @@ export const updateUserInfo = createAsyncThunk(
 // Async thunk for logging out
 export const logoutUserApi = createAsyncThunk(
     'auth/logoutUserApi',
-    async (_, { rejectWithValue }) => {
+    async (_, {dispatch, rejectWithValue }) => {
         try {
             await AxiosInstance.publicAxios.post('/auth/logout');
 
@@ -79,6 +103,7 @@ export const logoutUserApi = createAsyncThunk(
             localStorage.removeItem('token');
             localStorage.removeItem('refreshToken');
             localStorage.removeItem('isAuthenticated');
+            dispatch(setCart(0));
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Logout failed');
         }
@@ -117,6 +142,7 @@ const authSlice = createSlice({
         isLoading: false,
         isAuthenticated: !!localStorage.getItem('isAuthenticated'), // Persist authentication status
         error: null,
+        verificationMessage: null,
     },
     reducers: {
         logoutUser: (state) => {
@@ -128,7 +154,7 @@ const authSlice = createSlice({
         },
         updateCart: (state, action) => {
             if (state.user) {
-                state.user.Cart= state.user.Cart + 1;
+                state.user.Cart= action.payload;
             }
         },
         deleteCart: (state, action) => {
@@ -139,6 +165,23 @@ const authSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
+            .addCase(verifyUser.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+                state.verificationMessage = null;
+            })
+            .addCase(verifyUser.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.isAuthenticated =true
+                state.user = action.payload.user;
+                state.verificationMessage = action.payload.message; // Store success message
+
+            })
+            .addCase(verifyUser.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+                toast.error('Verification failed');
+            })
             .addCase(loginUser.pending, (state) => {
                 state.isLoading = true;
                 state.error = null;
@@ -159,7 +202,7 @@ const authSlice = createSlice({
             })
             .addCase(registerUser.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.isAuthenticated = true;
+
                 state.user = action.payload.user;
             })
             .addCase(registerUser.rejected, (state, action) => {
@@ -182,10 +225,10 @@ const authSlice = createSlice({
                 toast.error('Session expired, please log in again.');
                 localStorage.removeItem('isAuthenticated');
             })
-            .addCase(logoutUserApi.fulfilled, (state) => {
-                state.isAuthenticated = false;
-                state.user = null;
-            })
+                .addCase(logoutUserApi.fulfilled, (state) => {
+                    state.isAuthenticated = false;
+                    state.user = null;
+                })
             .addCase(logoutUserApi.rejected, (state, action) => {
                 state.isAuthenticated = false;
                 state.user = null;
@@ -218,8 +261,8 @@ const authSlice = createSlice({
     },
 });
 
-export const { updateCart, deleteCart } = authSlice.actions;
+export const { deleteCart } = authSlice.actions;
 
-export const getUser = (state) => state.auth.user;
+
 
 export default authSlice.reducer;
