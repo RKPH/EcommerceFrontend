@@ -152,7 +152,7 @@ const Homepage = () => {
                             >
                                 <div className="w-full h-[200px] bg-gray-200">
                                     <img
-                                        src={product?.productImage?.[0] || product?.productDetails?.image?.[0]}
+                                        src={product?.MainImage || product?.MainImage}
                                         alt={product?.name || product?.productDetails?.name}
                                         className="w-full h-full object-fit rounded-lg"
                                     />

@@ -152,24 +152,44 @@ const Order = () => {
     const fetchAddresses = async () => {
         try {
             const response = await AxiosInstance.authAxios.get("/address");
-            setAddresses(response.data.addresses || []);
+            const addressList = response.data.addresses || [];
+
+            setAddresses(addressList);
+            console.log("called ?")
+            if (addressList.length > 0) {
+                setSelectedAddress(`${addressList[0].street}, ${addressList[0].district}, ${addressList[0].ward}, ${addressList[0].city}`);
+                setPhone(addressList[0].phoneNumber);
+            } else {
+                setSelectedAddress(null);
+                setPhone("");
+            }
         } catch (error) {
             console.error("Error fetching addresses:", error);
         }
     };
+
     useEffect(() => {
 
         fetchAddresses();
     }, []);
 
     const handleSelectAddress = (addr) => {
-        setSelectedAddress(`${addr.street},${addr.district}, ${addr.ward}, ${addr.city}`);
+        const newAddress = `${addr.street}, ${addr.district}, ${addr.ward}, ${addr.city}`;
+
+        console.log("What I selected:", newAddress);
+        setSelectedAddress((prev) => {
+            console.log("Previous selectedAddress:", prev); // Debugging
+            return newAddress;
+        });
+
         setPhone(addr.phoneNumber);
         setOpenModal(false);
     };
 
 
-
+    useEffect(() => {
+        console.log("Updated selectedAddress:", selectedAddress);
+    }, [selectedAddress]);
 
     const applyCoupon = () => {
         if (couponCode === "DISCOUNT10") {
@@ -417,20 +437,28 @@ const Order = () => {
                                         <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 text-gray-800">Select an Address</h2>
                                         <ul className="border p-2 sm:p-3 rounded-lg max-h-48 sm:max-h-60 overflow-y-auto scrollbar-hide">
                                             {addresses.length > 0 ? (
-                                                addresses.map((addr) => (
-                                                    <li
-                                                        key={addr.id}
-                                                        className="p-3 sm:p-4 border-b cursor-pointer hover:bg-blue-100 transition-colors duration-300 rounded-lg"
-                                                        onClick={() => handleSelectAddress(addr)}
-                                                    >
-                                                        <div className="flex flex-col">
-                                                            <p className="text-sm sm:text-base text-gray-800 font-medium break-words">
-                                                                {addr.street}, {addr.district}, {addr.ward}, {addr.city}
-                                                            </p>
-                                                            <p className="text-xs sm:text-sm text-gray-600 mt-1">Phone: {addr.phoneNumber}</p>
-                                                        </div>
-                                                    </li>
-                                                ))
+                                                <ul>
+                                                    {addresses.map((addr) => {
+                                                        const isSelected = selectedAddress === `${addr.street}, ${addr.district}, ${addr.ward}, ${addr.city}`;
+
+                                                        return (
+                                                            <li
+                                                                key={addr.id}
+                                                                className={`p-3 sm:p-4 border-b cursor-pointer transition-colors duration-300 rounded-lg 
+                                                                             ${isSelected ? "bg-blue-200 font-semibold" : "hover:bg-blue-100"}`}
+                                                                onClick={() => handleSelectAddress(addr)}
+                                                            >
+                                                                <div className="flex flex-col">
+                                                                    <p className={`text-sm sm:text-base text-gray-800 font-medium break-words ${isSelected ? "text-blue-800" : ""}`}>
+                                                                        {addr.street}, {addr.district}, {addr.ward}, {addr.city}
+                                                                    </p>
+                                                                    <p className="text-xs sm:text-sm text-gray-600 mt-1">Phone: {addr.phoneNumber}</p>
+                                                                </div>
+                                                            </li>
+                                                        );
+                                                    })}
+                                                </ul>
+
                                             ) : (
                                                 <p className="text-gray-500 text-sm sm:text-base">No addresses available</p>
                                             )}

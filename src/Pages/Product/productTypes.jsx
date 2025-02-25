@@ -7,12 +7,16 @@ import Rating from "@mui/material/Rating";
 const ProductCategoryPage = () => {
     let { type } = useParams();
     type = type.toLowerCase();
-    const [products, setProducts] = useState([]);
-    const [filters, setFilters] = useState({
+
+    const defaultFilters = {
         brand: "",
         price: [0, 1000],
         rating: null,
-    });
+    };
+
+    const [products, setProducts] = useState([]);
+    const [filters, setFilters] = useState(defaultFilters);
+    const [appliedFilters, setAppliedFilters] = useState(defaultFilters);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [productsPerPage] = useState(20);
@@ -27,10 +31,10 @@ const ProductCategoryPage = () => {
                     params: {
                         page: currentPage,
                         limit: productsPerPage,
-                        brand: filters.brand,
-                        price_min: filters.price[0],
-                        price_max: filters.price[1],
-                        rating: filters.rating,
+                        brand: appliedFilters.brand,
+                        price_min: appliedFilters.price[0],
+                        price_max: appliedFilters.price[1],
+                        rating: appliedFilters.rating,
                     },
                 });
                 setProducts(response.data.data);
@@ -45,18 +49,21 @@ const ProductCategoryPage = () => {
         };
 
         fetchProducts();
-    }, [type, filters, currentPage, productsPerPage]);
+    }, [type, appliedFilters, currentPage, productsPerPage]);
 
     const handleFilterChange = (key, value) => {
-        setFilters({ ...filters, [key]: value });
+        setFilters((prev) => ({ ...prev, [key]: value }));
     };
 
-    const handleClearFilters = () => {
-        setFilters({
-            brand: "",
-            price: [0, 1000],
-            rating: null,
-        });
+    const applyFilters = () => {
+        setAppliedFilters(filters);
+        setCurrentPage(1);
+    };
+
+    const clearFilters = () => {
+        setFilters(defaultFilters);
+        setAppliedFilters(defaultFilters);
+        setCurrentPage(1);
     };
 
     const handlePageChange = (event, page) => {
@@ -64,7 +71,7 @@ const ProductCategoryPage = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col md:flex-row px-4  md:px-6 lg:px-[100px] 2xl:px-[200px] gap-x-2 py-6 bg-gray-100">
+        <div className="min-h-screen flex flex-col md:flex-row px-4 md:px-6 lg:px-[100px] 2xl:px-[200px] gap-x-2 py-6 bg-gray-100">
             {/* Filters Section */}
             <div className="w-full md:w-1/4 lg:w-1/5 bg-white p-6 rounded-lg shadow-lg mb-6 md:mb-0">
                 <h3 className="text-xl font-semibold text-gray-800 mb-5">Filters</h3>
@@ -121,6 +128,22 @@ const ProductCategoryPage = () => {
                         ))}
                     </div>
                 </div>
+
+                {/* Buttons */}
+                <div className="flex justify-between gap-2">
+                    <button
+                        onClick={applyFilters}
+                        className="w-1/2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium py-2 rounded-lg transition"
+                    >
+                        Apply Filters
+                    </button>
+                    <button
+                        onClick={clearFilters}
+                        className="w-1/2 bg-gray-400 hover:bg-gray-500 text-white text-sm font-medium py-2 rounded-lg transition"
+                    >
+                        Clear Filters
+                    </button>
+                </div>
             </div>
 
             {/* Products Section */}
@@ -138,7 +161,7 @@ const ProductCategoryPage = () => {
                             {products.map((product) => (
                                 <Link to={`/product/${product.productID || product.product_id}`} key={product.productID || product.product_id} className="border w-full flex flex-col border-gray-300 hover:shadow-lg rounded-lg">
                                     <div className="w-full h-[200px] bg-gray-200">
-                                        <img src={product.productImage?.[0]} alt={product.name} className="w-full h-full object-cover rounded-t-lg" />
+                                        <img src={product.MainImage} alt={product.name} className="w-full h-full object-contain rounded-t-lg" />
                                     </div>
                                     <div className="flex flex-col p-2">
                                         <span className="font-normal text-base hover:underline">{product.name}</span>

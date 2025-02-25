@@ -24,7 +24,7 @@ const OrderTracking = () => {
             ];
         } else {
             return [
-                "Order placed and payment received via MoMo.",
+                "Order is paid via momo and pending processing.",
                 "Order is now being processed.",
                 "Order is being prepared",
                 "Order is being shipped",
@@ -96,7 +96,7 @@ const OrderTracking = () => {
                     <div className="hidden md:block w-[1px] bg-gray-300 h-6"></div>
                     <div className="flex-1">
                         <p className="text-sm text-gray-500">Estimated Delivery:</p>
-                        <p className="text-lg font-medium text-green-600">Feb 19, 2025</p>
+                        <p className="text-lg font-medium text-green-600">{order?.DeliveredAt}</p>
                     </div>
                 </div>
             </div>
