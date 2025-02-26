@@ -36,8 +36,17 @@ const DetailProduct = () => {
     const [userRating, setUserRating] = useState(0); // State for user rating
     const [userReview, setUserReview] = useState(""); // State for user review
     const dispatch = useDispatch();
+    // Use useRef to store the user object reference without causing re-renders
+    const userRef = useRef(user);
 
-    console.log("User ", user)
+
+
+    useEffect(() => {
+        if (userRef.current !== user) {
+            userRef.current = user;
+            console.log("User updated", userRef.current);
+        }
+    }, [user]);
     // Function to fetch product details
     const fetchProduct = async () => {
         try {
@@ -217,68 +226,36 @@ const DetailProduct = () => {
         };
 
         initialize(); // Call the async initialization function
-    }, [user, id]); // Dependency array includes `user` and `id`
+    }, [id]); // Dependency array includes `user` and `id`
 
 
     const HandleAddToCart = useCallback(
         async (product_name) => {
-            if (!user) {
-                toast.error("You must be logged in to add items to the cart.");
-                return;
-            }
-
+            if (!user) return toast.error("You must be logged in to add items to the cart.");
             try {
-                const data = {
-                    productId: id,
-                    quantity: value,
-                };
-
-                const request = {
-                    user_id: user?.user_id, // Assuming user_id is available in your component
-                    product_id: id, // Assuming product_id is available in your component
-                    event_type: "cart",
-                };
-
-                console.log("Request:", request); // Log for debugging
-
+                const data = { productId: id, quantity: value };
                 const response = await AxiosInstance.authAxios.post(`/cart/add`, data);
-                console.log("Add to Cart Response:", response.data);
                 dispatch(updateCart(response.data.Length));
-                toast.success("Product added to your cart successfully!", {
-                    className: "toast-success",
-                    style: { backgroundColor: "green", color: "white" },
-                });
-
+                toast.success("Product added to your cart!");
                 trackBehavior(id, product_name, "cart");
             } catch (error) {
-                console.error("Error adding product to cart:", error.response || error);
-                toast.error(
-                    error.response?.data?.message || "Failed to add product to the cart."
-                );
+                toast.error("Failed to add product to cart.");
             }
         },
-        [
-            user,
-            product,
-            id,
-            value,
-            dispatch,
-            trackBehavior,
-        ]
+        [user, id, value, dispatch, trackBehavior] // Ensure only relevant dependencies are included
     );
+
 
     // Handle quantity changes
     const incrementQuantity = () => {
-        if (value < (product?.stock || 100)) {
-            setValue(value + 1);
-        }
+        setValue(prevValue => Math.min(prevValue + 1, product?.stock || 100));
     };
 
     const decrementQuantity = () => {
-        if (value > 1) {
-            setValue(value - 1);
-        }
+        setValue(prevValue => Math.max(prevValue - 1, 1));
     };
+
+
 
     // Handle color hover to change main image
 

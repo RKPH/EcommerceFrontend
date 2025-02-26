@@ -76,18 +76,6 @@ const ProductCategoryPage = () => {
             <div className="w-full md:w-1/4 lg:w-1/5 bg-white p-6 rounded-lg shadow-lg mb-6 md:mb-0">
                 <h3 className="text-xl font-semibold text-gray-800 mb-5">Filters</h3>
 
-                {/* Brand Filter */}
-                <div className="mb-5">
-                    <label className="block text-gray-700 font-medium mb-2">Brand</label>
-                    <input
-                        type="text"
-                        placeholder="Enter brand"
-                        value={filters.brand}
-                        onChange={(e) => handleFilterChange("brand", e.target.value)}
-                        className="w-full p-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                    />
-                </div>
-
                 {/* Price Filter */}
                 <div className="mb-5">
                     <label className="block text-gray-700 font-medium mb-2">Price Range</label>

@@ -84,19 +84,19 @@ const Cart = () => {
       return [...prevSelectedItems, itemId]; // Add to selected items
     });
   };
-  useEffect(() => { fetchSessinBaseRecommendedProducts(); }, []);
-
   useEffect(() => {
+
     if (user) {
       fetchCart();
     }
     fetchTrendingProducts();
-
   }, [user]);
-
   useEffect(() => {
-    fetchSessinBaseRecommendedProducts();
-  }, [cartItems]);
+    if (cartItems.length > 0) {
+      fetchSessinBaseRecommendedProducts();
+    }
+  }, [cartItems.length]); // Only trigger when cart items go from 0 → >0
+
   const fetchTrendingProducts = async () => {
     try {
       const response = await axios.get(
@@ -119,7 +119,6 @@ const Cart = () => {
       const lastCartItem = cartItems.length > 0 ? cartItems[cartItems.length - 1] : null;
 
       if (!lastCartItem) {
-        console.error("No items in cart");
         return;
       }
 
@@ -129,18 +128,17 @@ const Cart = () => {
         event_type: "cart"
       };
 
-      console.log("Request:", request); // Log for debugging
+
 
       // Pass request directly as the request body
       const response = await AxiosInstance.normalAxios.post(`/products/recommendations`, request);
 
-      console.log("Recommended Products 2:", response?.data?.data); // Log for debugging
       setError2(null); // Clear any previous errors
 
       setUiRecommendedProducts(response?.data?.data); // Set recommended products
       setLoading2(false); // Stop loading
     } catch (error) {
-      console.error("Error fetching recommended products:", error?.message || error);
+
       setError2(error.response?.data?.message || "An error occurred");
     } finally {
       setLoading2(false); // Stop loading in both success and error cases

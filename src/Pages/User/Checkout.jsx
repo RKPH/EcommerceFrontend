@@ -28,17 +28,16 @@ const Order = () => {
 
     const sessionID = user?.sessionID;
     const [paymentMethod, setpaymentMethod] = useState("momo");
-    const [discount, setDiscount] = useState(0);
+
     const [shipmentCost, setShipmentCost] = useState(10);
     const [phone, setPhone] = useState("");
     const [couponCode, setCouponCode] = useState("");
-    const [couponMessage, setCouponMessage] = useState("");
+
     const [addresses, setAddresses] = useState([]);
     const [selectedAddress, setSelectedAddress] = useState("");
     const [openModal, setOpenModal] = useState(false);
     const [isAddingNew, setIsAddingNew] = useState(false);
     const [selectedAddresses, setSelectedAddresses] = useState(null);
-    const [editModal, setEditModal] = useState(false);
     const [chooseAddress, setChooseAddress] = useState({
         city: selectedAddresses?.data?.city || '',
         street: selectedAddresses?.data?.street || '',
@@ -191,15 +190,6 @@ const Order = () => {
         console.log("Updated selectedAddress:", selectedAddress);
     }, [selectedAddress]);
 
-    const applyCoupon = () => {
-        if (couponCode === "DISCOUNT10") {
-            setCouponMessage("Coupon applied! You saved 10%.");
-            setDiscount(calculateTotalPrice() * 0.1);
-            // Logic to apply discount
-        } else {
-            setCouponMessage("Invalid coupon code.");
-        }
-    };
 
     const calculateDiscountedTotal = () => {
         const total = calculateTotalPrice();
@@ -634,59 +624,6 @@ const Order = () => {
                             </div>
                         </div>
                     </div>
-
-
-                    {/* Apply Coupon Section */}
-                    <div className="p-6 bg-white rounded-lg shadow-md border-t border-gray-200">
-                        {/* Apply Coupon Section */}
-                        <span className="text-black text-xl font-semibold mb-4 block">Apply Coupon</span>
-                        <div className="flex items-center space-x-4">
-                            <input
-                                type="text"
-                                id="couponCode"
-                                placeholder="Enter coupon code"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                onChange={(e) => setCouponCode(e.target.value)}
-                            />
-                            <button
-                                className="bg-blue-600 text-white px-5 py-3 rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
-                                onClick={applyCoupon}
-                            >
-                                Apply
-                            </button>
-                        </div>
-                        {couponMessage && (
-                            <p className="text-sm text-green-600 mt-3">{couponMessage}</p>
-                        )}
-
-                        {/* Order Summary Section */}
-                        <div className="mt-6">
-                            <div className="flex justify-between items-center py-3 border-b border-gray-200">
-                                <span className="text-base font-semibold text-black">Total Products</span>
-                                <span className="text-gray-600 text-lg">${calculateTotalPrice()}</span>
-                            </div>
-
-                            {/* Discount */}
-                            <div className="flex justify-between items-center py-3 border-b border-gray-200">
-                                <span className="text-base font-semibold text-black">Discount</span>
-                                <span className="text-green-600 text-lg">{discount > 0 ? `- $${discount}` : "$0"}</span>
-                            </div>
-
-                            {/* Shipment Cost */}
-                            <div className="flex justify-between items-center py-3 border-b border-gray-200">
-                                <span className="text-base font-semibold text-black">Shipment Cost</span>
-                                <span className="text-gray-600 text-lg">${shipmentCost}</span>
-                            </div>
-
-                            {/* Total Payment */}
-                            <div className="flex justify-between items-center py-3 border-t font-semibold text-black">
-                                <span className="text-lg">Total Payment</span>
-                                <span className="text-lg text-gray-800">${calculateDiscountedTotal() + shipmentCost}</span>
-                            </div>
-                        </div>
-                    </div>
-
-
                     {/* Place Order Button */}
                     <div className="w-full p-4 flex justify-center mt-4">
                         <button
