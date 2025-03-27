@@ -10,7 +10,7 @@ function App() {
     <div>
         <ToastContainer
             position="bottom-right"
-            autoClose={1200}
+            autoClose={4200}
             hideProgressBar
             newestOnTop
             closeOnClick

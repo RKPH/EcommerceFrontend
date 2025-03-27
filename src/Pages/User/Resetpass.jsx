@@ -1,52 +1,65 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { registerUser } from "../../Redux/AuthSlice.js";
-import { toast } from "react-toastify";
+﻿import { useState } from "react";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import axiosInstance from "../../api/axiosInstance.js"; // Import the Axios instance
+import NotificationModal from "../../Components/NotificationModal.jsx"; // Import the NotificationModal component
 
-export function Register() {
-    const [formData, setFormData] = useState({
-        name: "",
-        email: "",
-        password: "",
-        confirmPassword: ""
-    });
-
+export function ResetPassword() {
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [passwordShown, setPasswordShown] = useState(false);
     const [confirmPasswordShown, setConfirmPasswordShown] = useState(false);
-
-    const dispatch = useDispatch();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+    const [modalMessage, setModalMessage] = useState("");
+    const [modalTitle, setModalTitle] = useState("");
+    const [modalType, setModalType] = useState("success"); // Can be "success" or "error"
     const navigate = useNavigate();
-    const { isLoading } = useSelector((state) => state.auth);
+    const { token } = useParams(); // Extract token from URL path
 
     const togglePasswordVisibility = () => setPasswordShown((prev) => !prev);
     const toggleConfirmPasswordVisibility = () => setConfirmPasswordShown((prev) => !prev);
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        setError(null);
 
-        const passwordRegex = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
-        if (!passwordRegex.test(formData.password)) {
-            toast.error("Password must be at least 8 characters, include an uppercase letter and a number.");
-            return;
-        }
-
-        if (formData.password !== formData.confirmPassword) {
-            toast.error("Passwords do not match.");
+        // Validate that passwords match
+        if (password !== confirmPassword) {
+            setError("Passwords do not match");
+            setLoading(false);
             return;
         }
 
         try {
-            const { name, email, password } = formData;
-            await dispatch(registerUser({ name, email, password })).unwrap();
-            toast.success("A verification code has been sent to your email!");
-            navigate("/verify");
+            // Use Axios instance to make the POST request
+            const response = await axiosInstance.normalAxios.post("/auth/reset-password", {
+                token,
+                password,
+            });
+
+            // Show success modal instead of alert
+            setModalTitle("Success");
+            setModalMessage("Password reset successful! Please log in.");
+            setModalType("success");
+            setShowModal(true);
         } catch (err) {
-            toast.error(err || "Registration failed");
+            // Show error modal instead of setting error state
+            setModalTitle("Error");
+            setModalMessage(err.message || "Password reset failed. Please try again.");
+            setModalType("error");
+            setShowModal(true);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Handle modal close
+    const handleModalClose = () => {
+        setShowModal(false);
+        if (modalType === "success") {
+            navigate("/login"); // Navigate to login only on success
         }
     };
 
@@ -67,58 +80,23 @@ export function Register() {
                         />
                     </Link>
                     <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
-                        Join Sport Ecommerce
+                        Reset Your Password
                     </h2>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
-                    {/* Name */}
-                    <div>
-                        <label htmlFor="name" className="block text-gray-900 font-medium mb-1">
-                            Your Name
-                        </label>
-                        <input
-                            id="name"
-                            type="text"
-                            name="name"
-                            placeholder="John Doe"
-                            value={formData.name}
-                            onChange={handleChange}
-                            className="w-full px-4 py-2 border rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            required
-                        />
-                    </div>
-
-                    {/* Email */}
-                    <div>
-                        <label htmlFor="email" className="block text-gray-900 font-medium mb-1">
-                            Email Address
-                        </label>
-                        <input
-                            id="email"
-                            type="email"
-                            name="email"
-                            placeholder="name@example.com"
-                            value={formData.email}
-                            onChange={handleChange}
-                            className="w-full px-4 py-2 border rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            required
-                        />
-                    </div>
-
-                    {/* Password */}
+                    {/* New Password */}
                     <div className="relative">
                         <label htmlFor="password" className="block text-gray-900 font-medium mb-1">
-                            Password
+                            New Password
                         </label>
                         <input
                             id="password"
                             type={passwordShown ? "text" : "password"}
-                            name="password"
-                            placeholder="********"
-                            value={formData.password}
-                            onChange={handleChange}
                             className="w-full px-4 py-2 border rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            placeholder="********"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                             required
                         />
                         <button
@@ -173,11 +151,10 @@ export function Register() {
                         <input
                             id="confirmPassword"
                             type={confirmPasswordShown ? "text" : "password"}
-                            name="confirmPassword"
-                            placeholder="********"
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
                             className="w-full px-4 py-2 border rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            placeholder="********"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
                             required
                         />
                         <button
@@ -224,25 +201,35 @@ export function Register() {
                         </button>
                     </div>
 
-                    {/* Submit Button */}
+                    {error && <p className="text-red-600 text-sm">{error}</p>}
+
                     <button
                         type="submit"
                         className="w-full py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all"
-                        disabled={isLoading}
+                        disabled={loading}
                     >
-                        {isLoading ? "Creating Account..." : "Sign Up"}
+                        {loading ? "Resetting..." : "Reset Password"}
                     </button>
                 </form>
 
-                {/* Already have an account */}
                 <div className="mt-5 text-sm flex flex-col sm:flex-row justify-between">
                     <Link to="/login" className="text-gray-700 hover:underline">
-                        Already have an account? Sign in
+                        Back to Login
                     </Link>
                 </div>
             </div>
+
+            {/* Notification Modal */}
+            {showModal && (
+                <NotificationModal
+                    title={modalTitle}
+                    message={modalMessage}
+                    type={modalType}
+                    onClose={handleModalClose}
+                />
+            )}
         </div>
     );
 }
 
-export default Register;
+export default ResetPassword;

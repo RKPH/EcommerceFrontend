@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import {useDispatch} from "react-redux";
 import {deleteCart} from "../../Redux/AuthSlice.js";
 import SliceOfProduct from "../../Components/SliceOfProduct.jsx";
+import {getUserProfile} from "../../Redux/AuthSlice.js";
 import axios from "axios";
 
 const Cart = () => {
@@ -42,9 +43,9 @@ const Cart = () => {
         product_name: product_name,
         behavior: event_type,
       });
-      console.log("Behavior tracked successfully");
+
     } catch (error) {
-      console.error("Error tracking behavior:", error);
+      return error;
     }
   };
 
@@ -52,10 +53,10 @@ const Cart = () => {
     try {
       const response = await AxiosInstance.authAxios.get("/cart/get");
       const items = response.data.data || [];
-      console.log("Fetched cart items:", items);
+
       setCartItems(items);
     } catch (error) {
-      console.error("Error fetching cart items:", error.message);
+      return error;
     }
   };
 
@@ -71,8 +72,9 @@ const Cart = () => {
       });
       fetchCart();
     } catch (error) {
-      console.error("Error updating cart:", error.message);
-      toast.error("Failed to update the cart");
+      toast.error(error.response.data.message);
+      return error;
+
     }
   };
 
@@ -100,15 +102,15 @@ const Cart = () => {
   const fetchTrendingProducts = async () => {
     try {
       const response = await axios.get(
-          "http://103.155.161.94:3000/api/v1/products/trending"
+          "http://localhost:3000/api/v1/products/trending"
       );
-      setTrendingProducts(response.data.data); // Assuming the response contains an array of products
-      console.log("Fetched Trending Products:", response.data.data); // Log the fetched products
+      setTrendingProducts(response.data.data);
+
     } catch (error) {
       console.error("Error fetching trending products:", error.message || error);
     }
   };
-  console.log("Product ID from cart:", cartItems[length-1]?.productID);
+
 
   const fetchSessinBaseRecommendedProducts = async () => {
     console.log("Fetching recommended products...");
@@ -125,7 +127,6 @@ const Cart = () => {
       const request = {
         user_id: user?.user_id, // Assuming user_id is available in your component
         product_id: lastCartItem?.productID, // Access the productID of the last cart item
-        event_type: "cart"
       };
 
 
@@ -162,17 +163,18 @@ const Cart = () => {
       await AxiosInstance.authAxios.delete(`/cart/delete`, {
         data: { cartItemID }, // Pass the cart item ID in the request body
       });
-
+      dispatch(getUserProfile())
       // Update the cartItems state locally
       setCartItems((prevCartItems) =>
           prevCartItems.filter((item) => item._id !== cartItemID)
       );
-      dispatch(deleteCart());
+
       // Show a success message
-      toast.success("Item removed from cart");
+
     } catch (error) {
-      console.error("Error deleting cart item:", error.message);
+
       toast.error("Failed to remove the item");
+      return error;
     }
   };
 
@@ -201,7 +203,7 @@ const Cart = () => {
       };
 
       await AxiosInstance.authAxios.post("/orders/addOrder", orderData);
-      toast.success("Order created successfully!");
+
       selectedItems.forEach((itemId) => {
         const item = cartItems.find((item) => item._id === itemId);
         const productId = item.productID;
@@ -210,8 +212,8 @@ const Cart = () => {
       });
       navigate("/checkout", { state: { refetch: true, orders: cartItems } });
     } catch (error) {
-      console.error("Error creating order:", error.message);
-      toast.error("Failed to create the order");
+      return error;
+
     }
   };
 
@@ -221,7 +223,7 @@ const Cart = () => {
       const userId = user?.id || user?.user?.id;
 
       if (!sessionId || !userId) {
-        console.error("Session ID or User ID is missing!");
+
         return;
       }
 
@@ -232,9 +234,9 @@ const Cart = () => {
         product_name: product_name,
         behavior: event_type,
       });
-      console.log("View behavior tracked successfully");
+
     } catch (error) {
-      console.error("Error tracking view behavior:", error);
+     return error
     }
   };
 
@@ -270,7 +272,9 @@ const Cart = () => {
                       <tr key={item.id} className="bg-white">
                         <td className="py-2 px-4">
                           <input
+                              id="cb3"
                               type="checkbox"
+                              className="text-red-500 focus:ring-red-500"
                               checked={selectedItems.includes(item._id)}
                               onChange={() => handleSelectItem(item._id)}
                           />
@@ -278,9 +282,9 @@ const Cart = () => {
                         <td className="flex items-center space-x-4">
                           <Link
                               className="py-2 px-2 flex items-center space-x-4"
-                              to={`/product/${item.product.productID}`}
+                              to={`/product/${item.product.product_id}`}
                               onClick={() =>
-                                  trackBehavior(item.product.productID, item.product.name, "view")
+                                  trackBehavior(item.product.product_id, item.product.name, "view")
                               }
                           >
                             <img
@@ -294,7 +298,7 @@ const Cart = () => {
                             </div>
                           </Link>
                         </td>
-                        <td className="py-2 px-4">{item.product.price} VND</td>
+                        <td className="py-2 px-4">${item.product.price}</td>
                         <td className="py-2 px-4">
                           <div className="flex items-center">
                             <button
@@ -344,7 +348,7 @@ const Cart = () => {
                               type="checkbox"
                               checked={selectedItems.includes(item._id)}
                               onChange={() => handleSelectItem(item._id)}
-                              className="mr-2"
+                              className="mr-2 focus:ring-red-500 text-red-500"
                           />
                           <img
                               src={item.product.MainImage}
@@ -395,25 +399,50 @@ const Cart = () => {
               </div>
 
               {/* Order Summary */}
-              <div className="w-full md:max-w-sm  md:ml-auto p-4 bg-white shadow-md rounded-lg mt-4">
+              {/* Order Summary */}
+              <div className="w-full p-4 bg-white shadow-md rounded-lg mt-4">
                 <h2 className="text-base md:text-lg font-semibold mb-4">Order Summary</h2>
+
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-gray-600">Total Items:</span>
                   <span className="font-semibold">{selectedItems.length}</span>
                 </div>
+
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-gray-600">Total Price:</span>
                   <span className="font-semibold">${calculateTotal().toFixed(2)}</span>
                 </div>
-                <div className="w-full flex items-center justify-center">
+
+                <div className="w-full flex items-center justify-between mt-4">
+                  {/* Choose All Checkbox */}
+                  <label className="flex items-center space-x-2">
+                    <input
+                        type="checkbox"
+                        checked={selectedItems.length === cartItems.length && cartItems.length > 0}
+                        className="text-red-500 focus:ring-red-500"
+                        onChange={() => {
+                          if (selectedItems.length === cartItems.length) {
+                            // Unselect all
+                            setSelectedItems([]);
+                          } else {
+                            // Select all
+                            setSelectedItems(cartItems.map((item) => item._id));
+                          }
+                        }}
+                    />
+                    <span className="text-sm text-gray-600">Choose All</span>
+                  </label>
+
+                  {/* Checkout Button */}
                   <button
                       onClick={handleCreateOrder}
-                      className="w-full mt-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                      className="py-2 px-6 bg-red-500 text-white rounded-lg hover:bg-red-600"
                   >
                     Proceed to Checkout
                   </button>
                 </div>
               </div>
+
 
               {/* Recommended Products */}
               <div className="w-full mt-10">

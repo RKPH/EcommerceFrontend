@@ -101,3 +101,7 @@
 .carousel-inner {
     transition: transform 0.5s ease-in-out; /* Apply smooth transition */
 }
+
+#cb3 {
+    accent-color: #d30e0e;
+}

@@ -6,49 +6,42 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import Skeleton from "@mui/material/Skeleton";
 
-const SliceOfProduct = ({ products, TrackViewBehavior, isLoading }) => {
-    const [hovered, setHovered] = useState(false); // Hover state for showing/hiding buttons and scrollbar
-    const productListRef = useRef(null); // Ref for scrolling
+const SliceOfProduct = ({ products, TrackViewBehavior, isLoading = false }) => {
+    const [hovered, setHovered] = useState(false);
+    const productListRef = useRef(null);
 
     const handleNext = () => {
         if (productListRef.current) {
-            const itemWidth = productListRef.current.firstChild?.offsetWidth || 0; // Width of a single item
-            const visibleItems = Math.floor(productListRef.current.offsetWidth / itemWidth); // Number of visible items
-            const scrollDistance = itemWidth * visibleItems; // Total scroll distance
-            productListRef.current.scrollBy({
-                left: scrollDistance,
-                behavior: "smooth",
-            });
+            const itemWidth = productListRef.current.firstChild?.offsetWidth || 0;
+            const visibleItems = Math.floor(productListRef.current.offsetWidth / itemWidth);
+            const scrollDistance = itemWidth * visibleItems;
+            productListRef.current.scrollBy({ left: scrollDistance, behavior: "smooth" });
         }
     };
 
     const handlePrevious = () => {
         if (productListRef.current) {
-            const itemWidth = productListRef.current.firstChild?.offsetWidth || 0; // Width of a single item
-            const visibleItems = Math.floor(productListRef.current.offsetWidth / itemWidth); // Number of visible items
-            const scrollDistance = itemWidth * visibleItems; // Total scroll distance
-            productListRef.current.scrollBy({
-                left: -scrollDistance,
-                behavior: "smooth",
-            });
+            const itemWidth = productListRef.current.firstChild?.offsetWidth || 0;
+            const visibleItems = Math.floor(productListRef.current.offsetWidth / itemWidth);
+            const scrollDistance = itemWidth * visibleItems;
+            productListRef.current.scrollBy({ left: -scrollDistance, behavior: "smooth" });
         }
     };
 
     return (
         <div
             className="relative w-full"
-            onMouseEnter={() => setHovered(true)} // Show buttons and scrollbar on hover
-            onMouseLeave={() => setHovered(false)} // Hide buttons and scrollbar when not hovered
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
         >
             <ul
-                ref={productListRef} // Attach the ref here
+                ref={productListRef}
                 className={`w-full flex gap-x-1 overflow-x-auto pb-5 ${
                     hovered ? "custom-scrollbar" : "custom-scrollbar-hidden"
                 }`}
             >
                 {isLoading
-                    ? // Render skeleton loaders if data is loading
-                    Array.from({ length: 10 }).map((_, index) => (
+                    ? Array.from({ length: 10 }).map((_, index) => (
                         <div
                             className="w-40 sm:w-52 flex-shrink-0 border border-gray-300 rounded-lg p-2"
                             key={index}
@@ -56,7 +49,7 @@ const SliceOfProduct = ({ products, TrackViewBehavior, isLoading }) => {
                             <Skeleton
                                 variant="rectangular"
                                 width="100%"
-                                height={230}
+                                height={200}
                                 className="rounded-[20px]"
                             />
                             <div className="flex flex-col mt-4">
@@ -66,41 +59,69 @@ const SliceOfProduct = ({ products, TrackViewBehavior, isLoading }) => {
                             </div>
                         </div>
                     ))
-                    : // Render products when data is available
-                    products.map((product) => (
+                    : products.map((product) => (
                         <Link
                             onClick={() => {
                                 TrackViewBehavior(
-                                    product?.productID || product?.product_id,
+                                    product?.product_id || product?.product_id,
                                     product?.name || product?.productDetails?.name,
                                     "view"
                                 );
                             }}
-                            to={`/product/${product?.productID || product?.product_id}`} // Use top-level product_id
-                            className="w-40 sm:w-52 md:w-52 lg:w-60 xl:w-52 flex-shrink-0 border border-gray-300 hover:shadow-lg"
-                            key={product?.productID || product.product_id} // Ensure unique key
+                            to={`/product/${product?.product_id || product?.product_id}`}
+                            className="w-40 sm:w-52 md:w-52 lg:w-60 xl:w-52 flex-shrink-0 border border-gray-300 hover:shadow-lg flex flex-col justify-between h-[350px]"
+                            key={product?.productID || product.product_id}
                         >
-                            <div className="w-full h-[200px] bg-gray-200 ">
+                            {/* Product Image */}
+                            <div className="w-full h-[200px] bg-gray-200 overflow-hidden">
                                 <img
-                                    src={product?.MainImage || product?.productDetails?.MainImage} // Safe access for both image arrays
-                                    alt={product?.name || product?.productDetails?.name} // Product name with fallback
-                                    className="w-full h-full object-fit "
+                                    src={product?.MainImage || product?.productDetails?.MainImage}
+                                    alt={product?.name || product?.productDetails?.name}
+                                    className="w-full h-full object-cover"
                                 />
                             </div>
-                            <div className="flex flex-col p-2">
-                                <span className="font-normal text-base hover:underline">
-                                    {product?.name || product?.productDetails?.name}
-                                </span>
-                                <Rating
-                                    name="half-rating-read"
-                                    size={"small"}
-                                    defaultValue={product?.rating || product?.productDetails?.rating} // Placeholder rating
-                                    precision={0.5}
-                                    readOnly
-                                />
-                                <span className="font-bold text-lg">
-                                    ${product?.price || product?.productDetails?.price}
-                                </span>
+
+                            {/* Product Content */}
+                            <div className="flex flex-col flex-grow p-2 gap-y-2">
+
+                                {/* Product Name */}
+                                <div className="h-[20px] overflow-hidden flex items-start">
+                                    <span className="font-normal text-base hover:underline line-clamp-2">
+                                        {product?.name || product?.productDetails?.name}
+                                    </span>
+                                </div>
+
+                                {/* Rating */}
+                                <div className="h-[20px] flex items-center">
+                                    <Rating
+                                        name="half-rating-read"
+                                        size="small"
+                                        defaultValue={product?.rating || product?.productDetails?.rating}
+                                        precision={0.5}
+                                        readOnly
+                                    />
+                                </div>
+
+                                {/* Brand - placed directly above price */}
+                                <div className="text-sm text-gray-600">
+                                    {product?.productDetails?.brand
+                                        ? `Brand: ${product?.productDetails?.brand}`
+                                        : `Brand: ${product?.brand}`}
+                                </div>
+
+                                {/* Price */}
+                                <div className="h-[30px] flex items-center">
+                                    <span className="font-bold text-lg">
+                                        ${product?.price || product?.productDetails?.price}
+                                    </span>
+                                </div>
+
+                                {/* Total Interactions (views) - optional, at the very bottom */}
+                                {product?.totalInteractions > 0 && (
+                                    <div className="text-sm text-gray-600">
+                                        {`${product.totalInteractions} views`}
+                                    </div>
+                                )}
                             </div>
                         </Link>
                     ))}
@@ -129,24 +150,19 @@ const SliceOfProduct = ({ products, TrackViewBehavior, isLoading }) => {
     );
 };
 
-// Define PropTypes for validation
 SliceOfProduct.propTypes = {
     products: PropTypes.arrayOf(
         PropTypes.shape({
-            productID: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                .isRequired,
-            name: PropTypes.string.isRequired,
-            price: PropTypes.number.isRequired,
-            image: PropTypes.arrayOf(PropTypes.string).isRequired,
+            productID: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+            product_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+            name: PropTypes.string,
+            price: PropTypes.number,
+            MainImage: PropTypes.string,
             rating: PropTypes.number,
         })
-    ).isRequired, // Array of product objects
-    TrackViewBehavior: PropTypes.func.isRequired, // Function to track user behavior
-    isLoading: PropTypes.bool, // Loading state
-};
-
-SliceOfProduct.defaultProps = {
-    isLoading: false, // Default loading state is false
+    ).isRequired,
+    TrackViewBehavior: PropTypes.func.isRequired,
+    isLoading: PropTypes.bool,
 };
 
 export default SliceOfProduct;

@@ -103,6 +103,7 @@ export const logoutUserApi = createAsyncThunk(
             localStorage.removeItem('token');
             localStorage.removeItem('refreshToken');
             localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('chatHistory');
             dispatch(setCart(0));
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Logout failed');

@@ -1,14 +1,17 @@
 ﻿import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 import Pagination from "@mui/material/Pagination";
 import PaginationItem from "@mui/material/PaginationItem";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-const Paginition = ({ handlePageChange, currentPage, totalPages, type }) => {
+
+const Paginition = ({ handlePageChange, currentPage, totalPages }) => {
     const [inputPage, setInputPage] = useState("");
     const navigate = useNavigate();
+    const location = useLocation();
+
     const handleInputChange = (e) => {
         setInputPage(e.target.value);
     };
@@ -16,14 +19,26 @@ const Paginition = ({ handlePageChange, currentPage, totalPages, type }) => {
     const handleInputSubmit = (e) => {
         e.preventDefault();
         const pageNumber = Number(inputPage);
+
         if (pageNumber === currentPage) {
             window.scrollTo(0, 0);
-            toast.info(`you are already at this page`);
+            toast.info(`You are already at this page`);
         } else if (pageNumber > 0 && pageNumber <= totalPages) {
             setInputPage("");
+
+            // Preserve current query params and add new page param
+            const params = new URLSearchParams(location.search);
+            params.set("page", pageNumber);
+
             handlePageChange(null, pageNumber);
-            navigate(`?page=${pageNumber}`);
+            navigate(`?${params.toString()}`);
         }
+    };
+
+    const preserveQuery = (page) => {
+        const params = new URLSearchParams(location.search);
+        params.set("page", page);
+        return `?${params.toString()}`;
     };
 
     return (
@@ -43,7 +58,7 @@ const Paginition = ({ handlePageChange, currentPage, totalPages, type }) => {
                                 ? "pagination-icon-bg"
                                 : ""
                         }`}
-                        to={`?page=${item.page}`}
+                        to={preserveQuery(item.page)}
                         {...item}
                     />
                 )}
@@ -60,7 +75,7 @@ const Paginition = ({ handlePageChange, currentPage, totalPages, type }) => {
                 />
                 <button
                     type="submit"
-                    className="ml-2 px-4 py-1 bg-blue-500 text-white rounded md:text-lg text-xs font-sansII font-semibold cursor-pointer"
+                    className="ml-2 px-4 py-1 bg-red-500 text-white rounded md:text-lg text-xs font-sansII font-semibold cursor-pointer"
                 >
                     Go
                 </button>
@@ -73,7 +88,6 @@ Paginition.propTypes = {
     handlePageChange: PropTypes.func.isRequired,
     currentPage: PropTypes.number.isRequired,
     totalPages: PropTypes.number.isRequired,
-    type: PropTypes.string.isRequired,
 };
 
 export default Paginition;

@@ -36,7 +36,7 @@ const BrowseByTypes = ({ types }) => {
         <div className="w-full min-h-fit flex flex-col gap-y-8 bg-white mt-10 p-6 rounded-xl shadow-lg">
             <div className="w-full flex items-center gap-x-2">
                 <div className="w-[20px] h-[40px] bg-red-500 rounded-md"></div>
-                <span className="text-sm text-red-600 font-semibold">This month</span>
+                <span className="text-sm text-red-600 font-semibold">All types</span>
             </div>
 
             <div

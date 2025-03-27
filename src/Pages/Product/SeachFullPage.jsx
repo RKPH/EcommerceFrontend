@@ -1,16 +1,16 @@
 ﻿import React, { useState, useEffect } from "react";
 import AxiosInstance from "../../api/axiosInstance";
-import { useParams, Link } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import Pagination from "../../Components/Pagination.jsx";
 import Rating from "@mui/material/Rating";
 
-const ProductTypePage = () => {
-    let { type } = useParams();
-    type = type.toLowerCase();
+const SearchResultsPage = () => {
+    const [searchParams] = useSearchParams();
+    const query = searchParams.get("query") || "";
 
     const defaultFilters = {
         brand: "",
-        price: [0, 1000],
+        price: [0, 1000000],
         rating: null,
     };
 
@@ -22,14 +22,15 @@ const ProductTypePage = () => {
     const [productsPerPage] = useState(20);
     const [totalProducts, setTotalProducts] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
-    const [brands, setBrands] = useState([]); // <-- State to store unique brands
+    const [brandOptions, setBrandOptions] = useState([]);
 
     useEffect(() => {
         const fetchProducts = async () => {
             setLoading(true);
             try {
-                const response = await AxiosInstance.normalAxios.get(`/products/type/${type}`, {
+                const response = await AxiosInstance.normalAxios.get(`/products/searchFullPage`, {
                     params: {
+                        query: query,
                         page: currentPage,
                         limit: productsPerPage,
                         brand: appliedFilters.brand,
@@ -41,23 +42,26 @@ const ProductTypePage = () => {
 
                 const fetchedProducts = response.data.data;
                 setProducts(fetchedProducts);
+
+                // Lấy danh sách brand
+                const allBrands = fetchedProducts.map(p => p.brand).filter(Boolean); // loại bỏ null/undefined
+                const uniqueBrands = [...new Set(allBrands)];
+                setBrandOptions(uniqueBrands);
+
                 setTotalProducts(response.data.pagination.totalProducts);
                 setTotalPages(response.data.pagination.totalPages);
 
-                // Extract unique brands from fetched products
-                const uniqueBrands = [...new Set(fetchedProducts.map(product => product.brand))];
-                setBrands(uniqueBrands);
-
                 window.scrollTo({ top: 0, behavior: "smooth" });
             } catch (error) {
-                console.error("Error fetching products:", error.message || error);
+                console.error("Error fetching search results:", error.message || error);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchProducts();
-    }, [type, appliedFilters, currentPage, productsPerPage]);
+        if (query) fetchProducts();
+    }, [query, appliedFilters, currentPage, productsPerPage]);
+
 
     const handleFilterChange = (key, value) => {
         setFilters((prev) => ({ ...prev, [key]: value }));
@@ -81,25 +85,8 @@ const ProductTypePage = () => {
     return (
         <div className="min-h-screen flex flex-col md:flex-row px-4 md:px-6 lg:px-[100px] 2xl:px-[200px] gap-x-2 py-6 bg-gray-100">
             {/* Filters Section */}
-            <div className="w-full md:w-1/4 lg:w-1/6 bg-white p-6 h-fit rounded-lg shadow-lg mb-6 md:mb-0">
+            <div className="w-full h-fit md:w-1/4 lg:w-1/6 bg-white p-6 rounded-lg shadow-lg mb-6 md:mb-0">
                 <h3 className="text-xl font-semibold text-gray-800 mb-5">Filters</h3>
-
-                {/* Brand Filter */}
-                <div className="mb-5">
-                    <label className="block text-gray-700 font-medium mb-2">Brand</label>
-                    <select
-                        value={filters.brand}
-                        onChange={(e) => handleFilterChange("brand", e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                    >
-                        <option value="">All Brands</option>
-                        {brands.map((brand) => (
-                            <option key={brand} value={brand}>
-                                {brand}
-                            </option>
-                        ))}
-                    </select>
-                </div>
 
                 {/* Price Filter */}
                 <div className="mb-5">
@@ -120,6 +107,21 @@ const ProductTypePage = () => {
                             className="w-1/2 p-1 border text-sm border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                         />
                     </div>
+                </div>
+                <div className="mb-5">
+                    <label className="block text-gray-700 font-medium mb-2">Brand</label>
+                    <select
+                        value={filters.brand}
+                        onChange={(e) => handleFilterChange("brand", e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    >
+                        <option value="">All Brands</option>
+                        {brandOptions.map((brand) => (
+                            <option key={brand} value={brand}>
+                                {brand}
+                            </option>
+                        ))}
+                    </select>
                 </div>
 
                 {/* Rating Filter */}
@@ -162,8 +164,8 @@ const ProductTypePage = () => {
             {/* Products Section */}
             <div className="w-full md:w-3/4 lg:w-5/6 flex flex-col gap-y-2 rounded-md shadow">
                 <div className="w-full p-4 flex items-center gap-x-2 text-center bg-white">
-                    <h3 className="text-lg font-bold uppercase">{type}</h3>
-                    <span className="text-base font-normal">{totalProducts}</span>
+                    <h3 className="text-lg font-bold uppercase">Search Results for: "{query}"</h3>
+                    <span className="text-base font-normal">({totalProducts} products found)</span>
                 </div>
 
                 {loading ? (
@@ -189,12 +191,12 @@ const ProductTypePage = () => {
                     <p className="text-gray-600">No products found matching the filters.</p>
                 )}
 
-                <div className="w-full flex justify-center py-5 my-5">
-                    <Pagination currentPage={currentPage} totalPages={totalPages} handlePageChange={handlePageChange} type={type} />
+                <div className="w-full flex justify-center py-5">
+                    <Pagination currentPage={currentPage} totalPages={totalPages} handlePageChange={handlePageChange} />
                 </div>
             </div>
         </div>
     );
 };
 
-export default ProductTypePage;
+export default SearchResultsPage;

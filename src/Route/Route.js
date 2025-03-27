@@ -6,14 +6,19 @@ import DetailProduct from "../Pages/Product/DetailProduct.jsx";
 import UserPage from "../Pages/User/User/UserPage.jsx";
 import Register from "../Pages/User/Register.jsx";
 import Cart from "../Pages/User/Cart.jsx";
-import OrderPage from "../Pages/User/Checkout.jsx";
+import OrderList from "../Pages/User/User/Order.jsx";
 import Checkout from "../Pages/User/Checkout.jsx";
 import OrderTracking from "../Pages/Product/OrderTracking.jsx";
 import paymentSuccessfully from "../Pages/Product/PaymentSuccessfully.jsx";
 import productTypes from "../Pages/Product/productTypes.jsx";
 import VerifyPage from "../Pages/User/Verify.jsx";
-import forgotpass from "../Pages/forgotpass.jsx";
-import ResetPassword from "../Pages/Resetpass.jsx";
+import forgotpass from "../Pages/User/forgotpass.jsx";
+import ResetPassword from "../Pages/User/Resetpass.jsx";
+import productCategories from "../Pages/Product/productCategories.jsx";
+import {Search} from "@mui/icons-material";
+import SeachFullPage from "../Pages/Product/SeachFullPage.jsx";
+import AboutUs from "../Pages/AboutUs.jsx";
+import ContactUs from "../Pages/CotactUs.jsx";
 
 
 Homepage;
@@ -49,6 +54,14 @@ export const publicRoutes = [
     layout: NoheaderLayout,
   },
   {
+    path: "/about",
+    component: AboutUs,
+  },
+  {
+    path: "/contact",
+    component: ContactUs,
+  },
+  {
     path: "/Me",
     component: UserPage,
   },
@@ -57,16 +70,24 @@ export const publicRoutes = [
     component:productTypes
   },
   {
+    path: "/products/category/:category",
+    component:productCategories
+  },
+  {
     path: "/product/:id",
     component: DetailProduct,
+  },
+  {
+    path: "/products/search",
+    component: SeachFullPage,
   },
   {
     path: "/cart",
     component: Cart,
   },
   {
-    path: "/Order",
-    component: OrderPage,
+    path: "/orders",
+    component: OrderList,
   },
   {
     path: "/checkout",

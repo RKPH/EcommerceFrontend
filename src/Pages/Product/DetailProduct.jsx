@@ -1,5 +1,5 @@
-﻿import React, { useState, useEffect , useRef, useCallback } from "react";
-import axios   from "axios";
+﻿import { useState, useEffect , useRef, useCallback } from "react";
+
 import AxiosInstance from "../../api/axiosInstance.js";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -7,12 +7,12 @@ import { toast } from "react-toastify";
 import {useDispatch} from "react-redux";
 import {updateCart} from "../../Redux/CartSlice.js";
 import SliceOfProduct from "../../Components/SliceOfProduct.jsx";
-
+import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
+import ReplayOutlinedIcon from "@mui/icons-material/ReplayOutlined";
 import Rating from "@mui/material/Rating";
 
 import { Link } from 'react-router-dom';
-import Breadcrumbs from '@mui/material/Breadcrumbs';
-    import Typography from '@mui/material/Typography';
+
 import gif from "../../../public/loading.gif";
 
 const DetailProduct = () => {
@@ -32,59 +32,68 @@ const DetailProduct = () => {
     const sessionRecommendedProductsRef = useRef([]); // Store recommendations (no re-render)
     const [uiRecommendedProducts, setUiRecommendedProducts] = useState([]);
 
-    //review and rating
-    const [userRating, setUserRating] = useState(0); // State for user rating
-    const [userReview, setUserReview] = useState(""); // State for user review
     const dispatch = useDispatch();
     // Use useRef to store the user object reference without causing re-renders
     const userRef = useRef(user);
 
+    const fetchAnonymousRecommendedProducts = async () => {
+
+
+        setLoading2(true);
+        try {
+            const request = { product_id: id };
+            const response = await AxiosInstance.normalAxios.post(`/products/anonymous_recommendations`, request);
+            setError2(null);
+            sessionRecommendedProductsRef.current = response.data;
+            setUiRecommendedProducts(response?.data?.data);
+        } catch (error) {
+            setError2(error.response?.data?.message || "An error occurred ????");
+        } finally {
+            setLoading2(false);
+        }
+    };
 
 
     useEffect(() => {
         if (userRef.current !== user) {
             userRef.current = user;
-            console.log("User updated", userRef.current);
         }
     }, [user]);
     // Function to fetch product details
     const fetchProduct = async () => {
         try {
             const response = await AxiosInstance.normalAxios.get(`/products/${id}`);
-            console.log("Response Data:", response?.data); // Log for debugging
+
             const fetchedProduct = response?.data?.data;
 
             setProduct(fetchedProduct); // Set product state
             setMainImage(fetchedProduct?.MainImage); // Set the default main image
 
-            console.error("Error fetching product:", error.message || error);
-            setError(error?.response?.data?.message || "An error occurred");
+
         } finally {
             setLoading(false); // Stop loading once request is complete
         }
     };
-    const fetchSessinBaseRecommendedProducts = async (type) => {
+    const fetchSessinBaseRecommendedProducts = async () => {
         setLoading2(true); // Start loading before the request
 
         try {
             const request = {
-                user_id: user?.user_id || "314124", // Assuming user_id is available in your component
+                user_id: user?.user_id  , // Assuming user_id is available in your component
                 product_id: id, // Assuming product_id is available in your component
-                event_type: type
             };
 
-            console.log("Request:", request); // Log for debugging
 
             // Pass request directly as the request body
             const response = await AxiosInstance.normalAxios.post(`/products/recommendations`, request);
 
-            console.log("Recommended Products 2:", response?.data?.data); // Log for debugging
+
             setError2(null); // Clear any previous errors
             sessionRecommendedProductsRef.current = response.data;
             setUiRecommendedProducts(response?.data?.data); // Set recommended products
         } catch (error) {
-            console.error("Error fetching recommended products:", error?.message || error);
-            setError2(error.response?.data?.message || "An error occurred");
+
+            setError2(error.response?.data?.message || "An error occurred ????");
         } finally {
             setLoading2(false); // Stop loading in both success and error cases
         }
@@ -105,6 +114,7 @@ const DetailProduct = () => {
                     const formattedReviews = data.reviews.map(review => ({
                         id: review._id,
                         name: review.name,
+                        user:review?.user,
                         rating: review.rating,
                         comment: review.comment,
                         date: new Date(review.date).toISOString().split("T")[0] // Format date
@@ -113,55 +123,22 @@ const DetailProduct = () => {
                     setReviews(formattedReviews);
                 }
             } catch (error) {
-                console.error("Error fetching reviews, using dummy data:", error);
+
+                setReviews([]); // Clear out reviews if there's an error
+                return error
             }
         };
 
         fetchReviews();
     }, [id]);
     // Handle review submission
-    const handleSubmitReview = async () => {
-        if (!user) {
-            toast.error("You must be logged in to submit a review.");
-            return;
-        }
-        if (userRating === 0) {
-            toast.error("Please select a rating.");
-            return;
-        }
-        if (!userReview) {
-            toast.error("Please enter a review.");
-            return;
-        }
 
-        const newReview = {
-            id: reviews.length + 1, // Temporary ID for dummy
-            name: user.name || "Anonymous",
-            rating: userRating,
-            comment: userReview,
-            date: new Date().toISOString().split("T")[0]
-        };
-
-        setReviews([...reviews, newReview]); // Add to UI immediately
-
-        // Send to backend
-        try {
-            await AxiosInstance.authAxios.post(`/reviews/${id}/add`, newReview);
-            toast.success("Review submitted successfully!");
-        } catch (error) {
-            console.error("Error submitting review:", error);
-            toast.error("Error submitting review, but added locally.");
-        }
-
-        setUserRating(0);
-        setUserReview("");
-    };
 
     const fetchRecommendedProducts = async () => {
         setLoading3(true); // Start loading before the request
         try {
             const response = await AxiosInstance.normalAxios.post(`/products/predict/${id}`);
-            console.log("Recommended Products:", response.data.data); // Log for debugging
+
             setError3(null); // Clear any previous errors
             setRecommendedProducts(response?.data?.data); // Set recommended products
         } catch (error) {
@@ -176,8 +153,8 @@ const DetailProduct = () => {
     // Track user behavior
     const trackBehavior = async (id,product_name, event_type) => {
         try {
-            const sessionId = user.sessionID;
-            const userId = user?.id || user?.user?.id;
+            const sessionId = user?.sessionID;
+            const userId = user?.user_id || user?.user?.user_id;
 
             if (!sessionId || !userId) {
                 console.error("Session ID or User ID is missing!");
@@ -191,7 +168,7 @@ const DetailProduct = () => {
                 product_name: product_name,
                 behavior: event_type,
             });
-            console.log("View behavior tracked successfully");
+
         } catch (error) {
             console.error("Error tracking view behavior:", error);
         }
@@ -212,18 +189,27 @@ const DetailProduct = () => {
                 setLoading(true);
                 setLoading2(true);
                 setLoading3(true);
-
+                setValue(1);
+                setReviews([]);
                 window.scroll(0, 0); // Scroll to the top of the page
 
                 // Fetch product details first
-                fetchProduct();
-                fetchSessinBaseRecommendedProducts("view")
-                fetchRecommendedProducts()
+                await fetchProduct();
 
+                if (user && user?.user_id) {
+                    // Logged-in user - Fetch session-based recommendations
+                    await fetchSessinBaseRecommendedProducts();
+                } else {
+                    // Anonymous user - Fetch anonymous recommendations
+                    await fetchAnonymousRecommendedProducts();
+                }
+
+                await fetchRecommendedProducts(); // Popular recommendations or other logic
             } catch (error) {
                 console.error("Error during initialization:", error);
             }
         };
+
 
         initialize(); // Call the async initialization function
     }, [id]); // Dependency array includes `user` and `id`
@@ -239,7 +225,7 @@ const DetailProduct = () => {
                 toast.success("Product added to your cart!");
                 trackBehavior(id, product_name, "cart");
             } catch (error) {
-                toast.error("Failed to add product to cart.");
+                toast.error(error.response.data.message);
             }
         },
         [user, id, value, dispatch, trackBehavior] // Ensure only relevant dependencies are included
@@ -256,11 +242,6 @@ const DetailProduct = () => {
     };
 
 
-
-    // Handle color hover to change main image
-
-
-    // Conditional rendering
     if (loading) return <div className="w-full min-h-screen flex bg-white mt-40 justify-center  md:px-6 lg:px-[100px] 2xl:px-[200px]">
         <div className="w-full flex  justify-center ">
             <img src={gif} alt="loading" className="w-20 h-20"/>
@@ -270,34 +251,39 @@ const DetailProduct = () => {
 
     return (
         <div className="w-full h-full flex flex-col  md:px-6 lg:px-[100px] 2xl:px-[200px]">
-            <div className="w-full mb-5 px-4 py-4 md:px-0">
-                <Breadcrumbs aria-label="breadcrumb">
-                    <Link to="/" style={{textDecoration: 'none', color: 'inherit'}}>
-                        Home
-                    </Link>
+            <div className="mb-6 p-4">
+
+                <nav className="text-base text-gray-600">
+                    <Link to="/" className="text-blue-600 hover:underline">Home</Link> &gt;{" "}
                     <Link
-                        to={`/products/type/${product.type}`}
-                        style={{textDecoration: 'none', color: 'inherit'}}>{product.type}</Link>
-                    <Typography color={"text.primary"}>{product.name}</Typography>
-                </Breadcrumbs>
+                        to={`/products/category/${product?.category}`}
+                        style={{textDecoration: 'none', color: 'inherit'}}>{product?.category}</Link> &gt;{" "}
+                    <Link
+                        to={`/products/type/${product?.type}`}
+                        style={{textDecoration: 'none', color: 'inherit'}}>{product?.type}</Link> &gt;{" "}
+                    <span className="text-gray-800">{product?.name}</span>
+                </nav>
             </div>
 
-            <div className="w-full flex flex-col gap-y-4 md:flex-row mb-10 bg-white p-5 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 ease-in-out">
+            <div className="w-full flex flex-col md:flex-row mb-10 bg-white p-5 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 ease-in-out">
+
                 {/* Main Image Section */}
                 <div className="w-full md:w-1/2 flex flex-col">
-                    <div className="w-full h-[300px] md:h-[430px] overflow-hidden rounded-xl">
-                        <img
-                            src={mainImage}
-                            alt={product?.name}
-                            className="h-full w-full object-contain rounded-xl border-2 border-gray-200 shadow-md transition-transform duration-300 ease-in-out transform hover:scale-105"
-                        />
+                    <div className="w-full flex items-stretch"> {/* Ensures equal height */}
+                        <div className="w-full flex items-center justify-center overflow-hidden rounded-xl">
+                            <img
+                                src={mainImage}
+                                alt={product?.name}
+                                className="h-auto max-h-[450px] w-full object-contain border-2 border-gray-200 shadow-md transition-transform duration-300 ease-in-out transform hover:scale-105"
+                            />
+                        </div>
                     </div>
                 </div>
 
                 {/* Product Details Section */}
-                <div className="w-full md:w-1/2 h-full flex flex-col px-5 md:px-12">
+                <div className="w-full md:w-1/2 flex flex-col px-5 md:px-12">
                     {product ? (
-                        <div className="w-full">
+                        <div className="w-full flex flex-col h-full">
                             {/* Product Name and Price */}
                             <div className="flex w-full flex-col gap-y-4 mb-4">
                                 <h1 className="text-2xl md:text-3xl font-semibold text-gray-800 tracking-tight">{product.name}</h1>
@@ -339,12 +325,45 @@ const DetailProduct = () => {
                                     Add to Cart
                                 </button>
                             </div>
+
+                            {/* Delivery & Return Info */}
+                            <div className="w-full h-[1px] bg-gray-200 my-4"></div>
+
+                            <div className="w-full flex flex-col gap-y-4 border border-gray-200 rounded-lg p-4 shadow-md">
+                                {/* Free Delivery */}
+                                <div className="flex items-center gap-x-4">
+                                    <LocalShippingOutlinedIcon className="text-gray-700" fontSize="large" />
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-gray-800">Free Delivery</h3>
+                                        <p className="text-sm text-gray-600">
+                                            <a href="#" className="text-blue-600 underline">
+                                                Enter your postal code for Delivery Availability
+                                            </a>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="w-full h-[1px] bg-gray-200"></div>
+
+                                {/* Return Delivery */}
+                                <div className="flex items-center gap-x-4">
+                                    <ReplayOutlinedIcon className="text-gray-700" fontSize="large" />
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-gray-800">Return Delivery</h3>
+                                        <p className="text-sm text-gray-600">
+                                            Free 30 Days Delivery Returns.{" "}
+                                            <a href="#" className="text-blue-600 underline">Details</a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     ) : (
                         <p className="text-gray-500">Product not found</p>
                     )}
                 </div>
             </div>
+
 
 
             <div className="w-full mb-5 flex gap-y-5 bg-white rounded-xl flex-col py-4 px-4">
@@ -370,35 +389,6 @@ const DetailProduct = () => {
                 <div className="w-full mb-5 flex gap-y-5 bg-white rounded-xl flex-col py-4 px-4">
                     <h1 className="text-xl font-bold mb-4">Customer Reviews</h1>
 
-                    {/* Review Form */}
-                    <div className="mb-8 border-b pb-6">
-                        <h2 className="text-lg font-semibold mb-4">Write a Review</h2>
-                        <div className="flex flex-col gap-4">
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm">Your Rating:</span>
-                                <Rating
-                                    name="user-rating"
-                                    value={userRating}
-                                    onChange={(event, newValue) => setUserRating(newValue)}
-                                    precision={0.5}
-                                />
-                            </div>
-                            <textarea
-                                value={userReview}
-                                onChange={(e) => setUserReview(e.target.value)}
-                                className="w-full p-3 border rounded-lg"
-                                placeholder="Write your review here..."
-                                rows="4"
-                            />
-                            <button
-                                onClick={handleSubmitReview}
-                                className="bg-red-500 text-white px-6 py-2 rounded-md self-end hover:bg-red-600"
-                            >
-                                Submit Review
-                            </button>
-                        </div>
-                    </div>
-
                     {/* Reviews List */}
                     <div className="space-y-6">
                         {reviews.length === 0 ? (
@@ -412,11 +402,11 @@ const DetailProduct = () => {
                                         <div className="flex items-center gap-3">
                                             {/* User Avatar */}
                                             <img
-                                                src={user?.avatar || "default-avatar.png"}
+                                                src={review?.user?.avatar || "default-avatar.png"}
                                                 alt={review.name}
                                                 className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
                                             />
-                                            <span className="font-semibold text-gray-800">{review.name}</span>
+                                            <span className="font-semibold text-gray-800">{review.user.name}</span>
                                             <Rating
                                                 name="read-only"
                                                 value={review.rating}

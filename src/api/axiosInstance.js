@@ -46,7 +46,7 @@ authAxios.interceptors.request.use(
 refreshTokenAxios.interceptors.request.use(
     (config) => {
         const refreshToken = getReToken(); // Ensure this function returns a valid token
-        console.log("refreshToken", refreshToken);
+
         if (refreshToken) {
             config.headers["Authorization"] = `Bearer ${refreshToken}`;
         }
@@ -70,8 +70,6 @@ authAxios.interceptors.response.use(
                 const response = await refreshTokenAxios.post("/auth/refresh-token");
                 const { token: newToken, refreshToken: newRefreshToken } = response.data;
 
-                console.log("newToken:", newToken);
-                console.log("newRefreshToken:", newRefreshToken);
 
                 // Update tokens in local storage
                 localStorage.setItem("token", newToken);
@@ -83,7 +81,7 @@ authAxios.interceptors.response.use(
                 // Retry the original request with the new token
                 return authAxios(originalRequest);
             } catch (refreshError) {
-                console.error("Error refreshing session:", refreshError);
+                return refreshError;
 
                 try {
                     // Call logout API before clearing tokens
@@ -91,7 +89,7 @@ authAxios.interceptors.response.use(
                         refreshToken: localStorage.getItem("refreshToken"),
                     });
                 } catch (logoutError) {
-                    console.error("Logout API call failed:", logoutError);
+                   return logoutError;
                 }
 
                 // Clear stored tokens and session data

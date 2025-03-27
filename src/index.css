@@ -197,3 +197,112 @@
         max-width: 100%; /* Full width for smaller devices */
     }
 }
+
+
+
+/* index.css */
+
+/* Default styles */
+.MuiPaginationItem-text {
+    font-size: 0.65rem !important;
+    line-height: 2rem !important;
+}
+
+.MuiPaginationItem-icon {
+    font-size: 0.75rem !important;
+    line-height: 2rem !important;
+}
+
+/* For min width 768px */
+@media (min-width: 768px) {
+    .MuiPaginationItem-text {
+        font-size: 1.125rem !important;
+        line-height: 1.75rem !important;
+    }
+
+    .MuiPaginationItem-icon {
+        font-size: 1.5rem !important;
+        line-height: 2rem !important;
+    }
+}
+
+.css-1pi9rcw-MuiButtonBase-root-MuiPaginationItem-root {
+    border: 1px solid black !important;
+
+}
+
+.dark .css-1pi9rcw-MuiButtonBase-root-MuiPaginationItem-root {
+    border: 1px solid #fff !important;
+    /* white border for dark mode */
+}
+
+/* Light mode styles */
+.css-1pi9rcw-MuiButtonBase-root-MuiPaginationItem-root.Mui-selected {
+    color: #fff !important;
+    background-color: #d30e0e !important;
+    /* orange for selected item */
+}
+
+.pagination-icon-bg {
+    background-color: #de141c !important;
+    /* blue for icons */
+    color: #fff !important;
+}
+
+/* Dark mode styles */
+
+
+.dark .pagination-icon-bg {
+    background-color: #1976d2 !important;
+    /* orange for icons */
+    color: #fff !important;
+}
+
+.css-41sz0k {
+    border: 1px solid black !important;
+}
+
+.dark .css-41sz0k {
+    border: 1px solid #fff !important;
+    /* white border for dark mode */
+}
+
+.css-41sz0k.Mui-selected {
+    color: #fff !important;
+    background-color: #de141c !important;
+}
+
+/* Other custom styles */
+.slick-prev:before,
+.slick-next:before {
+    font-size: 30px;
+    color: black;
+}
+
+
+/* Target the selected pagination item (in both light and dark modes) */
+.MuiPaginationItem-root.Mui-selected {
+    background-color: #de141c !important;  /* Red background */
+    color: #fff !important;                 /* White text */
+    border-color: #de141c !important;       /* Optional: red border to match */
+}
+
+/* Optional: Add hover effect if desired */
+.MuiPaginationItem-root.Mui-selected:hover {
+    background-color: #bb0c0c !important;
+}
+
+/* Ensure dark mode also works (optional, if you have a dark mode class on body or root element) */
+.dark .MuiPaginationItem-root.Mui-selected {
+    background-color: #de141c !important;
+    color: #fff !important;
+    border-color: #de141c !important;
+}
+.custom-checkbox {
+    accent-color: #de141c; /* Red checkmark */
+}
+
+
+#cb3 {
+    accent-color: #d30e0e;
+}
