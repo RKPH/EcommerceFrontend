@@ -14,3 +14,8 @@ services:
       - .:/app
       - /app/node_modules
     restart: always
+    networks:
+      - shared-network
+networks:
+  shared-network:
+    external: true
