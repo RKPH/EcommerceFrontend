@@ -14,7 +14,7 @@ import Tippy from "@tippyjs/react/headless";
 import { Drawer } from "@mui/material";
 
 // Initialize Socket.IO client
-const socket = io("http://localhost:3000", {
+const socket = io("https://backend.d2f.io.vn:3000", {
   withCredentials: true,
   autoConnect: false,
 });
@@ -255,7 +255,7 @@ const Header = () => {
 
     try {
       const response = await axios.get(
-          `http://localhost:3000/api/v1/products/search?query=${encodeURIComponent(term)}`,
+          `https://backend.d2f.io.vn:3000/api/v1/products/search?query=${encodeURIComponent(term)}`,
           { signal }
       );
       setSearchResults(response.data.data.results);
