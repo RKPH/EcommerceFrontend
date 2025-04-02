@@ -14,7 +14,7 @@ import Tippy from "@tippyjs/react/headless";
 import { Drawer } from "@mui/material";
 
 // Initialize Socket.IO client
-const socket = io("https://backend.d2f.io.vn:3000", {
+const socket = io("https://backend.d2f.io.vn", {
   withCredentials: true,
   autoConnect: false,
 });
