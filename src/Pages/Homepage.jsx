@@ -27,7 +27,7 @@ const Homepage = () => {
 
     const fetchAllProducts = async () => {
         try {
-            const response = await AxiosInstance.normalAxios.get("/api/v1/products/all?limit=50");
+            const response = await AxiosInstance.normalAxios.get("products/all?limit=50");
             setProducts(response.data.data);
             setIsLoading(false);
         } catch (error) {
@@ -37,7 +37,7 @@ const Homepage = () => {
 
     const fetchTrendingProducts = async () => {
         try {
-            const response = await AxiosInstance.normalAxios.get("/api/v1/products/trending");
+            const response = await AxiosInstance.normalAxios.get("products/trending");
             setTrendingProducts(response.data.data);
         } catch (error) {
             console.error("Error fetching trending products:", error.message || error);
