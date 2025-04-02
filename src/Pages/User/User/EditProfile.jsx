@@ -137,18 +137,15 @@ const EditProfile = ({ userDetail, message, loading, handleChange, handleUpdateD
         formData.append("file", file);
 
         try {
-            const response = await fetch("http://localhost:3000/api/v1/images/upload", {
-                method: "POST",
-                body: formData,
-            });
+            const response = await AxiosInstance.normalAxios.post("/images/upload", formData);
 
-            const data = await response.json();
+            const data = response.data; // Axios automatically parses JSON
             if (data.imageUrl) {
                 handleChange({ target: { name: "avatar", value: data.imageUrl } });
                 setHasChanges(true);
             }
         } catch (error) {
-            console.error("Error uploading image:", error);
+            console.error("Error uploading image:", error.message || error);
         }
     };
 
