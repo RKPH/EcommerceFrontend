@@ -6,6 +6,10 @@ import { updateUserInfo } from "../../../Redux/AuthSlice.js";
 import { toast } from "react-toastify";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import Typography from "@mui/material/Typography";
+import HomeIcon from "@mui/icons-material/Home";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import {IconButton, Tooltip} from "@mui/material";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 const UserPage = () => {
     const dispatch = useDispatch();
@@ -77,12 +81,20 @@ const UserPage = () => {
 
     return (
         <div className="flex flex-col w-full px-4 sm:px-6 lg:px-[100px] 3xl:px-[200px]">
-            <div className="mb-6 py-4">
-
-                <nav className="text-base text-gray-600">
-                    <Link to="/" className="text-blue-600 hover:underline">Home</Link> &gt;{" "}
-                    <span className="text-gray-800">Me</span>
-                </nav>
+            <div className="w-full mb-6 py-6">
+                <Breadcrumbs
+                    aria-label="breadcrumb"
+                    separator="›"
+                    className="text-sm text-gray-600"
+                >
+                    <Link to="/" className="flex items-center gap-1 text-gray-600 hover:text-red-600">
+                        <HomeIcon fontSize="small" />
+                        Home
+                    </Link>
+                    <span className="text-gray-900 font-medium flex items-center gap-1">
+                        Edit profile
+                    </span>
+                </Breadcrumbs>
             </div>
 
             <div className="min-h-fit flex w-full">

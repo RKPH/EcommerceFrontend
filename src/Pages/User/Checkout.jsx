@@ -5,6 +5,9 @@ import { Link, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Modal, Box, Button } from "@mui/material";
 import axios from "axios";
+import Breadcrumbs from "@mui/material/Breadcrumbs";
+import HomeIcon from "@mui/icons-material/Home";
+import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 
 const Order = () => {
     const [orders, setOrders] = useState([]);
@@ -260,12 +263,21 @@ const Order = () => {
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4 md:px-6 lg:px-16 xl:px-32">
             {/* Page Header */}
-            <div className="mb-6">
-                <h1 className="text-lg font-semibold text-gray-800">Checkout</h1>
-                <nav className="text-base text-gray-600">
-                    <Link to="/" className="text-blue-600 hover:underline">Home</Link> >{" "}
-                    <span className="text-gray-800">Checkout</span>
-                </nav>
+            <div className="w-full mb-6">
+                <Breadcrumbs
+                    aria-label="breadcrumb"
+                    separator="›"
+                    className="text-sm text-gray-600"
+                >
+                    <Link to="/" className="flex items-center gap-1 text-gray-600 hover:text-red-500">
+                        <HomeIcon fontSize="small" />
+                        Home
+                    </Link>
+                    <span className="text-gray-900 font-medium flex items-center gap-1">
+                        <ShoppingCartCheckoutIcon fontSize="small" />
+                        Checkout
+                    </span>
+                </Breadcrumbs>
             </div>
 
             {/* Main Content */}

@@ -1,5 +1,5 @@
 ﻿import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import NotificationModal from "../../../Components/NotificationModal.jsx";
 import { Link } from "react-router-dom";
 import PaymentsIcon from "@mui/icons-material/Payments";
@@ -12,6 +12,9 @@ import Rating from "@mui/material/Rating";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../api/axiosInstance.js";
+import Breadcrumbs from "@mui/material/Breadcrumbs";
+import HomeIcon from "@mui/icons-material/Home";
+import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
 
 const OrderList = () => {
     const [openModal, setOpenModal] = useState(false);
@@ -250,13 +253,21 @@ const OrderList = () => {
 
     return (
         <div className="min-h-[500px] bg-gray-50 p-6 rounded-lg shadow-lg px-4 sm:px-6 lg:px-[100px] 3xl:px-[200px]">
-            <div className="mb-6">
-                <nav className="text-base mb-6 text-gray-600">
-                    <Link to="/" className="text-blue-600 hover:underline">Home</Link>
-                    <span className="mx-2 text-gray-600">{"\u003e"}</span>
-                    <span className="text-gray-800">orders</span>
-                </nav>
-                <h2 className="text-xl font-semibold text-gray-900">My Orders</h2>
+            <div className="w-full mb-6">
+                <Breadcrumbs
+                    aria-label="breadcrumb"
+                    separator="›"
+                    className="text-sm text-gray-600"
+                >
+                    <Link to="/" className="flex items-center gap-1 text-gray-600 hover:text-red-500">
+                        <HomeIcon fontSize="small" />
+                        Home
+                    </Link>
+                    <span className="text-gray-900 font-medium flex items-center gap-1">
+                        <ShoppingCartCheckoutIcon fontSize="small" />
+                        Orders
+                    </span>
+                </Breadcrumbs>
             </div>
             <div className="bg-white w-full py-4 rounded-lg mt-4">
                 <div className="flex space-x-6 p-4 items-center overflow-x-auto">

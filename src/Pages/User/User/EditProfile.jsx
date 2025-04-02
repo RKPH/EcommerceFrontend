@@ -217,7 +217,7 @@ const EditProfile = ({ userDetail, message, loading, handleChange, handleUpdateD
     };
 
     return (
-        <div className="min-h-fit bg-gray-50 py-8 px-4 md:px-6 lg:px-16 xl:px-32">
+        <div className="min-h-fit bg-gray-50 py-8 px-4">
             {/* Page Header */}
             <div className="mb-6">
                 <h1 className="text-lg font-semibold text-gray-800">Edit Profile</h1>

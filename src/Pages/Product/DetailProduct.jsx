@@ -286,17 +286,30 @@ const DetailProduct = () => {
                         <div className="w-full flex flex-col h-full">
                             {/* Product Name and Price */}
                             <div className="flex w-full flex-col gap-y-4 mb-4">
-                                <h1 className="text-2xl md:text-3xl font-semibold text-gray-800 tracking-tight">{product.name}</h1>
-                                <div className="flex items-center gap-x-3 text-gray-500">
-                                    <Rating name="half-rating-read" size="small" defaultValue={product.rating} precision={0.5} readOnly />
+                                <h1 className="text-2xl md:text-3xl font-semibold text-gray-800 tracking-tight dark:text-gray-100">
+                                    {product.name}
+                                </h1>
+                                <div className="flex items-center gap-x-3 text-gray-500 dark:text-gray-400">
+                                    <Rating
+                                        name="half-rating-read"
+                                        size="small"
+                                        defaultValue={product.rating}
+                                        precision={0.5}
+                                        readOnly
+                                    />
                                     <span>({reviews.length})</span>
                                 </div>
-                                <p className="text-3xl font-semibold text-red-600">${product.price.toLocaleString()}</p>
-                                <p className="text-lg text-gray-600 mb-4">{product.description}</p>
+                                <p className="text-2xl font-semibold text-red-600 dark:text-red-400">
+                                    ${product.price.toLocaleString()}
+                                </p>
+                                <div
+                                    className="text-base text-gray-600 dark:text-gray-300 mb-4 prose prose-ul:list-disc prose-ul:pl-5 prose-li:mb-2 dark:prose-invert"
+                                    dangerouslySetInnerHTML={{ __html: product.description }}
+                                />
                             </div>
 
                             {/* Divider */}
-                            <div className="w-full h-[1px] bg-gray-200 my-4"></div>
+                            <div className="w-full h-[1px] bg-gray-200 my-1"></div>
 
                             {/* Quantity and Add to Cart */}
                             <div className="flex items-center justify-between gap-x-6 my-4 py-3">
@@ -327,7 +340,7 @@ const DetailProduct = () => {
                             </div>
 
                             {/* Delivery & Return Info */}
-                            <div className="w-full h-[1px] bg-gray-200 my-4"></div>
+                            <div className="w-full h-[1px] bg-gray-200 my-1"></div>
 
                             <div className="w-full flex flex-col gap-y-4 border border-gray-200 rounded-lg p-4 shadow-md">
                                 {/* Free Delivery */}

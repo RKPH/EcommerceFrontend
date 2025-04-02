@@ -58,7 +58,7 @@ const PaymentSuccessPage = () => {
     }, [orders]);
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-5">
+        <div className="min-h-full flex flex-col items-center justify-center bg-gray-100 p-5">
             <div className="bg-white shadow-md rounded-lg p-8 max-w-md w-full text-center border border-black">
                 <div className="text-blue-500 mb-6">
                     <svg
