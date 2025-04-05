@@ -61,7 +61,7 @@ const OrderTracking = () => {
 
     // Copy Order ID to clipboard
     const copyOrderId = () => {
-        navigator.clipboard.writeText(orderId);
+        navigator.clipboard.writeText(order.order_id);
         alert("Order ID copied to clipboard!");
     };
 
@@ -124,7 +124,7 @@ const OrderTracking = () => {
                         Orders
                     </Link>
                     <span className="text-gray-900 font-medium flex items-center gap-1">
-                        Order ID: {orderId}
+                        Order ID: {order.order_id}
                         <Tooltip title="Copy Order ID">
                             <IconButton onClick={copyOrderId} size="small" className="ml-1">
                                 <ContentCopyIcon fontSize="small" className="text-gray-600" />
@@ -137,7 +137,7 @@ const OrderTracking = () => {
             {/* Order Header */}
             <div className="w-full bg-white border border-gray-200 rounded-xl p-6 mb-6 shadow-sm hover:shadow-md transition-shadow duration-300">
                 <div className="flex justify-between items-center mb-4">
-                    <h1 className="text-2xl font-semibold text-gray-900">Tracking Order: #{orderId}</h1>
+                    <h1 className="text-2xl font-semibold text-gray-900">Tracking Order: #{order?.order_id}</h1>
 
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

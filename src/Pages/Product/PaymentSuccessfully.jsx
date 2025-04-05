@@ -87,7 +87,7 @@ const PaymentSuccessPage = () => {
                     <div className="mt-4">
                         <div className="flex justify-between text-sm text-gray-600">
                             <span>Order Number:</span>
-                            <span className="text-black">{orders?._id}</span>
+                            <span className="text-black">{orders?.order_id}</span>
                         </div>
                         <div className="flex justify-between text-sm text-gray-600 mt-2">
                             <span>Amount Paid:</span>

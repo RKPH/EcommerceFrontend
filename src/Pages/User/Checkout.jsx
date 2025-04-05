@@ -171,6 +171,7 @@ const Order = () => {
         setSelectedAddress(newAddress);
         setPhone(addr.phoneNumber);
         setOpenModal(false);
+        setAddressError(null);
     };
 
     const calculateDiscountedTotal = () => {

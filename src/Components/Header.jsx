@@ -121,7 +121,7 @@ const NotificationIcon = memo(({ notifications, setNotifications, unreadCount, s
                         >
                           <div className="flex-1">
                             <Link
-                                to={`/order/${notification.orderId}`}
+                                to={`/order/${notification.id}`}
                                 className="block"
                                 onClick={() => {
                                   if (!notification.isRead) {
@@ -131,11 +131,24 @@ const NotificationIcon = memo(({ notifications, setNotifications, unreadCount, s
                                 }}
                             >
                               <p className="text-sm text-gray-800 leading-tight">
-                                Order #{notification.orderId} status updated to{" "}
-                                <span className="font-semibold text-blue-600">{notification.newStatus}</span>
+                                Order #{notification.orderId}
+                              </p>
+                              <p className="text-sm text-gray-600">
+                                Your order is <span className="font-semibold text-blue-600">{notification.newStatus}</span>
                               </p>
                               <p className="text-xs text-gray-500 mt-1">
-                                {new Date(notification.updatedAt).toLocaleString()}
+                                {(() => {
+                                  const now = new Date();
+                                  const updatedAt = new Date(notification.updatedAt);
+                                  const diffInHours = Math.floor((now - updatedAt) / (1000 * 60 * 60));
+                                  const diffInDays = Math.floor(diffInHours / 24);
+
+                                  if (diffInDays > 0) {
+                                    return `${diffInDays} Days ago`;
+                                  } else {
+                                    return `${diffInHours} Hours ago`;
+                                  }
+                                })()}
                               </p>
                             </Link>
                           </div>
@@ -314,10 +327,10 @@ const Header = () => {
       socket.emit("join", user.id);
 
       socket.on("orderStatusUpdated", (data) => {
-        const { orderId, newStatus, updatedAt } = data;
+        const {id, orderId, newStatus, updatedAt } = data;
         setNotifications((prevNotifications) => [
           ...prevNotifications,
-          { orderId, newStatus, updatedAt, isRead: false },
+          {id, orderId, newStatus, updatedAt, isRead: false },
         ]);
         setUnreadCount((prev) => prev + 1);
       });

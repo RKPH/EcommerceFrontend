@@ -272,7 +272,7 @@ const DetailProduct = () => {
                     <div className="w-full flex items-stretch"> {/* Ensures equal height */}
                         <div className="w-full flex items-center justify-center overflow-hidden rounded-xl">
                             <img
-                                src={mainImage}
+                                src={mainImage||"https://media.istockphoto.com/id/1401333142/vector/closed-vertical-paperback-booklet-catalog-or-magazine-mockup.jpg?s=612x612&w=0&k=20&c=7FFo2ih-wr8Nt_X2c1iXgTCXe8765bDedunURQDLMNk="}
                                 alt={product?.name}
                                 className="h-auto max-h-[450px] w-full object-contain border-2 border-gray-200 shadow-md transition-transform duration-300 ease-in-out transform hover:scale-105"
                             />
@@ -398,45 +398,45 @@ const DetailProduct = () => {
             </div>
 
 
-                {/* Reviews & Ratings Section */}
-                <div className="w-full mb-5 flex gap-y-5 bg-white rounded-xl flex-col py-4 px-4">
-                    <h1 className="text-xl font-bold mb-4">Customer Reviews</h1>
+            {/* Reviews & Ratings Section */}
+            <div className="w-full mb-5 flex gap-y-5 bg-white rounded-xl flex-col py-4 px-4">
+                <h1 className="text-xl font-bold mb-4">Customer Reviews</h1>
 
-                    {/* Reviews List */}
-                    <div className="space-y-6">
-                        {reviews.length === 0 ? (
-                            <div className="text-center text-gray-500">
-                                <p>No reviews available.</p>
-                            </div>
-                        ) : (
-                            reviews.map((review) => (
-                                <div key={review.id} className="border-b pb-4 hover:bg-gray-50 transition-all duration-200 ease-in-out">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <div className="flex items-center gap-3">
-                                            {/* User Avatar */}
-                                            <img
-                                                src={review?.user?.avatar || "default-avatar.png"}
-                                                alt={review.name}
-                                                className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
-                                            />
-                                            <span className="font-semibold text-gray-800">{review.user.name}</span>
-                                            <Rating
-                                                name="read-only"
-                                                value={review.rating}
-                                                readOnly
-                                                precision={0.5}
-                                                size="small"
-                                            />
-                                        </div>
-                                        <span className="text-sm text-gray-500">{review.date}</span>
+                {/* Reviews List */}
+                <div className="space-y-6">
+                    {reviews.length === 0 ? (
+                        <div className="text-center text-gray-500">
+                            <p>No reviews available.</p>
+                        </div>
+                    ) : (
+                        reviews.map((review) => (
+                            <div key={review.id} className="border-b pb-4 hover:bg-gray-50 transition-all duration-200 ease-in-out">
+                                <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center gap-3">
+                                        {/* User Avatar */}
+                                        <img
+                                            src={review?.user?.avatar || "default-avatar.png"}
+                                            alt={review.name}
+                                            className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
+                                        />
+                                        <span className="font-semibold text-gray-800">{review.user.name}</span>
+                                        <Rating
+                                            name="read-only"
+                                            value={review.rating}
+                                            readOnly
+                                            precision={0.5}
+                                            size="small"
+                                        />
                                     </div>
-                                    <p className="text-gray-700">{review.comment}</p>
+                                    <span className="text-sm text-gray-500">{review.date}</span>
                                 </div>
-                            ))
-                        )}
-                    </div>
-
+                                <p className="text-gray-700">{review.comment}</p>
+                            </div>
+                        ))
+                    )}
                 </div>
+
+            </div>
 
         </div>
     );

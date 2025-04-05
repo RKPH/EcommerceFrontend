@@ -124,14 +124,14 @@ const Cart = () => {
       }
 
       const request = {
-        user_id: user?.user_id, // Assuming user_id is available in your component
+
         product_id: lastCartItem?.productID, // Access the productID of the last cart item
       };
 
 
 
       // Pass request directly as the request body
-      const response = await AxiosInstance.normalAxios.post(`/products/recommendations`, request);
+      const response = await AxiosInstance.normalAxios.post(`/products/anonymous_recommendations`, request);
 
       setError2(null); // Clear any previous errors
 
@@ -235,7 +235,7 @@ const Cart = () => {
       });
 
     } catch (error) {
-     return error
+      return error
     }
   };
 
