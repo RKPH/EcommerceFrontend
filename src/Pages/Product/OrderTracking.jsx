@@ -250,7 +250,7 @@ const OrderTracking = () => {
                                 <p className="text-sm text-gray-600">Price: ${product.product.price}</p>
                                 <p className="text-sm text-gray-600">Quantity: {product.quantity}</p>
                                 <Link
-                                    to={`/products/${product.product._id}`}
+                                    to={`/products/${product.product.product_id}`}
                                     className="text-red-600 text-sm hover:underline mt-1 inline-block"
                                 >
                                     View Product
@@ -261,18 +261,6 @@ const OrderTracking = () => {
                 </ul>
             </div>
 
-            {/* Contact Support */}
-            <div className="w-full flex justify-end mt-6">
-                <Button
-                    variant="outlined"
-                    color="primary"
-                    startIcon={<SupportAgentIcon />}
-                    component={Link}
-                    to="/support"
-                >
-                    Contact Support
-                </Button>
-            </div>
         </div>
     );
 };
