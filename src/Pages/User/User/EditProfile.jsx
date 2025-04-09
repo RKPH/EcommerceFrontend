@@ -141,7 +141,7 @@ const EditProfile = ({ userDetail, message, loading, handleChange, handleUpdateD
 
             const data = response.data; // Axios automatically parses JSON
             if (data.imageUrl) {
-                handleChange({ target: { name: "avatar", value: data.imageUrl } });
+                handleChange({ target: { name: "avatar", value: data.urlMinio } });
                 setHasChanges(true);
             }
         } catch (error) {
