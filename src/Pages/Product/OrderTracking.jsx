@@ -250,7 +250,7 @@ const OrderTracking = () => {
                                 <p className="text-sm text-gray-600">Price: ${product.product.price}</p>
                                 <p className="text-sm text-gray-600">Quantity: {product.quantity}</p>
                                 <Link
-                                    to={`/products/${product.product.product_id}`}
+                                    to={`/product/${product.product.product_id}`}
                                     className="text-red-600 text-sm hover:underline mt-1 inline-block"
                                 >
                                     View Product

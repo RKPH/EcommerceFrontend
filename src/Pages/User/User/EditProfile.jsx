@@ -140,8 +140,9 @@ const EditProfile = ({ userDetail, message, loading, handleChange, handleUpdateD
             const response = await AxiosInstance.normalAxios.post("/images/upload", formData);
 
             const data = response.data; // Axios automatically parses JSON
+            console.log(data);
             if (data.imageUrl) {
-                handleChange({ target: { name: "avatar", value: data.urlMinio } });
+                handleChange({ target: { name: "avatar", value: data.imageUrl } });
                 setHasChanges(true);
             }
         } catch (error) {
