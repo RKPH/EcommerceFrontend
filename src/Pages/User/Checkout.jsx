@@ -246,11 +246,16 @@ const Order = () => {
 
             if (response.status === 200) {
                 const responseData = response.data;
+                console.log(responseData);
                 if (Payingmethod === "momo" && responseData.momoPaymentUrl) {
                     window.location.href = responseData.momoPaymentUrl;
-                } else {
+                }
+                else if(Payingmethod==="payos") {
+                    window.location.href = responseData.data.paymentUrl;
+                }
+                else {
                     toast.success("Order placed successfully!");
-                    window.location.href = `/checkout/success/${orderID}`;
+                    window.location.href = `/checkout/result/${orderID}`;
                 }
             } else {
                 toast.error("Failed to place order. Please try again later.");
@@ -437,6 +442,27 @@ const Order = () => {
                                     <span className="text-base text-gray-800">MoMo</span>
                                 </div>
                             </label>
+                            <label className="flex items-center space-x-3 cursor-pointer">
+                                <input
+                                    type="radio"
+                                    id="payos"
+                                    name="paymentMethod"
+                                    value="payos"
+                                    className="w-5 h-5 border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    onChange={() => {
+                                        setPaymentError("");
+                                        setPaymentMethod("payos");
+                                    }}
+                                />
+                                <div className="flex items-center">
+                                    <img
+                                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRs9ULmmyJBs3PlqlSpI_pJTDenFeJFhi8UAQ&s"
+                                        alt="MoMo Logo"
+                                        className="w-6 h-6 mr-2"
+                                    />
+                                    <span className="text-base text-gray-800">Payos</span>
+                                </div>
+                            </label>
                         </div>
                     </div>
 
@@ -463,7 +489,7 @@ const Order = () => {
                             onClick={() => {
                                 console.log("Shipping Fee before handlePurchase:", shippingFee); // Debug log
                                 handlePurchase(
-                                    order?._id,
+                                    order?.order_id,
                                     selectedAddress,
                                     deliveryDetails[selectedOption].detail,
                                     paymentMethod,

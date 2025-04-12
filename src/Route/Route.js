@@ -94,7 +94,7 @@ export const publicRoutes = [
     component: Checkout
   },
   {
-    path: "/checkout/success/:orderId",
+    path: "/checkout/result/:orderId",
     component: paymentSuccessfully
   },
   {

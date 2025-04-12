@@ -166,7 +166,7 @@ const OrderList = () => {
             if (response.status === 200) {
                 toast.success("Order cancelled successfully.");
 
-                const cancelledOrder = Orders.find(order => order._id === orderToCancel);
+                const cancelledOrder = Orders.find(order => order.order_id === orderToCancel);
 
                 if (
                     (cancelledOrder?.PaymentMethod === "BankTransfer" || cancelledOrder?.PaymentMethod === "momo") &&
@@ -320,7 +320,7 @@ const OrderList = () => {
                                         </div>
                                         <div className="flex items-center gap-x-4">
                                             <button
-                                                onClick={() => handleOpenCancelModal(order._id)}
+                                                onClick={() => handleOpenCancelModal(order.order_id)}
                                                 className="text-red-500 border px-3 py-1 rounded-lg"
                                             >
                                                 Cancel Order
@@ -406,14 +406,14 @@ const OrderList = () => {
                                         (order.PaymentMethod === "BankTransfer" || order.PaymentMethod === "momo") &&
                                         !order.refundInfo && (
                                             <button
-                                                onClick={() => handleOpenRefundModal(order._id)}
+                                                onClick={() => handleOpenRefundModal(order.order_id)}
                                                 className="inline-block bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition"
                                             >
                                                 Submit Refund Details
                                             </button>
                                         )}
                                     <Link
-                                        to={`/order/${order._id}`}
+                                        to={`/order/${order.order_id}`}
                                         className="inline-block bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
                                     >
                                         View Detail
