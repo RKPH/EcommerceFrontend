@@ -121,7 +121,7 @@ const NotificationIcon = memo(({ notifications, setNotifications, unreadCount, s
                         >
                           <div className="flex-1">
                             <Link
-                                to={`/order/${notification.id}`}
+                                to={`/order/${notification.orderId}`}
                                 className="block"
                                 onClick={() => {
                                   if (!notification.isRead) {

@@ -207,7 +207,7 @@ const Cart = () => {
         const item = cartItems.find((item) => item._id === itemId);
         const productId = item.productID;
         const productName = item.product.name;
-        trackBehavior(productId, productName, "checkout");
+        trackBehavior(productId, productName, "purchase");
       });
       navigate("/checkout", { state: { refetch: true, orders: cartItems } });
     } catch (error) {

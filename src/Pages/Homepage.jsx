@@ -1,33 +1,58 @@
-import React, { useEffect, useRef, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
 import AxiosInstance from "../api/axiosInstance.js";
 import "flowbite/dist/flowbite.css";
 import SliceOfProduct from "../Components/SliceOfProduct.jsx";
-
 import "./Homepage.css";
 import Skeleton from "@mui/material/Skeleton";
 import Rating from "@mui/material/Rating";
 import { useSelector } from "react-redux";
-
-import {Link} from "react-router-dom";
-
+import { Link } from "react-router-dom";
 
 const Homepage = () => {
     const [isLoading, setIsLoading] = useState(true);
-
     const [TrendingProducts, setTrendingProducts] = useState([]);
-
     const [products, setProducts] = useState([]);
-    const { user} = useSelector((state) => state.auth);
-    const [visibleCount, setVisibleCount] = useState(25); // Start with 5 products
+    const { user } = useSelector((state) => state.auth);
+    const [visibleCount, setVisibleCount] = useState(42); // Start with 42 products (divisible by 7, 6, 3, 2)
+    const [gridCols, setGridCols] = useState(2); // Default to 2 columns
+
+    // Detect grid columns based on screen size
+    const updateGridCols = () => {
+        if (window.matchMedia("(min-width: 1920px)").matches) {
+            setGridCols(7); // 3xl
+        } else if (window.matchMedia("(min-width: 1280px)").matches) {
+            setGridCols(6); // xl, 2xl
+        } else if (window.matchMedia("(min-width: 1024px)").matches) {
+            setGridCols(4); // lg
+        } else if (window.matchMedia("(min-width: 768px)").matches) {
+            setGridCols(3); // md
+        } else {
+            setGridCols(2); // default, sm
+        }
+    };
+
+    useEffect(() => {
+        updateGridCols();
+        window.addEventListener("resize", updateGridCols);
+        return () => window.removeEventListener("resize", updateGridCols);
+    }, []);
 
     const handleViewMore = () => {
-        setVisibleCount((prevCount) => prevCount + 5); // Show 5 more products
+        setVisibleCount((prevCount) => {
+            // Aim to add 2 rows, but ensure the result is divisible by gridCols
+            const rowsToAdd = 2;
+            let nextCount = prevCount + gridCols * rowsToAdd;
+            // Adjust to nearest multiple of gridCols that's <= products.length
+            if (nextCount > products.length) {
+                nextCount = Math.floor(products.length / gridCols) * gridCols;
+            }
+            return nextCount;
+        });
     };
 
     const fetchAllProducts = async () => {
         try {
-            const response = await AxiosInstance.normalAxios.get("products/all?limit=50");
+            const response = await AxiosInstance.normalAxios.get("products/all?limit=126");
             setProducts(response.data.data);
             setIsLoading(false);
         } catch (error) {
@@ -46,7 +71,7 @@ const Homepage = () => {
 
     const trackViewBehavior = async (id, product_name, event_type) => {
         try {
-            const sessionId = user.sessionID
+            const sessionId = user.sessionID;
             const userId = user?.user_id || user?.user?.user_id;
 
             if (!sessionId || !userId) {
@@ -61,12 +86,10 @@ const Homepage = () => {
                 product_name: product_name,
                 behavior: event_type,
             });
-
         } catch (error) {
-            return error
+            return error;
         }
     };
-
 
     useEffect(() => {
         fetchAllProducts();
@@ -75,7 +98,6 @@ const Homepage = () => {
 
     return (
         <main className="w-full h-full md:px-6 lg:px-[100px] 2xl:px-[200px]">
-
             {/* Trending Products Section */}
             <div className="w-full mt-10">
                 <div className="w-full mb-5 flex gap-y-5 bg-white rounded-xl flex-col py-4 px-4">
@@ -85,7 +107,7 @@ const Homepage = () => {
                     </div>
                     <div className="flex items-center gap-x-2 text-black">
                         <span className="text-xl text-black font-normal w-full text-start">
-                           View top 10 our trending products
+                            View top 10 our trending products
                         </span>
                     </div>
                     <SliceOfProduct
@@ -101,7 +123,7 @@ const Homepage = () => {
 
                 <ul className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-6 3xl:grid-cols-7 gap-x-1 gap-y-5 px-4">
                     {isLoading
-                        ? Array.from({ length: 5 }).map((_, index) => (
+                        ? Array.from({ length: gridCols }).map((_, index) => (
                             <div
                                 className="w-full border border-gray-300 rounded-lg p-2"
                                 key={index}
@@ -143,7 +165,7 @@ const Homepage = () => {
 
                                 {/* Nội dung */}
                                 <div className="flex flex-col p-2 flex-grow">
-                                    {/* Tên sản phẩm - fix chiều cao luôn */}
+                                    {/* Tên sản phẩm */}
                                     <span className="font-normal text-base hover:underline overflow-hidden line-clamp-2 h-[48px]">
                                         {product?.name || product?.productDetails?.name}
                                     </span>
@@ -167,17 +189,13 @@ const Homepage = () => {
                                     <span className="font-bold text-lg mt-1">
                                         ${product?.price || product?.productDetails?.price}
                                     </span>
-
-                                    {/* Brand */}
-
                                 </div>
                             </Link>
-
                         ))}
                 </ul>
 
                 {/* Nút View More */}
-                {visibleCount < 50 ? (
+                {visibleCount < products.length ? (
                     <div className="flex justify-center my-5">
                         <button
                             onClick={handleViewMore}
@@ -192,7 +210,6 @@ const Homepage = () => {
                     </div>
                 )}
             </div>
-
         </main>
     );
 };

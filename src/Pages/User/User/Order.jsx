@@ -169,7 +169,7 @@ const OrderList = () => {
                 const cancelledOrder = Orders.find(order => order.order_id === orderToCancel);
 
                 if (
-                    (cancelledOrder?.PaymentMethod === "BankTransfer" || cancelledOrder?.PaymentMethod === "momo") &&
+                    (cancelledOrder?.PaymentMethod === "payos" || cancelledOrder?.PaymentMethod === "momo") &&
                     !cancelledOrder.refundInfo // Check if refundInfo is not already submitted
                 ) {
                     handleOpenRefundModal(orderToCancel);
@@ -245,7 +245,7 @@ const OrderList = () => {
         const minutes = String(localDate.getUTCMinutes()).padStart(2, "0");
         const seconds = String(localDate.getUTCSeconds()).padStart(2, "0");
         const day = String(localDate.getUTCDate()).padStart(2, "0");
-        const month = String(localDate.getUTCMinutes() + 1).padStart(2, "0");
+        const month = String(localDate.getUTCMonth() + 1).padStart(2, "0");
         const year = String(localDate.getUTCFullYear()).slice(-2);
 
         return `${hours}:${minutes}:${seconds}, ${month}/${day}/${year}`;
