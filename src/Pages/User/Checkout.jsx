@@ -365,7 +365,7 @@ const Order = () => {
                                         <div className="flex justify-between items-center mt-1">
                                             <span className="text-base text-gray-600">Qty: x{order.quantity}</span>
                                             <span className="text-base text-gray-800 font-semibold">
-                                                ${(order.product.price * order.quantity).toLocaleString("en-US", { style: 'currency', currency: 'USD' })}
+                                                {(order.product.price * order.quantity).toLocaleString("en-US", { style: 'currency', currency: 'USD' })}
                                             </span>
                                         </div>
                                     </div>
