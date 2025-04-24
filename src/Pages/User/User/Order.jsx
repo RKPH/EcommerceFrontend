@@ -98,7 +98,7 @@ const OrderList = () => {
                 setUserRating(0);
                 setUserReview("");
             } else {
-
+                console.error("Error fetching review:", error);
             }
         }
 
@@ -115,12 +115,13 @@ const OrderList = () => {
             setOrders(filteredOrders);
         } catch (error) {
             console.error("Error fetching orders:", error);
+            toast.error("Failed to fetch orders.");
         }
     };
 
     useEffect(() => {
-        fetchOrders(); // Called on mount and when selectedTab changes
-    }, [selectedTab]); // Only depends on selectedTab
+        fetchOrders();
+    }, [selectedTab]);
 
     const handleCloseModal = () => {
         setOpenModal(false);
@@ -170,7 +171,7 @@ const OrderList = () => {
 
                 if (
                     (cancelledOrder?.PaymentMethod === "BankTransfer" || cancelledOrder?.PaymentMethod === "momo") &&
-                    !cancelledOrder.refundInfo // Check if refundInfo is not already submitted
+                    !cancelledOrder.refundInfo
                 ) {
                     handleOpenRefundModal(orderToCancel);
                 } else {
@@ -178,7 +179,7 @@ const OrderList = () => {
                     setOrderToCancel(null);
                 }
             } else {
-                return;
+                toast.error("Failed to cancel order.");
             }
         } catch (error) {
             console.error("Error cancelling order:", error);
@@ -271,7 +272,7 @@ const OrderList = () => {
             </div>
             <div className="bg-white w-full py-4 rounded-lg mt-4">
                 <div className="flex space-x-6 p-4 items-center overflow-x-auto">
-                    {["all", "Pending", "Confirmed", "Delivered", "Cancelled"].map((tab) => (
+                    {["all", "Pending", "Confirmed", "Delivering", "Delivered", "Cancelled"].map((tab) => (
                         <div
                             key={tab}
                             className={`cursor-pointer mb-4 ${selectedTab === tab ? "text-red-600 font-semibold border-b-2 border-red-600" : "text-gray-600"}`}
@@ -336,6 +337,14 @@ const OrderList = () => {
                                     </div>
                                 )}
 
+                                {order.status === "Delivering" && (
+                                    <div className="flex items-center text-blue-600">
+
+                                    <LocalShippingIcon className="mr-2" />
+                                    Delivering
+                                    </div>
+                                    )}
+
                                 {order.status === "Delivered" && (
                                     <div className="flex items-center text-green-500">
                                         <CheckCircleIcon className="mr-2" />
@@ -398,11 +407,9 @@ const OrderList = () => {
                                 ))}
                             </ul>
 
-                            {/* View Detail button for the order and Refund Details button for Cancelled orders */}
                             {order.status !== "Draft" && (
                                 <div className="mt-4 flex justify-end space-x-3">
-                                    {/* Show "Submit Refund Details" button for Cancelled or Cancelled by Admin orders if refundInfo is not submitted */}
-                                    {(order.status === "Cancelled" || order.status === "Cancelled by Admin") &&
+                                    {(order.status === "Cancelled" || order.status === "CancelledByAdmin") &&
                                         (order.PaymentMethod === "BankTransfer" || order.PaymentMethod === "momo") &&
                                         !order.refundInfo && (
                                             <button

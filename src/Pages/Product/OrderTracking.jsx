@@ -6,14 +6,12 @@ import HomeIcon from "@mui/icons-material/Home";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import PersonIcon from "@mui/icons-material/Person";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-
 import CancelIcon from "@mui/icons-material/Cancel";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
-import { Steps } from "antd"; // Import Ant Design Steps
+import { Steps } from "antd";
 import AxiosInstance from "../../api/axiosInstance";
 
-// Ant Design Steps uses `items` instead of children, so we’ll map the history to items
 const { Step } = Steps;
 
 const OrderTracking = () => {
@@ -21,6 +19,33 @@ const OrderTracking = () => {
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // Predefined steps for the order lifecycle (excluding Cancelled by default)
+    const baseOrderSteps = [
+        { title: "Pending", description: "Order placed and awaiting confirmation" },
+        { title: "Confirmed", description: "Order confirmed by the seller" },
+        { title: "Delivering", description: "Order is being shipped" },
+        { title: "Delivered", description: "Order delivered to the customer" },
+    ];
+
+    // Map order status to step index
+    const getCurrentStepIndex = (status, isCancelled) => {
+        if (isCancelled) {
+            return baseOrderSteps.length; // "Cancelled" is the last step if present
+        }
+        switch (status) {
+            case "Pending":
+                return 0;
+            case "Confirmed":
+                return 1;
+            case "Delivering":
+                return 2;
+            case "Delivered":
+                return 3;
+            default:
+                return 0; // Fallback to "Pending"
+        }
+    };
 
     // Format date with Vietnam time (UTC+7)
     const formatDateWithTime = (dateString) => {
@@ -47,6 +72,7 @@ const OrderTracking = () => {
                 setError(null);
                 const response = await AxiosInstance.authAxios.get(`/orders/getUserDetailById/${orderId}`);
                 setOrder(response.data.data);
+                console.log("Order history:", response.data.data.history); // Debug history
             } catch (error) {
                 console.error("Failed to fetch order details", error);
                 setError("Failed to load order details. Please try again later.");
@@ -78,6 +104,52 @@ const OrderTracking = () => {
             default:
                 return "info";
         }
+    };
+
+    // Generate steps with status based on current order status
+    const generateSteps = () => {
+        if (!order) return [];
+        const isCancelled = order.status === "Cancelled" || order.status === "CancelledByAdmin";
+        // Include "Cancelled" step only if order is cancelled
+        const orderSteps = isCancelled
+            ? [...baseOrderSteps, { title: "Cancelled", description: "Order was cancelled" }]
+            : baseOrderSteps;
+        const currentStepIndex = getCurrentStepIndex(order.status, isCancelled);
+
+        return orderSteps.map((step, index) => {
+            let status = "wait";
+            if (index < currentStepIndex) status = "finish";
+            else if (index === currentStepIndex) status = "process";
+
+            // Flexible matching for history entries
+            const historyEntry = order.history?.find(h => {
+                const action = h.action.toLowerCase();
+                const title = step.title.toLowerCase();
+                if (title === "delivering") {
+                    // Handle variations for "Delivering"
+                    return (
+                        action.includes("delivering") ||
+                        action.includes("shipped") ||
+                        action.includes("in transit") ||
+                        action.includes("delivery")
+                    );
+                }
+                return action.includes(title);
+            });
+
+            // Use history date, fallback to order.updatedAt or "N/A"
+            const date = historyEntry
+                ? historyEntry.date
+                : step.title === order.status && order.updatedAt
+                    ? formatDateWithTime(order.updatedAt)
+                    : "N/A";
+
+            return {
+                title: step.title,
+                description: `${step.description} (${date})`,
+                status,
+            };
+        });
     };
 
     if (loading) {
@@ -138,7 +210,6 @@ const OrderTracking = () => {
             <div className="w-full bg-white border border-gray-200 rounded-xl p-6 mb-6 shadow-sm hover:shadow-md transition-shadow duration-300">
                 <div className="flex justify-between items-center mb-4">
                     <h1 className="text-2xl font-semibold text-gray-900">Tracking Order: #{order?.order_id}</h1>
-
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -202,31 +273,21 @@ const OrderTracking = () => {
             </div>
 
             {/* Order History - Ant Design Steps with Dot Style */}
-            {order?.history && order.history.length > 0 && (
-                <div className="w-full bg-white border border-gray-200 rounded-xl p-6 mb-6 shadow-sm hover:shadow-md transition-shadow duration-300">
-                    <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                        <LocalShippingIcon className="text-red-600" />
-                        Order History
-                    </h2>
-                    <div className="mt-4">
-                        <Steps
-                            direction="vertical"
-                            progressDot
-                            current={order.history.length - 1}
-                            className="custom-steps"
-                        >
-                            {order.history.map((step) => (
-                                <Step
-                                    key={step._id}
-                                    title={<span className="text-gray-900 font-medium">{step.action}</span>}
-                                    description={<span className="text-gray-600 text-sm">{step.date}</span>}
-                                    status="finish"
-                                />
-                            ))}
-                        </Steps>
-                    </div>
+            <div className="w-full bg-white border border-gray-200 rounded-xl p-6 mb-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+                <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                    <LocalShippingIcon className="text-red-600" />
+                    Order History
+                </h2>
+                <div className="mt-4">
+                    <Steps
+                        direction="vertical"
+                        progressDot
+                        current={getCurrentStepIndex(order?.status, order?.status === "Cancelled" || order?.status === "CancelledByAdmin")}
+                        className="custom-steps"
+                        items={generateSteps()}
+                    />
                 </div>
-            )}
+            </div>
 
             {/* Product List */}
             <div className="w-full bg-white border border-gray-200 rounded-xl p-6">
@@ -260,7 +321,6 @@ const OrderTracking = () => {
                     ))}
                 </ul>
             </div>
-
         </div>
     );
 };
