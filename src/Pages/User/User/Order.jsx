@@ -339,7 +339,7 @@ const OrderList = () => {
 
                                 {order.status === "Delivering" && (
                                     <div className="flex items-center text-blue-600">
-                                        <LocalShipping#Delivering</div>
+
                                     <LocalShippingIcon className="mr-2" />
                                     Delivering
                                     </div>
