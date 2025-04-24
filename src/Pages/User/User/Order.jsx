@@ -170,7 +170,7 @@ const OrderList = () => {
                 const cancelledOrder = Orders.find(order => order.order_id === orderToCancel);
 
                 if (
-                    (cancelledOrder?.PaymentMethod === "BankTransfer" || cancelledOrder?.PaymentMethod === "momo") &&
+                    (cancelledOrder?.PaymentMethod === "payos" || cancelledOrder?.PaymentMethod === "momo") &&
                     !cancelledOrder.refundInfo
                 ) {
                     handleOpenRefundModal(orderToCancel);
@@ -339,7 +339,7 @@ const OrderList = () => {
 
                                 {order.status === "Delivering" && (
                                     <div className="flex items-center text-blue-600">
-
+                                        <LocalShipping#Delivering</div>
                                     <LocalShippingIcon className="mr-2" />
                                     Delivering
                                     </div>

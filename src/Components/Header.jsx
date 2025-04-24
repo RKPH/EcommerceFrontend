@@ -121,7 +121,7 @@ const NotificationIcon = memo(({ notifications, setNotifications, unreadCount, s
                         >
                           <div className="flex-1">
                             <Link
-                                to={`/order/${notification.id}`}
+                                to={`/order/${notification.orderId}`}
                                 className="block"
                                 onClick={() => {
                                   if (!notification.isRead) {
@@ -222,7 +222,7 @@ const SearchResultItem = memo(({ product, onClick }) => (
         className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100"
         onClick={onClick}
     >
-      <img src={product.MainImage} alt={product.name} className="w-10 h-10 object-cover rounded" />
+      <img src={product?.MainImage} alt={product.name} className="w-10 h-10 object-cover rounded" />
       <span>{product.name}</span>
     </Link>
 ));
