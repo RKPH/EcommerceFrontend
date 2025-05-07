@@ -236,7 +236,7 @@ const Cart = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center py-6 w-full flex-col 3xl:px-[200px] md:px-[100px]">
+    <div className="min-h-screen flex items-center py-6 w-full flex-col 3xl:px-[200px] md:px-6 lg:px-[100px] 2xl:px-[200px]">
       <div className="w-full mb-6">
         <Breadcrumbs aria-label="breadcrumb" separator="›" className="text-sm text-gray-600">
           <Link to="/" className="flex items-center gap-1 text-gray-600 hover:text-red-500">

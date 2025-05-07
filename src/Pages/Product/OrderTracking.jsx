@@ -51,6 +51,7 @@ const OrderTracking = () => {
     const formatDateWithTime = (dateString) => {
         if (!dateString) return "N/A";
         const date = new Date(dateString);
+        if (isNaN(date)) return dateString; // Return original string if already formatted
         const offset = 7 * 60 * 60 * 1000; // Vietnam time offset (UTC+7)
         const localDate = new Date(date.getTime() + offset);
 
@@ -123,10 +124,9 @@ const OrderTracking = () => {
 
             // Flexible matching for history entries
             const historyEntry = order.history?.find(h => {
-                const action = h.action.toLowerCase();
+                const action = h.action.toLowerCase().trim();
                 const title = step.title.toLowerCase();
                 if (title === "delivering") {
-                    // Handle variations for "Delivering"
                     return (
                         action.includes("delivering") ||
                         action.includes("shipped") ||
@@ -134,15 +134,29 @@ const OrderTracking = () => {
                         action.includes("delivery")
                     );
                 }
+                if (title === "pending") {
+                    return (
+                        action.includes("pending") ||
+                        action.includes("placed") ||
+                        action.includes("processing")
+                    );
+                }
                 return action.includes(title);
             });
 
-            // Use history date, fallback to order.updatedAt or "N/A"
+            // Debug if no history entry found
+            if (!historyEntry && step.title === "Pending") {
+                console.log(`No history entry found for step: ${step.title}, history:`, order.history);
+            }
+
+            // Use history date, fallback to order.createdAt or "N/A"
             const date = historyEntry
                 ? historyEntry.date
-                : step.title === order.status && order.updatedAt
-                    ? formatDateWithTime(order.updatedAt)
-                    : "N/A";
+                : step.title === "Pending" && order.createdAt
+                    ? formatDateWithTime(order.createdAt)
+                    : order.updatedAt
+                        ? formatDateWithTime(order.updatedAt)
+                        : "N/A";
 
             return {
                 title: step.title,

@@ -246,7 +246,7 @@ const OrderList = () => {
         const minutes = String(localDate.getUTCMinutes()).padStart(2, "0");
         const seconds = String(localDate.getUTCSeconds()).padStart(2, "0");
         const day = String(localDate.getUTCDate()).padStart(2, "0");
-        const month = String(localDate.getUTCMinutes() + 1).padStart(2, "0");
+        const month = String(localDate.getUTCMonth() + 1).padStart(2, "0");
         const year = String(localDate.getUTCFullYear()).slice(-2);
 
         return `${hours}:${minutes}:${seconds}, ${month}/${day}/${year}`;

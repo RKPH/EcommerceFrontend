@@ -42,7 +42,7 @@ const Chatbot = () => {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: "Bearer app-qrETXULd2qZxYwXan4tnRmJT",
+                    Authorization: "Bearer app-F89s3ydfXgpPzg743BsxeRIc",
                 },
                 body: JSON.stringify({
                     query: input,
