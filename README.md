@@ -1,13 +1,13 @@
-# React Frontend Application
+# React Frontend Application (EcommerceFrontend)
 
-Welcome to the React Frontend Application! This project is a Dockerized React application built with Vite, designed to serve as the frontend for a web application. It connects to a backend API and runs in a containerized environment using Docker and Docker Compose. This README provides instructions for setting up, configuring, and running the application.
+Welcome to the EcommerceFrontend project! This is a Dockerized React application built with Vite, serving as the frontend for an e-commerce platform. It communicates with a backend API via Axios instances configured in the `api` directory. This README provides instructions for setting up, configuring, and running the application.
 
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
 - [Getting Started](#getting-started)
   - [Clone the Repository](#clone-the-repository)
-  - [Configure Environment Variables](#configure-environment-variables)
+  - [Configure the API URL](#configure-the-api-url)
   - [Build and Run with Docker](#build-and-run-with-docker)
   - [Running Locally (Without Docker)](#running-locally-without-docker)
 - [Project Structure](#project-structure)
@@ -35,20 +35,26 @@ git clone https://github.com/RKPH/EcommerceFrontend.git
 cd EcommerceFrontend
 ```
 
-### Configure Environment Variables
+### Configure the API URL
 
-The application requires a `.env` file to configure the connection to the backend API. Follow these steps:
+The application uses Axios to communicate with the backend API. The base URL for API requests is configured in the `src/api/axiosInstance.js` file. Follow these steps to set it up:
 
-1. **Create a `.env` file** in the project root.
-2. **Add the required variable** using the template below. Replace the placeholder with the actual backend API URL.
-3. **Secure the file** by adding `.env` to `.gitignore` to prevent it from being committed.
+1. **Locate the Axios configuration**:
+   Open the file `src/api/axiosInstance.js`.
 
-**`.env` Template**:
+2. **Update the `BASE_URL`**:
+   Modify the `BASE_URL` constant to point to your backend API. The default is set to `https://backend.d2f.io.vn/api/v1`. For example:
 
-```env
-# Backend API URL
-REACT_APP_API_URL=Your backend API URL (e.g., http://localhost:3000)
-```
+   ```javascript
+   const BASE_URL = "https://your-backend-api-url/api/v1";
+   ```
+
+   Replace `https://your-backend-api-url/api/v1` with the actual URL of your backend API (e.g., `http://localhost:3000/api/v1` for local development).
+
+3. **Secure the configuration**:
+   Ensure the backend API URL is correct and accessible. Avoid hardcoding sensitive information (e.g., API keys) in this file.
+
+**Note**: No `.env` file is required for this project, as the API URL is configured directly in `src/api/axiosInstance.js`.
 
 ### Build and Run with Docker
 
@@ -71,7 +77,6 @@ The application is containerized using Docker and managed with Docker Compose. F
    This command:
    - Builds the Docker image using the `Dockerfile`.
    - Starts the container, mapping port `5173` on the host to port `5173` in the container.
-   - Loads environment variables from the `.env` file.
    - Mounts the project directory for live updates.
 
 3. **Access the application**:
@@ -94,7 +99,7 @@ To run the application locally without Docker:
    npm install
    ```
 
-2. **Ensure the `.env` file is configured** as described above.
+2. **Ensure the API URL is configured** in `src/api/axiosInstance.js` as described above.
 
 3. **Start the Vite development server**:
 
@@ -108,13 +113,13 @@ To run the application locally without Docker:
 
 - `Dockerfile`: Defines the Docker image for the React application.
 - `docker-compose.yml`: Configures the Docker Compose service for the frontend.
-- `.env`: Environment variables (create as described above).
+- `src/api/axiosInstance.js`: Configures Axios instances for API requests.
 - `package.json`: Project dependencies and scripts.
 - `src/`: React application source code.
 
 ## Networking
 
-The application uses an external Docker network (`shared-network`) to communicate with other services (e.g., a backend API). Ensure the network is created and that any backend services are also connected to `shared-network`.
+The application uses an external Docker network (`shared-network`) to communicate with other services (e.g., the backend API). Ensure the network is created and that the backend service is also connected to `shared-network`.
 
 To verify the network:
 
@@ -127,8 +132,8 @@ To connect other services to the network, include `shared-network` in their Dock
 ## Troubleshooting
 
 - **Port conflicts**: If port `5173` is in use, modify the `ports` mapping in `docker-compose.yml` (e.g., `"8080:5173"`).
-- **Environment variables**: Ensure `REACT_APP_API_URL` is set correctly in the `.env` file.
-- **Network issues**: Verify that the `shared-network` exists and that backend services are accessible.
+- **API connectivity**: Ensure the `BASE_URL` in `src/api/axiosInstance.js` is correct and the backend API is running.
+- **Network issues**: Verify that the `shared-network` exists and the backend service is accessible.
 - **Docker issues**: Check container logs with `docker logs frontend` or `docker-compose logs`.
 
 ## Contributing
@@ -145,4 +150,4 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 
 ---
 
-Happy coding! For issues or questions, open an issue in the repository.
+Happy coding! For issues or questions, open an issue in the [repository](https://github.com/RKPH/EcommerceFrontend).
