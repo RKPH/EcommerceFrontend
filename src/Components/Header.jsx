@@ -13,10 +13,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import Tippy from "@tippyjs/react/headless";
 import { Drawer } from "@mui/material";
 
-// Initialize Socket.IO client
 const socket = io("https://backend.d2f.io.vn", {
   withCredentials: true,
   autoConnect: false,
+  transports: ['polling', 'websocket'], // Ensure polling fallback
+  reconnection: false, // Disable auto-reconnect to prevent refresh loops
+  // rejectUnauthorized: false // Uncomment for testing with self-signed SSL (not for production)
 });
 
 // Custom debounce hook

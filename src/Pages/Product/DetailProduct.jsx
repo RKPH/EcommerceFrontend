@@ -6,8 +6,12 @@ import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { updateCart } from "../../Redux/CartSlice.js";
 import SliceOfProduct from "../../Components/SliceOfProduct.jsx";
+import Breadcrumbs from "@mui/material/Breadcrumbs";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 import ReplayOutlinedIcon from "@mui/icons-material/ReplayOutlined";
+import HomeIcon from "@mui/icons-material/Home";
+import CategoryIcon from '@mui/icons-material/Category';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import Rating from "@mui/material/Rating";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@mui/material";
@@ -348,23 +352,38 @@ const DetailProduct = () => {
         }
         return (
             <div className="mb-6 p-4">
-                <nav className="text-base text-gray-600">
-                    <Link to="/" className="text-blue-600 hover:underline">Home</Link> >{" "}
+                <Breadcrumbs
+                    aria-label="breadcrumb"
+                    separator="›"
+                    className="text-sm text-gray-600 dark:text-gray-400"
+                >
+                    <Link
+                        to="/"
+                        className="flex items-center gap-1 text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
+                    >
+                        <HomeIcon fontSize="small" />
+                        Home
+                    </Link>
                     <Link
                         to={`/products/category/${product?.category}`}
-                        style={{ textDecoration: "none", color: "inherit" }}
+                        className="flex items-center gap-1 text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
                     >
+                        <CategoryIcon fontSize="small" />
                         {product?.category || "Category"}
-                    </Link>{" "}
-                    >{" "}
+                    </Link>
                     <Link
                         to={`/products/type/${product?.type}`}
-                        style={{ textDecoration: "none", color: "inherit" }}
+                        className="flex items-center gap-1 text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
                     >
+                      
                         {product?.type || "Type"}
-                    </Link>{" "}
-                    > <span className="text-gray-800">{product?.name || "Product"}</span>
-                </nav>
+                    </Link>
+                    <span className="text-gray-900 dark:text-gray-100 font-medium flex items-center gap-1">
+                        <ShoppingBagIcon fontSize="small" />
+                        {product?.name || "Product"}
+                 
+                    </span>
+                </Breadcrumbs>
             </div>
         );
     };
